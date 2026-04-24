@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Talenco.bj — Recrutement au Bénin</title>
+  <meta name="description" content="La plateforme de recrutement N°1 au Bénin. Trouvez les meilleures offres d'emploi à Cotonou, Abomey-Calavi, Porto-Novo et partout au Bénin.">
+  <meta name="theme-color" content="#F9F6F1">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Hanken+Grotesk:wght@300;400;500;700;900&family=Space+Grotesk:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap">
+  <link rel="stylesheet" href="/design-system.css">
+  <style>
+    .hero {
+      max-width: 1140px;
+      margin: 0 auto;
+      padding: 56px 24px 40px;
+      display: grid;
+      grid-template-columns: 1fr 420px;
+      gap: 48px;
+      align-items: start;
+    }
+    .hero-eyebrow {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: .18em;
+      color: var(--text-muted);
+      margin-bottom: 14px;
+    }
+    .hero-title {
+      font-family: var(--font-serif);
+      font-style: italic;
+      font-size: clamp(32px, 5vw, 52px);
+      line-height: 1.1;
+      margin: 0 0 20px;
+      color: var(--text);
+    }
+    .hero-subtitle {
+      font-family: var(--font-body);
+      font-size: 15px;
+      font-weight: 300;
+      color: var(--text-mid);
+      line-height: 1.6;
+      margin-bottom: 28px;
+    }
+    .hero-stats {
+      border-left: 1px solid var(--border);
+      padding-left: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .stat-item { display: flex; flex-direction: column; gap: 2px; }
+    .stat-num {
+      font-family: var(--font-sans);
+      font-size: 28px;
+      font-weight: 900;
+      color: var(--accent);
+      letter-spacing: -.03em;
+      line-height: 1;
+    }
+    .stat-label {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      color: var(--text-muted);
+    }
+    .hero-search {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 20px;
+    }
+    .hero-search-title {
+      font-family: var(--font-sans);
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--text-muted);
+      margin-bottom: 14px;
+    }
+    .search-row {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .section-header {
+      max-width: 1140px;
+      margin: 0 auto;
+      padding: 40px 24px 20px;
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      border-top: 1px solid var(--border);
+    }
+    .section-title {
+      font-family: var(--font-serif);
+      font-style: italic;
+      font-size: 24px;
+      margin: 0;
+    }
+    .section-eyebrow {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: .15em;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+    .jobs-section { max-width: 1140px; margin: 0 auto; padding: 0 24px 48px; }
+    .secteurs-section {
+      border-top: 1px solid var(--border);
+      padding: 40px 24px;
+      background: var(--bg-soft);
+    }
+    .secteurs-inner { max-width: 1140px; margin: 0 auto; }
+    .secteur-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 20px;
+    }
+    .secteur-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 99px;
+      padding: 7px 16px;
+      font-family: var(--font-body);
+      font-size: 12px;
+      color: var(--text-mid);
+      text-decoration: none;
+      transition: border-color .15s, color .15s;
+      cursor: pointer;
+    }
+    .secteur-pill:hover { border-color: var(--accent); color: var(--accent); }
+    @media (max-width: 768px) {
+      .hero { grid-template-columns: 1fr; padding: 32px 16px 24px; gap: 28px; }
+      .hero-stats { border-left: none; border-top: 1px solid var(--border); padding-left: 0; padding-top: 20px; flex-direction: row; flex-wrap: wrap; gap: 16px; }
+      .jobs-section { padding: 0 16px 32px; }
+      .section-header { padding: 32px 16px 16px; }
+      .secteurs-section { padding: 32px 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Navbar ────────────────────────────────────────────────────────── -->
+<nav class="navbar" id="main-nav">
+  <a href="/index.html" class="talenco-logo">
+    <div class="nav-logo">
+      <div class="nav-logo-text">
+        <span class="logo-primary">Talenco</span><span class="logo-dot">.</span><span class="logo-tld">bj</span>
+      </div>
+      <div class="logo-tagline">Recrutement au Bénin</div>
+    </div>
+  </a>
+
+  <ul class="navbar-links">
+    <li><a href="/index.html" class="active">Accueil</a></li>
+    <li><a href="/offres.html">Offres</a></li>
+    <li><a href="/entreprises.html">Recruteurs</a></li>
+    <li><a href="/cvtheque.html">CVthèque</a></li>
+    <li><a href="/coach.html">✨ Coach IA</a></li>
+  </ul>
+
+  <div class="navbar-actions">
+    <a href="/candidat.html" class="btn btn-outline btn-sm">Mon profil</a>
+    <a href="/connexion.html" class="btn btn-dark btn-sm">Connexion</a>
+  </div>
+
+  <button class="navbar-toggle" id="nav-toggle" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- ── Drawer mobile ─────────────────────────────────────────────────── -->
+<div class="nav-drawer" id="nav-drawer">
+  <div class="nav-drawer-overlay" id="nav-overlay"></div>
+  <div class="nav-drawer-panel">
+    <button class="nav-drawer-close" id="nav-close">✕</button>
+    <div class="nav-logo">
+      <div class="nav-logo-text">
+        <span class="logo-primary">Talenco</span><span class="logo-dot">.</span><span class="logo-tld">bj</span>
+      </div>
+    </div>
+    <ul class="nav-drawer-links">
+      <li><a href="/index.html">Accueil</a></li>
+      <li><a href="/offres.html">Offres d'emploi</a></li>
+      <li><a href="/entreprises.html">Recruteurs</a></li>
+      <li><a href="/cvtheque.html">CVthèque</a></li>
+      <li><a href="/coach.html">✨ Coach IA</a></li>
+      <li><a href="/candidat.html">Mon profil</a></li>
+      <li><a href="/connexion.html">Connexion</a></li>
+    </ul>
+  </div>
+</div>
+
+<!-- ── Hero ──────────────────────────────────────────────────────────── -->
+<main>
+  <section class="hero">
+    <div>
+      <div class="hero-eyebrow">Plateforme N°1 au Bénin</div>
+      <h1 class="hero-title">Trouvez l'emploi<br>qui vous correspond</h1>
+      <p class="hero-subtitle">Des centaines d'offres vérifiées, de Cotonou à Parakou.<br>Postulez en 1 clic avec votre CV enregistré.</p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <a href="/offres.html" class="btn btn-primary">Voir toutes les offres</a>
+        <a href="/candidat.html" class="btn btn-outline">Créer mon profil</a>
+      </div>
+    </div>
+
+    <div>
+      <div class="hero-search">
+        <div class="hero-search-title">Recherche rapide</div>
+        <div class="search-row">
+          <div class="ds-search">
+            <input type="search" id="hero-search" class="ds-search-input" placeholder="Développeur, Marketing…">
+            <button class="ds-search-btn" onclick="window.location.href='/offres.html?q='+document.getElementById('hero-search').value">Chercher</button>
+          </div>
+          <select id="hero-ville" style="width:100%;">
+            <option value="">Toutes les villes</option>
+            <option>Cotonou</option>
+            <option>Abomey-Calavi</option>
+            <option>Porto-Novo</option>
+            <option>Parakou</option>
+            <option>Bohicon</option>
+          </select>
+          <select id="hero-secteur" style="width:100%;">
+            <option value="">Tous les secteurs</option>
+            <option>Tech</option>
+            <option>Finance</option>
+            <option>Santé</option>
+            <option>BTP</option>
+            <option>Agriculture</option>
+            <option>Marketing</option>
+            <option>RH</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="hero-stats" style="margin-top:20px;padding-left:0;border-left:none;flex-direction:row;flex-wrap:wrap;gap:20px;border-top:1px solid var(--border);padding-top:20px;">
+        <div class="stat-item">
+          <span class="stat-num" id="stat-offres">—</span>
+          <span class="stat-label">offres actives</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-num" id="stat-entreprises">—</span>
+          <span class="stat-label">entreprises</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-num" id="stat-candidats">—</span>
+          <span class="stat-label">candidats</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Offres récentes ───────────────────────────────────────────── -->
+  <div class="section-header">
+    <div>
+      <div class="section-eyebrow">Publiées récemment</div>
+      <h2 class="section-title">Dernières offres</h2>
+    </div>
+    <a href="/offres.html" class="btn btn-outline btn-sm">Voir tout →</a>
+  </div>
+
+  <section class="jobs-section">
+    <div class="jobs-grid" id="offres-recentes">
+      <!-- Injecté par JS -->
+    </div>
+  </section>
+
+  <!-- ── Secteurs ──────────────────────────────────────────────────── -->
+  <section class="secteurs-section">
+    <div class="secteurs-inner">
+      <div class="section-eyebrow">Explorer par domaine</div>
+      <h2 class="section-title" style="font-size:22px;margin:4px 0 0;">Secteurs d'activité</h2>
+      <div class="secteur-pills">
+        <a href="/offres.html?secteur=Tech" class="secteur-pill">💻 Tech &amp; Digital</a>
+        <a href="/offres.html?secteur=Finance" class="secteur-pill">💰 Finance &amp; Banque</a>
+        <a href="/offres.html?secteur=Santé" class="secteur-pill">🏥 Santé</a>
+        <a href="/offres.html?secteur=BTP" class="secteur-pill">🏗️ BTP &amp; Construction</a>
+        <a href="/offres.html?secteur=Agriculture" class="secteur-pill">🌾 Agriculture</a>
+        <a href="/offres.html?secteur=Marketing" class="secteur-pill">📣 Marketing &amp; Comm.</a>
+        <a href="/offres.html?secteur=RH" class="secteur-pill">👥 Ressources Humaines</a>
+        <a href="/offres.html?secteur=Stage" class="secteur-pill">🎓 Stages</a>
+        <a href="/offres.html?secteur=Transport" class="secteur-pill">🚛 Transport &amp; Logistique</a>
+        <a href="/offres.html?secteur=Éducation" class="secteur-pill">📚 Éducation</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- ── Footer ────────────────────────────────────────────────────────── -->
+<footer class="footer">
+  <div class="footer-grid">
+    <div>
+      <a href="/index.html" class="talenco-logo" style="text-decoration:none;">
+        <div class="nav-logo">
+          <div class="nav-logo-text">
+            <span class="logo-primary">Talenco</span><span class="logo-dot">.</span><span class="logo-tld">bj</span>
+          </div>
+          <div class="logo-tagline">Recrutement au Bénin</div>
+        </div>
+      </a>
+    </div>
+    <ul class="footer-links">
+      <li><a href="/offres.html">Offres d'emploi</a></li>
+      <li><a href="/entreprises.html">Recruteurs</a></li>
+      <li><a href="/cvtheque.html">CVthèque</a></li>
+      <li><a href="/coach.html">Coach IA</a></li>
+      <li><a href="/candidat.html">Mon profil</a></li>
+      <li><a href="mailto:contact@talenco.bj">Contact</a></li>
+    </ul>
+    <div class="footer-bottom">© 2025 Talenco.bj — Bénin</div>
+  </div>
+</footer>
+
+<!-- ── Scripts ────────────────────────────────────────────────────────── -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="/badge-nouveau.js"></script>
+<script src="/pwa.js"></script>
+<script>
+  const SUPABASE_URL     = 'https://ywteoxnkkdgdpbkrlkar.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl3dGVveG5ra2RnZHBia3Jsa2FyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDA0OTU5MDMsImV4cCI6MjAxNjA3MTkwM30.placeholder';
+  window.SUPABASE_ANON_KEY = SUPABASE_ANON_KEY;
+
+  const { createClient } = supabase;
+  const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  // ── Drawer mobile ──────────────────────────────────────────────────
+  const drawer  = document.getElementById('nav-drawer');
+  const toggle  = document.getElementById('nav-toggle');
+  const overlay = document.getElementById('nav-overlay');
+  const close   = document.getElementById('nav-close');
+  toggle.addEventListener('click', () => drawer.classList.add('open'));
+  overlay.addEventListener('click', () => drawer.classList.remove('open'));
+  close.addEventListener('click', () => drawer.classList.remove('open'));
+
+  // ── Auth state ─────────────────────────────────────────────────────
+  sb.auth.getSession().then(({ data: { session } }) => {
+    if (session) {
+      document.querySelector('.navbar-actions').innerHTML = `
+        <a href="/candidat.html" class="btn btn-outline btn-sm">Mon profil</a>
+        <button class="btn btn-dark btn-sm" onclick="sb.auth.signOut().then(()=>location.reload())">Déconnexion</button>
+      `;
+    }
+  });
+
+  // ── Stats ──────────────────────────────────────────────────────────
+  async function chargerStats() {
+    const [{ count: nbOffres }, { count: nbCandidats }] = await Promise.all([
+      sb.from('jobs').select('*', { count: 'exact', head: true }).eq('statut', 'publie'),
+      sb.from('users').select('*', { count: 'exact', head: true }),
+    ]);
+    document.getElementById('stat-offres').textContent = nbOffres ?? '—';
+    document.getElementById('stat-candidats').textContent = nbCandidats ?? '—';
+  }
+
+  // ── Offres récentes ────────────────────────────────────────────────
+  async function chargerOffresRecentes() {
+    const { data: offres } = await sb
+      .from('jobs')
+      .select('id, titre, entreprise, ville, secteur, type_contrat, created_at')
+      .eq('statut', 'publie')
+      .order('created_at', { ascending: false })
+      .limit(6);
+
+    const container = document.getElementById('offres-recentes');
+    if (!offres?.length) { container.innerHTML = '<p class="text-muted">Aucune offre pour l\'instant.</p>'; return; }
+
+    container.innerHTML = offres.map(j => `
+      <a href="/offre-detail.html?id=${j.id}" class="job-card badge-nouveau-host">
+        ${badgeNouveau.badge(j.created_at)}
+        <div class="job-body">
+          <p class="job-title">${j.titre}</p>
+          <p class="job-company">${j.entreprise ?? 'Entreprise'}</p>
+          <div class="job-tags">
+            <span class="tag">${j.ville ?? ''}</span>
+            <span class="tag">${j.type_contrat ?? ''}</span>
+            <span class="tag tag-accent">${j.secteur ?? ''}</span>
+          </div>
+        </div>
+        <span class="job-time">${badgeNouveau.tempsRelatif(j.created_at)}</span>
+      </a>
+    `).join('');
+  }
+
+  chargerStats();
+  chargerOffresRecentes();
+</script>
+</body>
+</html>

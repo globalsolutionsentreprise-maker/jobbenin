@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profil Entreprise — Talenco.bj</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Hanken+Grotesk:wght@300;400;500;700;900&family=Space+Grotesk:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap">
+  <link rel="stylesheet" href="/design-system.css">
+  <style>
+    .profil-hero {
+      border-bottom: 1px solid var(--border);
+      padding: 36px 24px 28px;
+    }
+    .profil-hero-inner {
+      max-width: 1140px;
+      margin: 0 auto;
+      display: flex;
+      align-items: flex-start;
+      gap: 24px;
+    }
+    .company-logo {
+      width: 72px;
+      height: 72px;
+      border-radius: var(--radius-md);
+      background: var(--bg-soft);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      flex-shrink: 0;
+    }
+    .company-info { flex: 1; }
+    .company-name { font-family: var(--font-serif); font-style: italic; font-size: 28px; margin: 0 0 6px; }
+    .company-meta { font-family: var(--font-mono); font-size: 10px; color: var(--text-muted); display: flex; gap: 12px; flex-wrap: wrap; }
+    .profil-body { max-width: 1140px; margin: 0 auto; padding: 32px 24px; display: grid; grid-template-columns: 1fr 300px; gap: 32px; }
+    .profil-section { margin-bottom: 24px; }
+    .profil-section-label { font-family: var(--font-sans); font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--text-muted); margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+    .profil-text { font-family: var(--font-body); font-size: 14px; font-weight: 300; line-height: 1.7; color: var(--text-mid); }
+    @media (max-width: 768px) {
+      .profil-body { grid-template-columns: 1fr; }
+      .profil-hero { padding: 24px 16px; }
+      .profil-body { padding: 20px 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="navbar">
+  <a href="/index.html" class="talenco-logo">
+    <div class="nav-logo">
+      <div class="nav-logo-text">
+        <span class="logo-primary">Talenco</span><span class="logo-dot">.</span><span class="logo-tld">bj</span>
+      </div>
+      <div class="logo-tagline">Recrutement au Bénin</div>
+    </div>
+  </a>
+
+  <ul class="navbar-links">
+    <li><a href="/index.html">Accueil</a></li>
+    <li><a href="/offres.html">Offres</a></li>
+    <li><a href="/entreprises.html" class="active">Recruteurs</a></li>
+    <li><a href="/cvtheque.html">CVthèque</a></li>
+  </ul>
+
+  <div class="navbar-actions" id="nav-actions">
+    <a href="/entreprises.html" class="btn btn-outline btn-sm">← Tableau de bord</a>
+  </div>
+
+  <button class="navbar-toggle" id="nav-toggle" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<div class="nav-drawer" id="nav-drawer">
+  <div class="nav-drawer-overlay" id="nav-overlay"></div>
+  <div class="nav-drawer-panel">
+    <button class="nav-drawer-close" id="nav-close">✕</button>
+    <ul class="nav-drawer-links">
+      <li><a href="/index.html">Accueil</a></li>
+      <li><a href="/offres.html">Offres d'emploi</a></li>
+      <li><a href="/entreprises.html">Espace Recruteurs</a></li>
+    </ul>
+  </div>
+</div>
+
+<main id="profil-main">
+  <div style="text-align:center;padding:80px 24px;">
+    <p class="text-muted">Chargement…</p>
+  </div>
+</main>
+
+<footer class="footer">
+  <div class="footer-grid">
+    <a href="/index.html" class="talenco-logo" style="text-decoration:none;">
+      <div class="nav-logo">
+        <div class="nav-logo-text">
+          <span class="logo-primary">Talenco</span><span class="logo-dot">.</span><span class="logo-tld">bj</span>
+        </div>
+        <div class="logo-tagline">Recrutement au Bénin</div>
+      </div>
+    </a>
+    <ul class="footer-links">
+      <li><a href="/offres.html">Offres d'emploi</a></li>
+      <li><a href="/entreprises.html">Espace Recruteurs</a></li>
+    </ul>
+    <div class="footer-bottom">© 2025 Talenco.bj</div>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="/badge-nouveau.js"></script>
+<script>
+  const SUPABASE_URL     = 'https://ywteoxnkkdgdpbkrlkar.supabase.co';
+  const SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY ?? '';
+  const { createClient } = supabase;
+  const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  const drawer = document.getElementById('nav-drawer');
+  document.getElementById('nav-toggle').addEventListener('click', () => drawer.classList.add('open'));
+  document.getElementById('nav-overlay').addEventListener('click', () => drawer.classList.remove('open'));
+  document.getElementById('nav-close').addEventListener('click', () => drawer.classList.remove('open'));
+
+  const companyId = new URLSearchParams(location.search).get('id');
+
+  async function chargerProfil() {
+    let query;
+
+    // Mode "mon profil" (recruteur connecté)
+    if (!companyId) {
+      const { data: { session } } = await sb.auth.getSession();
+      if (!session) { window.location.href = '/connexion.html'; return; }
+      query = sb.from('users').select('*').eq('id', session.user.id).single();
+    } else {
+      query = sb.from('users').select('*').eq('id', companyId).single();
+    }
+
+    const { data: company } = await query;
+    if (!company) { document.getElementById('profil-main').innerHTML = '<div style="text-align:center;padding:80px;"><p class="text-muted">Profil introuvable.</p></div>'; return; }
+
+    document.title = `${company.entreprise ?? 'Entreprise'} — Talenco.bj`;
+
+    const { data: offres } = await sb.from('jobs').select('id, titre, ville, type_contrat, created_at')
+      .eq('user_id', company.id).eq('statut', 'publie').order('created_at', { ascending: false }).limit(6);
+
+    document.getElementById('profil-main').innerHTML = `
+      <div class="profil-hero">
+        <div class="profil-hero-inner">
+          <div class="company-logo">🏢</div>
+          <div class="company-info">
+            <h1 class="company-name">${company.entreprise ?? company.prenom ?? 'Entreprise'}</h1>
+            <div class="company-meta">
+              ${company.ville ? `<span>📍 ${company.ville}</span>` : ''}
+              ${company.secteur ? `<span>🏷 ${company.secteur}</span>` : ''}
+              ${company.email ? `<span>✉️ ${company.email}</span>` : ''}
+            </div>
+          </div>
+          ${!companyId ? `<a href="/ajouter-offre.html" class="btn btn-primary">+ Publier une offre</a>` : ''}
+        </div>
+      </div>
+
+      <div class="profil-body">
+        <div>
+          ${company.bio ? `
+            <div class="profil-section">
+              <div class="profil-section-label">À propos</div>
+              <p class="profil-text">${company.bio}</p>
+            </div>
+          ` : ''}
+
+          <div class="profil-section">
+            <div class="profil-section-label">Offres en cours (${offres?.length ?? 0})</div>
+            ${offres?.length ? `
+              <div class="jobs-grid" style="margin-top:12px;">
+                ${offres.map(j => `
+                  <a href="/offre-detail.html?id=${j.id}" class="job-card badge-nouveau-host">
+                    ${badgeNouveau.badge(j.created_at)}
+                    <div class="job-body">
+                      <p class="job-title">${j.titre}</p>
+                      <div class="job-tags">
+                        <span class="tag">${j.ville ?? ''}</span>
+                        <span class="tag">${j.type_contrat ?? ''}</span>
+                      </div>
+                    </div>
+                    <span class="job-time">${badgeNouveau.tempsRelatif(j.created_at)}</span>
+                  </a>
+                `).join('')}
+              </div>
+            ` : '<p class="text-muted">Aucune offre active pour le moment.</p>'}
+          </div>
+        </div>
+
+        <div>
+          <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:18px;">
+            <div class="profil-section-label" style="margin-bottom:12px;">Informations</div>
+            ${company.ville ? `<div style="margin-bottom:8px;font-size:13px;"><strong>Ville</strong><br><span class="text-muted">${company.ville}</span></div>` : ''}
+            ${company.secteur ? `<div style="margin-bottom:8px;font-size:13px;"><strong>Secteur</strong><br><span class="text-muted">${company.secteur}</span></div>` : ''}
+            <div style="font-size:13px;"><strong>Offres publiées</strong><br><span class="text-muted">${offres?.length ?? 0}</span></div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  chargerProfil();
+</script>
+</body>
+</html>

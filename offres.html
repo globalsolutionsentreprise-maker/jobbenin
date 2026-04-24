@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Offres d'emploi — Talenco.bj</title>
+  <meta name="description" content="Toutes les offres d'emploi au Bénin — CDI, CDD, stage. Filtrez par ville, secteur, type de contrat.">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Hanken+Grotesk:wght@300;400;500;700;900&family=Space+Grotesk:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap">
+  <link rel="stylesheet" href="/design-system.css">
+  <style>
+    .page-layout {
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      max-width: 1140px;
+      margin: 0 auto;
+      min-height: calc(100vh - var(--nav-h));
+    }
+    .filters-panel {
+      border-right: 1px solid var(--border);
+      padding: 24px 16px;
+      position: sticky;
+      top: var(--nav-h);
+      height: calc(100vh - var(--nav-h));
+      overflow-y: auto;
+      background: var(--bg);
+    }
+    .filters-title {
+      font-family: var(--font-sans);
+      font-size: 9px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      color: var(--text-muted);
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 16px;
+    }
+    .filter-group { margin-bottom: 20px; }
+    .filter-group-label {
+      font-family: var(--font-sans);
+      font-size: 9px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      display: block;
+    }
+    .filter-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+    }
+    .filter-tag {
+      font-family: var(--font-body);
+      font-size: 10px;
+      background: var(--bg-soft);
+      color: var(--text-mid);
+      border: 1px solid transparent;
+      border-radius: var(--radius-sm);
+      padding: 4px 10px;
+      cursor: pointer;
+      transition: all .15s;
+    }
+    .filter-tag:hover, .filter-tag.active {
+      background: var(--accent-bg);
+      color: var(--accent);
+      border-color: rgba(139,69,19,.2);
+    }
+    .content-panel { padding: 24px 28px; min-width: 0; }
+    .content-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    .results-count {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+    .sort-select {
+      font-family: var(--font-body);
+      font-size: 11px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 6px 10px;
+      background: var(--bg-card);
+      color: var(--text);
+      width: auto;
+    }
+    @media (max-width: 768px) {
+      .page-layout { grid-template-columns: 1fr; }
+      .filters-panel {
+        position: static;
+        height: auto;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+        padding: 16px;
+      }
+      .content-panel { padding: 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="navbar" id="main-nav">
+  <a href="/index.html" class="talenco-logo">
+    <div class="nav-logo">
+      <div class="nav-logo-text">
+        <span class="logo-primary">Talenco</span><span class="logo-dot">.</span><span class="logo-tld">bj</span>
+      </div>
+      <div class="logo-tagline">Recrutement au Bénin</div>
+    </div>
+  </a>
+
+  <ul class="navbar-links">
+    <li><a href="/index.html">Accueil</a></li>
+    <li><a href="/offres.html" class="active">Offres</a></li>
+    <li><a href="/entreprises.html">Recruteurs</a></li>
+    <li><a href="/cvtheque.html">CVthèque</a></li>
+    <li><a href="/coach.html">✨ Coach IA</a></li>
+  </ul>
+
+  <div class="navbar-actions">
+    <a href="/candidat.html" class="btn btn-outline btn-sm">Mon profil</a>
+    <a href="/connexion.html" class="btn btn-dark btn-sm">Connexion</a>
+  </div>
+
+  <button class="navbar-toggle" id="nav-toggle" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<div class="nav-drawer" id="nav-drawer">
+  <div class="nav-drawer-overlay" id="nav-overlay"></div>
+  <div class="nav-drawer-panel">
+    <button class="nav-drawer-close" id="nav-close">✕</button>
+    <div class="nav-logo">
+      <div class="nav-logo-text">
+        <span class="logo-primary">Talenco</span><span class="logo-dot">.</span><span class="logo-tld">bj</span>
+      </div>
+    </div>
+    <ul class="nav-drawer-links">
+      <li><a href="/index.html">Accueil</a></li>
+      <li><a href="/offres.html">Offres d'emploi</a></li>
+      <li><a href="/entreprises.html">Recruteurs</a></li>
+      <li><a href="/cvtheque.html">CVthèque</a></li>
+      <li><a href="/coach.html">✨ Coach IA</a></li>
+      <li><a href="/candidat.html">Mon profil</a></li>
+      <li><a href="/connexion.html">Connexion</a></li>
+    </ul>
+  </div>
+</div>
+
+<main>
+  <!-- ── Barre de recherche ──────────────────────────────────────── -->
+  <div style="border-bottom:1px solid var(--border);background:var(--bg);padding:16px 24px;">
+    <div style="max-width:1140px;margin:0 auto;">
+      <div class="ds-search">
+        <input type="search" id="search-input" class="ds-search-input" placeholder="Poste, entreprise, compétence…">
+        <button class="ds-search-btn" id="search-btn">Rechercher</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-layout">
+    <!-- ── Filtres ──────────────────────────────────────────────── -->
+    <aside class="filters-panel">
+      <div class="filters-title">Filtres</div>
+
+      <div class="filter-group">
+        <span class="filter-group-label">Type de contrat</span>
+        <div class="filter-tags" id="filter-contrat">
+          <span class="filter-tag" data-val="CDI">CDI</span>
+          <span class="filter-tag" data-val="CDD">CDD</span>
+          <span class="filter-tag" data-val="Stage">Stage</span>
+          <span class="filter-tag" data-val="Freelance">Freelance</span>
+          <span class="filter-tag" data-val="Temps partiel">Temps partiel</span>
+        </div>
+      </div>
+
+      <div class="filter-group">
+        <span class="filter-group-label">Ville</span>
+        <div class="filter-tags" id="filter-ville">
+          <span class="filter-tag" data-val="Cotonou">Cotonou</span>
+          <span class="filter-tag" data-val="Abomey-Calavi">Abomey-Calavi</span>
+          <span class="filter-tag" data-val="Porto-Novo">Porto-Novo</span>
+          <span class="filter-tag" data-val="Parakou">Parakou</span>
+          <span class="filter-tag" data-val="Bohicon">Bohicon</span>
+          <span class="filter-tag" data-val="Natitingou">Natitingou</span>
+        </div>
+      </div>
+
+      <div class="filter-group">
+        <span class="filter-group-label">Secteur</span>
+        <div class="filter-tags" id="filter-secteur">
+          <span class="filter-tag" data-val="Tech">Tech</span>
+          <span class="filter-tag" data-val="Finance">Finance</span>
+          <span class="filter-tag" data-val="Santé">Santé</span>
+          <span class="filter-tag" data-val="BTP">BTP</span>
+          <span class="filter-tag" data-val="Agriculture">Agriculture</span>
+          <span class="filter-tag" data-val="Marketing">Marketing</span>
+          <span class="filter-tag" data-val="RH">RH</span>
+          <span class="filter-tag" data-val="Éducation">Éducation</span>
+        </div>
+      </div>
+
+      <div class="filter-group">
+        <span class="filter-group-label">Ancienneté</span>
+        <div class="filter-tags" id="filter-date">
+          <span class="filter-tag filtre-nouveautes" data-val="24h">Moins de 24h</span>
+          <span class="filter-tag" data-val="7j">Cette semaine</span>
+          <span class="filter-tag" data-val="30j">Ce mois</span>
+        </div>
+      </div>
+
+      <button class="btn btn-ghost btn-sm" id="reset-filters" style="width:100%;margin-top:8px;">Réinitialiser</button>
+    </aside>
+
+    <!-- ── Liste des offres ────────────────────────────────────── -->
+    <section class="content-panel">
+      <div class="content-top">
+        <span class="results-count" id="results-count">Chargement…</span>
+        <select class="sort-select" id="sort-select">
+          <option value="recent">Plus récentes</option>
+          <option value="score">Par score IA</option>
+        </select>
+      </div>
+      <div class="jobs-grid" id="jobs-container">
+        <!-- Injecté par JS -->
+      </div>
+      <div id="load-more-container" style="margin-top:24px;text-align:center;display:none;">
+        <button class="btn btn-outline" id="load-more">Charger plus</button>
+      </div>
+    </section>
+  </div>
+</main>
+
+<footer class="footer">
+  <div class="footer-grid">
+    <a href="/index.html" class="talenco-logo" style="text-decoration:none;">
+      <div class="nav-logo">
+        <div class="nav-logo-text">
+          <span class="logo-primary">Talenco</span><span class="logo-dot">.</span><span class="logo-tld">bj</span>
+        </div>
+        <div class="logo-tagline">Recrutement au Bénin</div>
+      </div>
+    </a>
+    <ul class="footer-links">
+      <li><a href="/offres.html">Offres d'emploi</a></li>
+      <li><a href="/entreprises.html">Recruteurs</a></li>
+      <li><a href="/cvtheque.html">CVthèque</a></li>
+      <li><a href="/coach.html">Coach IA</a></li>
+    </ul>
+    <div class="footer-bottom">© 2025 Talenco.bj</div>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="/badge-nouveau.js"></script>
+<script src="/candidature.js"></script>
+<script src="/pwa.js"></script>
+<script>
+  const SUPABASE_URL     = 'https://ywteoxnkkdgdpbkrlkar.supabase.co';
+  const SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY ?? '';
+  const { createClient } = supabase;
+  const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  // ── Drawer ─────────────────────────────────────────────────────────
+  const drawer  = document.getElementById('nav-drawer');
+  document.getElementById('nav-toggle').addEventListener('click', () => drawer.classList.add('open'));
+  document.getElementById('nav-overlay').addEventListener('click', () => drawer.classList.remove('open'));
+  document.getElementById('nav-close').addEventListener('click', () => drawer.classList.remove('open'));
+
+  // ── Filtres ─────────────────────────────────────────────────────────
+  let activeFilters = { contrat: null, ville: null, secteur: null, date: null };
+  let searchQuery = '';
+  let currentPage = 0;
+  const PAGE_SIZE = 12;
+
+  // Pré-remplir depuis URL params
+  const params = new URLSearchParams(location.search);
+  if (params.get('q'))       searchQuery = params.get('q');
+  if (params.get('secteur')) activeFilters.secteur = params.get('secteur');
+  if (params.get('ville'))   activeFilters.ville   = params.get('ville');
+  if (params.get('q')) document.getElementById('search-input').value = searchQuery;
+
+  // Toggle filtres
+  document.querySelectorAll('.filter-tag').forEach(tag => {
+    const group = tag.closest('[id]').id.replace('filter-', '');
+    if (activeFilters[group] === tag.dataset.val) tag.classList.add('active');
+    tag.addEventListener('click', () => {
+      const val = tag.dataset.val;
+      if (activeFilters[group] === val) {
+        activeFilters[group] = null;
+        tag.classList.remove('active');
+      } else {
+        document.querySelectorAll(`#filter-${group} .filter-tag`).forEach(t => t.classList.remove('active'));
+        activeFilters[group] = val;
+        tag.classList.add('active');
+      }
+      currentPage = 0;
+      chargerOffres(false);
+    });
+  });
+
+  document.getElementById('reset-filters').addEventListener('click', () => {
+    activeFilters = { contrat: null, ville: null, secteur: null, date: null };
+    document.querySelectorAll('.filter-tag').forEach(t => t.classList.remove('active'));
+    searchQuery = '';
+    document.getElementById('search-input').value = '';
+    currentPage = 0;
+    chargerOffres(false);
+  });
+
+  document.getElementById('search-btn').addEventListener('click', () => {
+    searchQuery = document.getElementById('search-input').value.trim();
+    currentPage = 0;
+    chargerOffres(false);
+  });
+  document.getElementById('search-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') { searchQuery = e.target.value.trim(); currentPage = 0; chargerOffres(false); }
+  });
+
+  document.getElementById('sort-select').addEventListener('change', () => { currentPage = 0; chargerOffres(false); });
+  document.getElementById('load-more').addEventListener('click', () => { currentPage++; chargerOffres(true); });
+
+  // ── Auth ────────────────────────────────────────────────────────────
+  let currentSession = null;
+  sb.auth.getSession().then(({ data: { session } }) => {
+    currentSession = session;
+    if (session) {
+      document.querySelector('.navbar-actions').innerHTML = `
+        <a href="/candidat.html" class="btn btn-outline btn-sm">Mon profil</a>
+        <button class="btn btn-dark btn-sm" onclick="sb.auth.signOut().then(()=>location.reload())">Déconnexion</button>
+      `;
+      candidature.initPostuler(sb);
+    }
+  });
+
+  // ── Chargement des offres ────────────────────────────────────────────
+  async function chargerOffres(append = false) {
+    const container   = document.getElementById('jobs-container');
+    const countEl     = document.getElementById('results-count');
+    const loadMoreBtn = document.getElementById('load-more-container');
+    const sort        = document.getElementById('sort-select').value;
+
+    if (!append) { container.innerHTML = '<p class="text-muted">Chargement…</p>'; }
+
+    let query = sb.from('jobs')
+      .select('id, titre, entreprise, ville, secteur, type_contrat, created_at, score_ia', { count: 'exact' })
+      .eq('statut', 'publie')
+      .range(currentPage * PAGE_SIZE, (currentPage + 1) * PAGE_SIZE - 1);
+
+    if (sort === 'recent')  query = query.order('created_at', { ascending: false });
+    if (sort === 'score')   query = query.order('score_ia',   { ascending: false });
+    if (activeFilters.ville)   query = query.eq('ville', activeFilters.ville);
+    if (activeFilters.secteur) query = query.eq('secteur', activeFilters.secteur);
+    if (activeFilters.contrat) query = query.eq('type_contrat', activeFilters.contrat);
+    if (activeFilters.date === '24h') query = query.gte('created_at', new Date(Date.now() - 86400000).toISOString());
+    if (activeFilters.date === '7j')  query = query.gte('created_at', new Date(Date.now() - 7*86400000).toISOString());
+    if (activeFilters.date === '30j') query = query.gte('created_at', new Date(Date.now() - 30*86400000).toISOString());
+    if (searchQuery) query = query.ilike('titre', `%${searchQuery}%`);
+
+    const { data: offres, count, error } = await query;
+
+    if (error) { container.innerHTML = '<p class="text-muted">Erreur de chargement.</p>'; return; }
+
+    if (!append) countEl.textContent = `${count ?? 0} offre${(count ?? 0) > 1 ? 's' : ''}`;
+
+    const html = (offres ?? []).map(j => `
+      <a href="/offre-detail.html?id=${j.id}" class="job-card badge-nouveau-host">
+        ${badgeNouveau.badge(j.created_at)}
+        <div class="job-body">
+          <p class="job-title">${j.titre}</p>
+          <p class="job-company">${j.entreprise ?? 'Entreprise'}</p>
+          <div class="job-tags">
+            <span class="tag">${j.ville ?? ''}</span>
+            <span class="tag">${j.type_contrat ?? ''}</span>
+            <span class="tag tag-accent">${j.secteur ?? ''}</span>
+            ${j.score_ia ? `<span class="badge badge-score">IA ${j.score_ia}%</span>` : ''}
+          </div>
+        </div>
+        <span class="job-time">${badgeNouveau.tempsRelatif(j.created_at)}</span>
+      </a>
+    `).join('');
+
+    if (append) {
+      container.insertAdjacentHTML('beforeend', html);
+    } else {
+      container.innerHTML = html || '<p class="text-muted">Aucune offre ne correspond à vos critères.</p>';
+    }
+
+    const hasMore = (currentPage + 1) * PAGE_SIZE < (count ?? 0);
+    loadMoreBtn.style.display = hasMore ? 'block' : 'none';
+  }
+
+  chargerOffres();
+</script>
+</body>
+</html>

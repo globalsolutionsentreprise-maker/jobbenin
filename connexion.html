@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Connexion — Talenco.bj</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Hanken+Grotesk:wght@300;400;500;700;900&family=Space+Grotesk:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap">
+  <link rel="stylesheet" href="/design-system.css">
+  <style>
+    .auth-page {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .auth-center {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 24px;
+    }
+    .auth-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 32px;
+      width: 100%;
+      max-width: 400px;
+    }
+    .auth-logo { text-align: center; margin-bottom: 24px; }
+    .auth-title { font-family: var(--font-serif); font-style: italic; font-size: 24px; text-align: center; margin-bottom: 6px; }
+    .auth-sub { font-family: var(--font-body); font-size: 13px; color: var(--text-muted); text-align: center; margin-bottom: 24px; }
+    .auth-divider { text-align: center; font-family: var(--font-mono); font-size: 9px; color: var(--text-muted); letter-spacing: .1em; text-transform: uppercase; margin: 16px 0; }
+    .auth-footer { text-align: center; margin-top: 20px; font-size: 12px; color: var(--text-muted); }
+    .auth-footer a { color: var(--accent); }
+  </style>
+</head>
+<body class="auth-page">
+
+<nav class="navbar">
+  <a href="/index.html" class="talenco-logo">
+    <div class="nav-logo">
+      <div class="nav-logo-text">
+        <span class="logo-primary">Talenco</span><span class="logo-dot">.</span><span class="logo-tld">bj</span>
+      </div>
+      <div class="logo-tagline">Recrutement au Bénin</div>
+    </div>
+  </a>
+  <ul class="navbar-links">
+    <li><a href="/offres.html">Offres</a></li>
+    <li><a href="/index.html">Accueil</a></li>
+  </ul>
+  <div class="navbar-actions">
+    <a href="/inscription.html" class="btn btn-outline btn-sm">Créer un compte</a>
+  </div>
+</nav>
+
+<div class="auth-center">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <div class="nav-logo" style="align-items:center;">
+        <div class="nav-logo-text">
+          <span class="logo-primary">Talenco</span><span class="logo-dot">.</span><span class="logo-tld">bj</span>
+        </div>
+      </div>
+    </div>
+    <h1 class="auth-title">Connexion</h1>
+    <p class="auth-sub">Accédez à votre espace personnel</p>
+
+    <div id="auth-msg" class="alert" style="display:none;margin-bottom:16px;"></div>
+
+    <div class="form-field">
+      <label class="form-label">Email</label>
+      <input type="email" id="auth-email" placeholder="votre@email.com" autocomplete="email">
+    </div>
+    <div class="form-field">
+      <label class="form-label">Mot de passe</label>
+      <input type="password" id="auth-password" placeholder="••••••••" autocomplete="current-password">
+    </div>
+
+    <button class="btn btn-dark btn-full" id="btn-login" style="margin-top:8px;">Se connecter</button>
+
+    <div class="auth-divider">ou</div>
+
+    <button class="btn btn-full" id="btn-google" style="background:#4285F4;color:#fff;border:none;">
+      Continuer avec Google
+    </button>
+
+    <div class="auth-footer">
+      Pas encore de compte ? <a href="/inscription.html">Créer un compte</a>
+    </div>
+    <div class="auth-footer" style="margin-top:8px;">
+      <a href="/mot-de-passe-oublie.html" style="color:var(--text-muted);">Mot de passe oublié ?</a>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+  const SUPABASE_URL     = 'https://ywteoxnkkdgdpbkrlkar.supabase.co';
+  const SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY ?? '';
+  const { createClient } = supabase;
+  const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  const nextUrl = new URLSearchParams(location.search).get('next') ?? '/candidat.html';
+
+  // Déjà connecté ?
+  sb.auth.getSession().then(({ data: { session } }) => {
+    if (session) window.location.href = nextUrl;
+  });
+
+  function showMsg(type, text) {
+    const el = document.getElementById('auth-msg');
+    el.className = `alert alert-${type}`;
+    el.textContent = text;
+    el.style.display = 'block';
+  }
+
+  document.getElementById('btn-login').addEventListener('click', async () => {
+    const email    = document.getElementById('auth-email').value.trim();
+    const password = document.getElementById('auth-password').value;
+    if (!email || !password) { showMsg('error', '❌ Remplissez tous les champs.'); return; }
+
+    document.getElementById('btn-login').disabled = true;
+    document.getElementById('btn-login').textContent = '⏳ Connexion…';
+
+    const { error } = await sb.auth.signInWithPassword({ email, password });
+    if (error) {
+      showMsg('error', '❌ ' + error.message);
+      document.getElementById('btn-login').disabled = false;
+      document.getElementById('btn-login').textContent = 'Se connecter';
+    } else {
+      window.location.href = nextUrl;
+    }
+  });
+
+  document.getElementById('auth-password').addEventListener('keydown', e => {
+    if (e.key === 'Enter') document.getElementById('btn-login').click();
+  });
+
+  document.getElementById('btn-google').addEventListener('click', async () => {
+    await sb.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.origin + nextUrl } });
+  });
+</script>
+</body>
+</html>

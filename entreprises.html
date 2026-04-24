@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Espace Recruteurs — Talenco.bj</title>
+  <meta name="description" content="Gérez vos candidatures avec le kanban Talenco. Publiez des offres, consultez les CVs, suivez vos recrutements.">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Hanken+Grotesk:wght@300;400;500;700;900&family=Space+Grotesk:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap">
+  <link rel="stylesheet" href="/design-system.css">
+  <style>
+    .recruiter-header {
+      border-bottom: 1px solid var(--border);
+      padding: 32px 24px 24px;
+    }
+    .recruiter-header-inner {
+      max-width: 1140px;
+      margin: 0 auto;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+    .recruiter-eyebrow {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: .15em;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+    .recruiter-title {
+      font-family: var(--font-serif);
+      font-style: italic;
+      font-size: 28px;
+      margin: 0 0 8px;
+    }
+    .recruiter-meta {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--text-muted);
+    }
+    .recruiter-stats {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    .recruiter-stat {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 14px 20px;
+      min-width: 80px;
+    }
+    .recruiter-stat-num {
+      font-family: var(--font-sans);
+      font-size: 22px;
+      font-weight: 900;
+      color: var(--accent);
+      letter-spacing: -.02em;
+    }
+    .recruiter-stat-label {
+      font-family: var(--font-mono);
+      font-size: 8px;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      color: var(--text-muted);
+      margin-top: 3px;
+    }
+    .recruiter-content {
+      max-width: 1140px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+    .tab-bar {
+      display: flex;
+      gap: 0;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 24px;
+    }
+    .tab-btn {
+      font-family: var(--font-body);
+      font-size: 11px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      color: var(--text-muted);
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      padding: 10px 16px;
+      cursor: pointer;
+      transition: color .15s;
+      margin-bottom: -1px;
+    }
+    .tab-btn.active { color: var(--text); border-bottom-color: var(--text); }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+    .auth-wall {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 60vh;
+      text-align: center;
+      padding: 40px 24px;
+    }
+    @media (max-width: 768px) {
+      .recruiter-header { padding: 20px 16px; }
+      .recruiter-content { padding: 16px; }
+      .recruiter-header-inner { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="navbar" id="main-nav">
+  <a href="/index.html" class="talenco-logo">
+    <div class="nav-logo">
+      <div class="nav-logo-text">
+        <span class="logo-primary">Talenco</span><span class="logo-dot">.</span><span class="logo-tld">bj</span>
+      </div>
+      <div class="logo-tagline">Recrutement au Bénin</div>
+    </div>
+  </a>
+
+  <ul class="navbar-links">
+    <li><a href="/index.html">Accueil</a></li>
+    <li><a href="/offres.html">Offres</a></li>
+    <li><a href="/entreprises.html" class="active">Recruteurs</a></li>
+    <li><a href="/cvtheque.html">CVthèque</a></li>
+    <li><a href="/coach.html">✨ Coach IA</a></li>
+  </ul>
+
+  <div class="navbar-actions" id="nav-actions">
+    <a href="/ajouter-offre.html" class="btn btn-primary btn-sm">+ Publier une offre</a>
+    <a href="/connexion.html" class="btn btn-dark btn-sm">Connexion</a>
+  </div>
+
+  <button class="navbar-toggle" id="nav-toggle" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<div class="nav-drawer" id="nav-drawer">
+  <div class="nav-drawer-overlay" id="nav-overlay"></div>
+  <div class="nav-drawer-panel">
+    <button class="nav-drawer-close" id="nav-close">✕</button>
+    <div class="nav-logo">
+      <div class="nav-logo-text">
+        <span class="logo-primary">Talenco</span><span class="logo-dot">.</span><span class="logo-tld">bj</span>
+      </div>
+    </div>
+    <ul class="nav-drawer-links">
+      <li><a href="/index.html">Accueil</a></li>
+      <li><a href="/offres.html">Offres d'emploi</a></li>
+      <li><a href="/entreprises.html">Espace Recruteurs</a></li>
+      <li><a href="/cvtheque.html">CVthèque</a></li>
+      <li><a href="/coach.html">✨ Coach IA</a></li>
+      <li><a href="/ajouter-offre.html">+ Publier une offre</a></li>
+    </ul>
+  </div>
+</div>
+
+<!-- ── Mur auth ──────────────────────────────────────────────────────── -->
+<div id="auth-wall" class="auth-wall" style="display:none;">
+  <div style="font-size:40px;margin-bottom:16px;">🏢</div>
+  <h2 style="font-family:var(--font-serif);font-style:italic;margin-bottom:12px;">Espace recruteurs</h2>
+  <p class="text-muted" style="margin-bottom:24px;max-width:400px;">Connectez-vous pour gérer vos candidatures, consulter les CVs et publier des offres d'emploi.</p>
+  <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;">
+    <a href="/connexion.html" class="btn btn-primary">Se connecter</a>
+    <a href="/inscription.html" class="btn btn-outline">Créer un compte recruteur</a>
+  </div>
+</div>
+
+<!-- ── Dashboard recruteur ───────────────────────────────────────────── -->
+<div id="recruiter-dashboard" style="display:none;">
+  <div class="recruiter-header">
+    <div class="recruiter-header-inner">
+      <div>
+        <div class="recruiter-eyebrow">Espace recruteur</div>
+        <h1 class="recruiter-title" id="recruiter-title">Tableau de bord</h1>
+        <p class="recruiter-meta" id="recruiter-email"></p>
+      </div>
+      <div class="recruiter-stats">
+        <div class="recruiter-stat">
+          <span class="recruiter-stat-num" id="stat-offres-actives">—</span>
+          <span class="recruiter-stat-label">offres</span>
+        </div>
+        <div class="recruiter-stat">
+          <span class="recruiter-stat-num" id="stat-candidatures">—</span>
+          <span class="recruiter-stat-label">candidatures</span>
+        </div>
+        <div class="recruiter-stat">
+          <span class="recruiter-stat-num" id="stat-nouveaux">—</span>
+          <span class="recruiter-stat-label">nouveaux</span>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:flex-start;">
+        <a href="/ajouter-offre.html" class="btn btn-primary">+ Publier une offre</a>
+        <a href="/entreprise-profil.html" class="btn btn-outline btn-sm">Mon profil entreprise</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="recruiter-content">
+    <div class="tab-bar">
+      <button class="tab-btn active" data-tab="kanban">Candidatures</button>
+      <button class="tab-btn" data-tab="offres">Mes offres</button>
+      <button class="tab-btn" data-tab="cvtheque-tab">CVthèque</button>
+    </div>
+
+    <div class="tab-panel active" id="tab-kanban">
+      <div id="kanban">
+        <!-- kanban.js s'injecte ici -->
+      </div>
+    </div>
+
+    <div class="tab-panel" id="tab-offres">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+        <h3 style="margin:0;font-family:var(--font-serif);font-style:italic;">Mes offres publiées</h3>
+        <a href="/ajouter-offre.html" class="btn btn-primary btn-sm">+ Nouvelle offre</a>
+      </div>
+      <div id="mes-offres-list">Chargement…</div>
+    </div>
+
+    <div class="tab-panel" id="tab-cvtheque-tab">
+      <div style="text-align:center;padding:40px 0;">
+        <p class="text-muted">Accédez à la CVthèque complète avec votre abonnement.</p>
+        <a href="/cvtheque.html" class="btn btn-primary" style="margin-top:12px;">Voir la CVthèque</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer class="footer">
+  <div class="footer-grid">
+    <a href="/index.html" class="talenco-logo" style="text-decoration:none;">
+      <div class="nav-logo">
+        <div class="nav-logo-text">
+          <span class="logo-primary">Talenco</span><span class="logo-dot">.</span><span class="logo-tld">bj</span>
+        </div>
+        <div class="logo-tagline">Recrutement au Bénin</div>
+      </div>
+    </a>
+    <ul class="footer-links">
+      <li><a href="/offres.html">Offres d'emploi</a></li>
+      <li><a href="/ajouter-offre.html">Publier une offre</a></li>
+      <li><a href="/cvtheque.html">CVthèque</a></li>
+      <li><a href="mailto:contact@talenco.bj">Contact</a></li>
+    </ul>
+    <div class="footer-bottom">© 2025 Talenco.bj</div>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="/kanban.js"></script>
+<script src="/pwa.js"></script>
+<script>
+  const SUPABASE_URL     = 'https://ywteoxnkkdgdpbkrlkar.supabase.co';
+  const SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY ?? '';
+  const { createClient } = supabase;
+  const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  // ── Drawer ─────────────────────────────────────────────────────────
+  const drawer = document.getElementById('nav-drawer');
+  document.getElementById('nav-toggle').addEventListener('click', () => drawer.classList.add('open'));
+  document.getElementById('nav-overlay').addEventListener('click', () => drawer.classList.remove('open'));
+  document.getElementById('nav-close').addEventListener('click', () => drawer.classList.remove('open'));
+
+  // ── Tabs ────────────────────────────────────────────────────────────
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+    });
+  });
+
+  // ── Auth ────────────────────────────────────────────────────────────
+  sb.auth.getSession().then(({ data: { session } }) => {
+    if (!session) {
+      document.getElementById('auth-wall').style.display = 'flex';
+      return;
+    }
+    document.getElementById('recruiter-dashboard').style.display = 'block';
+    document.getElementById('nav-actions').innerHTML = `
+      <a href="/ajouter-offre.html" class="btn btn-primary btn-sm">+ Publier une offre</a>
+      <button class="btn btn-dark btn-sm" onclick="sb.auth.signOut().then(()=>location.href='/index.html')">Déconnexion</button>
+    `;
+    document.getElementById('recruiter-email').textContent = session.user.email;
+
+    // Kanban
+    kanban.init(sb, 'kanban', session.user.id);
+
+    chargerStats(session.user.id);
+    chargerMesOffres(session.user.id);
+  });
+
+  async function chargerStats(userId) {
+    const [{ count: nbOffres }, { count: nbCandidatures }, { count: nbNouveaux }] = await Promise.all([
+      sb.from('jobs').select('*', { count: 'exact', head: true }).eq('user_id', userId).eq('statut', 'publie'),
+      sb.from('applications').select('*', { count: 'exact', head: true })
+        .in('job_id', await getJobIds(userId)),
+      sb.from('applications').select('*', { count: 'exact', head: true })
+        .eq('statut', 'en_attente')
+        .in('job_id', await getJobIds(userId)),
+    ]);
+    document.getElementById('stat-offres-actives').textContent = nbOffres ?? 0;
+    document.getElementById('stat-candidatures').textContent = nbCandidatures ?? 0;
+    document.getElementById('stat-nouveaux').textContent = nbNouveaux ?? 0;
+  }
+
+  async function getJobIds(userId) {
+    const { data } = await sb.from('jobs').select('id').eq('user_id', userId);
+    return (data ?? []).map(j => j.id);
+  }
+
+  async function chargerMesOffres(userId) {
+    const { data: offres } = await sb
+      .from('jobs')
+      .select('id, titre, ville, type_contrat, statut, created_at')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+
+    const list = document.getElementById('mes-offres-list');
+    if (!offres?.length) { list.innerHTML = '<p class="text-muted">Aucune offre publiée. <a href="/ajouter-offre.html">Publiez votre première offre →</a></p>'; return; }
+
+    list.innerHTML = `<div style="display:flex;flex-direction:column;gap:8px;">${offres.map(o => `
+      <div style="display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-sm);">
+        <div style="flex:1;min-width:0;">
+          <div style="font-family:var(--font-serif);font-style:italic;font-size:14px;">${o.titre}</div>
+          <div style="font-family:var(--font-mono);font-size:9px;color:var(--text-muted);">${o.ville ?? ''} · ${o.type_contrat ?? ''}</div>
+        </div>
+        <span class="badge badge-${o.statut === 'publie' ? 'success' : 'warning'}">${o.statut}</span>
+        <a href="/offre-detail.html?id=${o.id}" class="btn btn-outline btn-sm">Voir</a>
+      </div>
+    `).join('')}</div>`;
+  }
+</script>
+</body>
+</html>

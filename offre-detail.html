@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Offre d'emploi — Talenco.bj</title>
+  <meta name="description" content="Détail de l'offre d'emploi sur Talenco.bj">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Hanken+Grotesk:wght@300;400;500;700;900&family=Space+Grotesk:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap">
+  <link rel="stylesheet" href="/design-system.css">
+  <style>
+    .detail-hero {
+      padding: 40px 24px 32px;
+      border-bottom: 1px solid var(--border);
+    }
+    .detail-hero-inner {
+      max-width: 1140px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 32px;
+      align-items: start;
+    }
+    .detail-breadcrumb {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+    }
+    .detail-breadcrumb a { color: var(--text-muted); text-decoration: none; }
+    .detail-breadcrumb a:hover { color: var(--accent); }
+    .detail-title {
+      font-family: var(--font-serif);
+      font-style: italic;
+      font-size: clamp(26px, 4vw, 40px);
+      line-height: 1.1;
+      margin: 0 0 12px;
+    }
+    .detail-company {
+      font-family: var(--font-body);
+      font-size: 12px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+    }
+    .detail-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+    .detail-sidebar-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      min-width: 220px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .detail-body {
+      max-width: 1140px;
+      margin: 0 auto;
+      padding: 36px 24px;
+      display: grid;
+      grid-template-columns: 1fr 300px;
+      gap: 40px;
+    }
+    .detail-section {
+      margin-bottom: 28px;
+    }
+    .detail-section-label {
+      font-family: var(--font-sans);
+      font-size: 9px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+    .detail-text {
+      font-family: var(--font-body);
+      font-size: 14px;
+      font-weight: 300;
+      line-height: 1.75;
+      color: var(--text-mid);
+      white-space: pre-line;
+    }
+    .detail-sidebar-sticky {
+      position: sticky;
+      top: calc(var(--nav-h) + 20px);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .sidebar-info-row {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .sidebar-info-label {
+      font-family: var(--font-sans);
+      font-size: 9px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: var(--text-muted);
+    }
+    .sidebar-info-val {
+      font-family: var(--font-body);
+      font-size: 13px;
+      color: var(--text);
+    }
+    .similar-jobs { display: flex; flex-direction: column; gap: 8px; }
+    .similar-job-link {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      text-decoration: none;
+      transition: border-color .15s;
+    }
+    .similar-job-link:hover { border-color: var(--accent); }
+    .similar-job-title { font-family: var(--font-serif); font-style: italic; font-size: 13px; color: var(--text); }
+    .similar-job-meta { font-family: var(--font-mono); font-size: 9px; color: var(--text-muted); }
+    @media (max-width: 768px) {
+      .detail-hero-inner { grid-template-columns: 1fr; }
+      .detail-body { grid-template-columns: 1fr; }
+      .detail-sidebar-sticky { position: static; order: -1; }
+      .detail-hero { padding: 24px 16px; }
+      .detail-body { padding: 24px 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="navbar" id="main-nav">
+  <a href="/index.html" class="talenco-logo">
+    <div class="nav-logo">
+      <div class="nav-logo-text">
+        <span class="logo-primary">Talenco</span><span class="logo-dot">.</span><span class="logo-tld">bj</span>
+      </div>
+      <div class="logo-tagline">Recrutement au Bénin</div>
+    </div>
+  </a>
+
+  <ul class="navbar-links">
+    <li><a href="/index.html">Accueil</a></li>
+    <li><a href="/offres.html" class="active">Offres</a></li>
+    <li><a href="/entreprises.html">Recruteurs</a></li>
+    <li><a href="/cvtheque.html">CVthèque</a></li>
+    <li><a href="/coach.html">✨ Coach IA</a></li>
+  </ul>
+
+  <div class="navbar-actions">
+    <a href="/candidat.html" class="btn btn-outline btn-sm">Mon profil</a>
+    <a href="/connexion.html" class="btn btn-dark btn-sm">Connexion</a>
+  </div>
+
+  <button class="navbar-toggle" id="nav-toggle" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<div class="nav-drawer" id="nav-drawer">
+  <div class="nav-drawer-overlay" id="nav-overlay"></div>
+  <div class="nav-drawer-panel">
+    <button class="nav-drawer-close" id="nav-close">✕</button>
+    <div class="nav-logo">
+      <div class="nav-logo-text">
+        <span class="logo-primary">Talenco</span><span class="logo-dot">.</span><span class="logo-tld">bj</span>
+      </div>
+    </div>
+    <ul class="nav-drawer-links">
+      <li><a href="/index.html">Accueil</a></li>
+      <li><a href="/offres.html">Offres d'emploi</a></li>
+      <li><a href="/entreprises.html">Recruteurs</a></li>
+      <li><a href="/cvtheque.html">CVthèque</a></li>
+      <li><a href="/coach.html">✨ Coach IA</a></li>
+      <li><a href="/candidat.html">Mon profil</a></li>
+    </ul>
+  </div>
+</div>
+
+<main id="detail-main">
+  <!-- Injecté par JS -->
+  <div style="max-width:600px;margin:80px auto;text-align:center;padding:0 24px;">
+    <p class="text-muted">Chargement de l'offre…</p>
+  </div>
+</main>
+
+<footer class="footer">
+  <div class="footer-grid">
+    <a href="/index.html" class="talenco-logo" style="text-decoration:none;">
+      <div class="nav-logo">
+        <div class="nav-logo-text">
+          <span class="logo-primary">Talenco</span><span class="logo-dot">.</span><span class="logo-tld">bj</span>
+        </div>
+        <div class="logo-tagline">Recrutement au Bénin</div>
+      </div>
+    </a>
+    <ul class="footer-links">
+      <li><a href="/offres.html">Offres d'emploi</a></li>
+      <li><a href="/entreprises.html">Recruteurs</a></li>
+      <li><a href="/coach.html">Coach IA</a></li>
+    </ul>
+    <div class="footer-bottom">© 2025 Talenco.bj</div>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="/badge-nouveau.js"></script>
+<script src="/candidature.js"></script>
+<script src="/pwa.js"></script>
+<script>
+  const SUPABASE_URL     = 'https://ywteoxnkkdgdpbkrlkar.supabase.co';
+  const SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY ?? '';
+  const { createClient } = supabase;
+  const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  // ── Drawer ─────────────────────────────────────────────────────────
+  const drawer = document.getElementById('nav-drawer');
+  document.getElementById('nav-toggle').addEventListener('click', () => drawer.classList.add('open'));
+  document.getElementById('nav-overlay').addEventListener('click', () => drawer.classList.remove('open'));
+  document.getElementById('nav-close').addEventListener('click', () => drawer.classList.remove('open'));
+
+  const jobId = new URLSearchParams(location.search).get('id');
+  if (!jobId) window.location.href = '/offres.html';
+
+  async function chargerOffre() {
+    const [{ data: job }, { data: { session } }] = await Promise.all([
+      sb.from('jobs')
+        .select('id, titre, entreprise, ville, secteur, type_contrat, description, profil, competences, avantages, created_at, score_ia')
+        .eq('id', jobId)
+        .single(),
+      sb.auth.getSession(),
+    ]);
+
+    if (!job) { window.location.href = '/offres.html'; return; }
+
+    // Auth nav
+    if (session) {
+      document.querySelector('.navbar-actions').innerHTML = `
+        <a href="/candidat.html" class="btn btn-outline btn-sm">Mon profil</a>
+        <button class="btn btn-dark btn-sm" onclick="sb.auth.signOut().then(()=>location.reload())">Déconnexion</button>
+      `;
+    }
+
+    // Titre page
+    document.title = `${job.titre} — Talenco.bj`;
+
+    // Rendu
+    document.getElementById('detail-main').innerHTML = `
+      <div class="detail-hero">
+        <div class="detail-hero-inner">
+          <div>
+            <div class="detail-breadcrumb">
+              <a href="/offres.html">Offres</a> / ${job.secteur ?? ''}
+            </div>
+            <h1 class="detail-title">${job.titre}</h1>
+            <p class="detail-company">${job.entreprise ?? 'Entreprise'} — ${job.ville ?? ''}</p>
+            <div class="detail-meta">
+              <span class="tag">${job.ville ?? ''}</span>
+              <span class="tag">${job.type_contrat ?? ''}</span>
+              <span class="tag tag-accent">${job.secteur ?? ''}</span>
+              ${job.score_ia ? `<span class="badge badge-score">Score IA ${job.score_ia}%</span>` : ''}
+              ${badgeNouveau.isNew(job.created_at) ? '<span class="badge badge-new">Nouveau</span>' : ''}
+            </div>
+            <p class="text-muted" style="font-size:11px;">${badgeNouveau.tempsRelatif(job.created_at)}</p>
+          </div>
+          <div class="detail-sidebar-card">
+            <div class="sidebar-info-row">
+              <span class="sidebar-info-label">Entreprise</span>
+              <span class="sidebar-info-val">${job.entreprise ?? '—'}</span>
+            </div>
+            <div class="sidebar-info-row">
+              <span class="sidebar-info-label">Localisation</span>
+              <span class="sidebar-info-val">${job.ville ?? '—'}</span>
+            </div>
+            <div class="sidebar-info-row">
+              <span class="sidebar-info-label">Contrat</span>
+              <span class="sidebar-info-val">${job.type_contrat ?? '—'}</span>
+            </div>
+            <div class="sidebar-info-row">
+              <span class="sidebar-info-label">Secteur</span>
+              <span class="sidebar-info-val">${job.secteur ?? '—'}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="detail-body">
+        <div>
+          ${job.description ? `
+            <div class="detail-section">
+              <div class="detail-section-label">Description du poste</div>
+              <div class="detail-text">${job.description}</div>
+            </div>
+          ` : ''}
+          ${job.profil ? `
+            <div class="detail-section">
+              <div class="detail-section-label">Profil recherché</div>
+              <div class="detail-text">${job.profil}</div>
+            </div>
+          ` : ''}
+          ${job.competences ? `
+            <div class="detail-section">
+              <div class="detail-section-label">Compétences requises</div>
+              <div class="detail-text">${job.competences}</div>
+            </div>
+          ` : ''}
+          ${job.avantages ? `
+            <div class="detail-section">
+              <div class="detail-section-label">Avantages</div>
+              <div class="detail-text">${job.avantages}</div>
+            </div>
+          ` : ''}
+        </div>
+
+        <div class="detail-sidebar-sticky">
+          <!-- Boutons candidature (injectés par candidature.js) -->
+          <div id="postuler-zone"></div>
+
+          <a href="/coach.html" style="
+            display:block;
+            background:linear-gradient(135deg,#7c3aed 0%,#6d28d9 100%);
+            color:#fff;
+            border-radius:var(--radius-md);
+            padding:14px 16px;
+            text-decoration:none;
+          ">
+            <div style="font-size:18px;margin-bottom:4px;">✨</div>
+            <div style="font-family:var(--font-sans);font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px;">Préparer l'entretien</div>
+            <div style="font-size:11px;opacity:.85;line-height:1.4;">TalBot vous aide à vous préparer pour ce poste.</div>
+          </a>
+
+          <div id="similar-jobs-container">
+            <div class="detail-section-label">Offres similaires</div>
+            <div class="similar-jobs" id="similar-jobs"></div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    // Initialiser le bouton postuler
+    candidature.initPostulerDetail(sb, jobId, 'postuler-zone');
+
+    // Offres similaires
+    chargerSimilaires(job.secteur, job.id);
+  }
+
+  async function chargerSimilaires(secteur, excludeId) {
+    if (!secteur) return;
+    const { data: similaires } = await sb
+      .from('jobs')
+      .select('id, titre, ville, type_contrat')
+      .eq('secteur', secteur)
+      .eq('statut', 'publie')
+      .neq('id', excludeId)
+      .limit(4);
+
+    const container = document.getElementById('similar-jobs');
+    if (!container || !similaires?.length) return;
+    container.innerHTML = similaires.map(j => `
+      <a href="/offre-detail.html?id=${j.id}" class="similar-job-link">
+        <span class="similar-job-title">${j.titre}</span>
+        <span class="similar-job-meta">${j.ville ?? ''} · ${j.type_contrat ?? ''}</span>
+      </a>
+    `).join('');
+  }
+
+  chargerOffre();
+</script>
+</body>
+</html>

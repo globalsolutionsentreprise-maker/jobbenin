@@ -1,0 +1,577 @@
+<!--
+  ══════════════════════════════════════════════════════════════
+  SNIPPET : Section "Alertes WhatsApp" pour candidat.html
+  ══════════════════════════════════════════════════════════════
+  Insérer après la section "Mes alertes email" existante.
+  Nécessite que `supabase` (client initialisé) et
+  `session` (Supabase session) soient disponibles.
+-->
+
+<!-- ── Section alertes WhatsApp ──────────────────────────────────────── -->
+<section id="section-whatsapp" style="margin-top:32px;">
+
+  <style>
+    /* ── Conteneur section ── */
+    #wa-section {
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      border-radius: 14px;
+      padding: 24px;
+      max-width: 540px;
+    }
+    #wa-section h3 {
+      font-size: 16px;
+      font-weight: 700;
+      color: #111827;
+      margin: 0 0 4px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    #wa-section p.wa-desc {
+      font-size: 13px;
+      color: #6b7280;
+      margin: 0 0 20px;
+    }
+
+    /* ── Champs ── */
+    .wa-field { margin-bottom: 16px; }
+    .wa-label {
+      display: block;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      color: #6b7280;
+      margin-bottom: 6px;
+    }
+    .wa-phone-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .wa-phone-prefix {
+      font-size: 14px;
+      color: #374151;
+      white-space: nowrap;
+      font-weight: 600;
+    }
+    .wa-input {
+      flex: 1;
+      border: 1.5px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 9px 13px;
+      font-size: 14px;
+      color: #111827;
+      outline: none;
+      transition: border-color .15s;
+      width: 100%;
+    }
+    .wa-input:focus { border-color: #25D366; }
+
+    /* ── Checkboxes ── */
+    .wa-checks {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .wa-check-btn {
+      background: #f9fafb;
+      border: 1.5px solid #e5e7eb;
+      border-radius: 20px;
+      padding: 5px 13px;
+      font-size: 12px;
+      color: #374151;
+      cursor: pointer;
+      transition: all .15s;
+      user-select: none;
+    }
+    .wa-check-btn.selected {
+      background: #f0fdf4;
+      border-color: #25D366;
+      color: #15803d;
+      font-weight: 600;
+    }
+
+    /* ── Bouton principal ── */
+    .wa-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #25D366;
+      color: #ffffff;
+      border: none;
+      border-radius: 8px;
+      padding: 11px 22px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity .15s;
+      width: 100%;
+      justify-content: center;
+      margin-top: 4px;
+    }
+    .wa-btn:hover:not(:disabled) { opacity: .88; }
+    .wa-btn:disabled { opacity: .5; cursor: not-allowed; }
+    .wa-btn-secondary {
+      background: none;
+      border: 1.5px solid #e5e7eb;
+      color: #6b7280;
+      font-size: 12px;
+      padding: 7px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: border-color .15s;
+    }
+    .wa-btn-secondary:hover { border-color: #9ca3af; }
+    .wa-btn-secondary:disabled { opacity: .4; cursor: not-allowed; }
+
+    /* ── OTP ── */
+    .wa-otp-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .wa-otp-input {
+      width: 120px;
+      text-align: center;
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: .15em;
+      border: 2px solid #e5e7eb;
+      border-radius: 10px;
+      padding: 10px;
+      outline: none;
+    }
+    .wa-otp-input:focus { border-color: #25D366; }
+
+    /* ── Messages ── */
+    .wa-msg {
+      font-size: 13px;
+      padding: 10px 14px;
+      border-radius: 8px;
+      margin-top: 12px;
+      display: none;
+    }
+    .wa-msg.ok    { background: #dcfce7; color: #15803d; display: block; }
+    .wa-msg.error { background: #fee2e2; color: #b91c1c; display: block; }
+    .wa-msg.info  { background: #eff6ff; color: #1d4ed8; display: block; }
+
+    /* ── État actif ── */
+    .wa-active-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #dcfce7;
+      color: #15803d;
+      border: 1px solid #86efac;
+      border-radius: 99px;
+      padding: 5px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+    .wa-active-phone {
+      font-size: 13px;
+      color: #6b7280;
+      margin-bottom: 16px;
+    }
+    .wa-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+    /* ── Minuterie renvoyer ── */
+    #wa-resend-timer { font-size: 12px; color: #9ca3af; }
+  </style>
+
+  <div id="wa-section">
+    <h3>📱 Alertes WhatsApp</h3>
+    <p class="wa-desc">Recevez les nouvelles offres directement sur WhatsApp selon vos secteurs et villes préférés.</p>
+
+    <!-- ÉTAT 1 : Formulaire d'abonnement -->
+    <div id="wa-step-subscribe">
+
+      <div class="wa-field">
+        <label class="wa-label">Numéro WhatsApp</label>
+        <div class="wa-phone-row">
+          <span class="wa-phone-prefix">🇧🇯</span>
+          <input type="tel" id="wa-phone" class="wa-input"
+            placeholder="+229 61 23 45 67"
+            maxlength="18">
+        </div>
+      </div>
+
+      <div class="wa-field">
+        <label class="wa-label">Secteurs d'intérêt</label>
+        <div class="wa-checks" id="wa-secteurs">
+          <span class="wa-check-btn" data-val="Tech">Tech</span>
+          <span class="wa-check-btn" data-val="Finance">Finance</span>
+          <span class="wa-check-btn" data-val="Santé">Santé</span>
+          <span class="wa-check-btn" data-val="BTP">BTP</span>
+          <span class="wa-check-btn" data-val="Agriculture">Agriculture</span>
+          <span class="wa-check-btn" data-val="Marketing">Marketing</span>
+          <span class="wa-check-btn" data-val="RH">RH</span>
+          <span class="wa-check-btn" data-val="Stage">Stage</span>
+        </div>
+      </div>
+
+      <div class="wa-field">
+        <label class="wa-label">Villes</label>
+        <div class="wa-checks" id="wa-villes">
+          <span class="wa-check-btn" data-val="Cotonou">Cotonou</span>
+          <span class="wa-check-btn" data-val="Abomey-Calavi">Abomey-Calavi</span>
+          <span class="wa-check-btn" data-val="Porto-Novo">Porto-Novo</span>
+          <span class="wa-check-btn" data-val="Parakou">Parakou</span>
+          <span class="wa-check-btn" data-val="Bohicon">Bohicon</span>
+          <span class="wa-check-btn" data-val="Natitingou">Natitingou</span>
+        </div>
+      </div>
+
+      <button class="wa-btn" id="wa-btn-subscribe" type="button">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+        </svg>
+        Recevoir les alertes sur WhatsApp
+      </button>
+      <div class="wa-msg" id="wa-sub-msg"></div>
+    </div>
+
+    <!-- ÉTAT 2 : Vérification OTP -->
+    <div id="wa-step-otp" style="display:none;">
+      <p style="font-size:14px;color:#374151;margin:0 0 16px;">
+        📲 Un code à 6 chiffres a été envoyé sur <strong id="wa-phone-display"></strong>.
+        Entrez-le ci-dessous pour activer vos alertes.
+      </p>
+      <div class="wa-otp-row">
+        <input type="text" id="wa-otp-input" class="wa-otp-input"
+          placeholder="••••••" maxlength="6" inputmode="numeric">
+        <button class="wa-btn" id="wa-btn-confirm" type="button"
+          style="width:auto;padding:10px 20px;">Confirmer</button>
+      </div>
+      <div style="margin-top:12px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+        <button class="wa-btn-secondary" id="wa-btn-resend" type="button" disabled>
+          Renvoyer le code
+        </button>
+        <span id="wa-resend-timer">Disponible dans 60s</span>
+        <button class="wa-btn-secondary" id="wa-btn-back" type="button">← Changer le numéro</button>
+      </div>
+      <div class="wa-msg" id="wa-otp-msg"></div>
+    </div>
+
+    <!-- ÉTAT 3 : Actif -->
+    <div id="wa-step-active" style="display:none;">
+      <div class="wa-active-badge">✓ Alertes WhatsApp actives</div>
+      <p class="wa-active-phone" id="wa-active-phone-display"></p>
+      <div class="wa-actions">
+        <button class="wa-btn-secondary" id="wa-btn-modify" type="button">✏️ Modifier</button>
+        <button class="wa-btn-secondary" id="wa-btn-deactivate" type="button"
+          style="color:#ef4444;border-color:#fca5a5;">🔕 Désactiver</button>
+      </div>
+      <div class="wa-msg" id="wa-active-msg"></div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ── Script WhatsApp ──────────────────────────────────────────────── -->
+<script>
+(function () {
+  'use strict';
+
+  const SUPABASE_URL = 'https://ywteoxnkkdgdpbkrlkar.supabase.co';
+
+  // ── DOM ────────────────────────────────────────────────────────────
+  const stepSubscribe = document.getElementById('wa-step-subscribe');
+  const stepOtp       = document.getElementById('wa-step-otp');
+  const stepActive    = document.getElementById('wa-step-active');
+
+  const phoneInput    = document.getElementById('wa-phone');
+  const btnSubscribe  = document.getElementById('wa-btn-subscribe');
+  const subMsg        = document.getElementById('wa-sub-msg');
+
+  const otpInput      = document.getElementById('wa-otp-input');
+  const btnConfirm    = document.getElementById('wa-btn-confirm');
+  const otpMsg        = document.getElementById('wa-otp-msg');
+  const phoneDisplay  = document.getElementById('wa-phone-display');
+  const btnResend     = document.getElementById('wa-btn-resend');
+  const resendTimer   = document.getElementById('wa-resend-timer');
+  const btnBack       = document.getElementById('wa-btn-back');
+
+  const btnModify     = document.getElementById('wa-btn-modify');
+  const btnDeactivate = document.getElementById('wa-btn-deactivate');
+  const activeDisplay = document.getElementById('wa-active-phone-display');
+  const activeMsg     = document.getElementById('wa-active-msg');
+
+  let currentPhone = '';
+  let resendCountdown = null;
+
+  // ── Helpers ────────────────────────────────────────────────────────
+  function showMsg(el, type, text) {
+    el.className = `wa-msg ${type}`;
+    el.textContent = text;
+  }
+  function clearMsg(el) { el.className = 'wa-msg'; el.textContent = ''; }
+
+  function maskPhone(phone) {
+    if (phone.length < 4) return phone;
+    return phone.slice(0, -4).replace(/\d/g, '•') + phone.slice(-2);
+  }
+
+  function getSelectedValues(containerId) {
+    return [...document.querySelectorAll(`#${containerId} .wa-check-btn.selected`)]
+      .map(el => el.dataset.val);
+  }
+
+  // ── Checkboxes toggle ──────────────────────────────────────────────
+  document.querySelectorAll('.wa-check-btn').forEach(btn => {
+    btn.addEventListener('click', () => btn.classList.toggle('selected'));
+  });
+
+  // ── Pré-cocher selon les alertes email existantes ──────────────────
+  async function prefillFromAlerts(session) {
+    if (!session) return;
+    try {
+      const { data: alerts } = await supabase
+        .from('alerts')
+        .select('secteur, ville')
+        .eq('user_id', session.user.id);
+      if (!alerts?.length) return;
+      const secteurs = [...new Set(alerts.map(a => a.secteur).filter(Boolean))];
+      const villes   = [...new Set(alerts.map(a => a.ville).filter(Boolean))];
+      document.querySelectorAll('#wa-secteurs .wa-check-btn').forEach(btn => {
+        if (secteurs.includes(btn.dataset.val)) btn.classList.add('selected');
+      });
+      document.querySelectorAll('#wa-villes .wa-check-btn').forEach(btn => {
+        if (villes.includes(btn.dataset.val)) btn.classList.add('selected');
+      });
+    } catch { /* non bloquant */ }
+  }
+
+  // ── Vérifier l'état actuel de l'abonnement ─────────────────────────
+  async function checkExistingSubscription(session) {
+    if (!session) return;
+    try {
+      const { data: sub } = await supabase
+        .from('whatsapp_subscribers')
+        .select('phone, is_verified, is_active, secteurs, villes')
+        .eq('user_id', session.user.id)
+        .maybeSingle();
+
+      if (sub?.is_verified && sub.is_active) {
+        showActive(sub.phone);
+        // Pré-cocher les préférences actuelles pour le formulaire de modification
+        document.querySelectorAll('#wa-secteurs .wa-check-btn').forEach(btn => {
+          if ((sub.secteurs ?? []).includes(btn.dataset.val)) btn.classList.add('selected');
+        });
+        document.querySelectorAll('#wa-villes .wa-check-btn').forEach(btn => {
+          if ((sub.villes ?? []).includes(btn.dataset.val)) btn.classList.add('selected');
+        });
+      } else {
+        await prefillFromAlerts(session);
+      }
+    } catch { await prefillFromAlerts(session); }
+  }
+
+  function showActive(phone) {
+    currentPhone = phone;
+    stepSubscribe.style.display = 'none';
+    stepOtp.style.display = 'none';
+    stepActive.style.display = 'block';
+    activeDisplay.textContent = `📱 ${maskPhone(phone)}`;
+  }
+
+  // ── Étape 1 : Abonnement ───────────────────────────────────────────
+  btnSubscribe.addEventListener('click', async () => {
+    clearMsg(subMsg);
+    const phone    = phoneInput.value.replace(/\s/g, '');
+    const secteurs = getSelectedValues('wa-secteurs');
+    const villes   = getSelectedValues('wa-villes');
+
+    if (!phone) { showMsg(subMsg, 'error', '❌ Entrez votre numéro WhatsApp.'); return; }
+    if (!/^\+\d{10,15}$/.test(phone)) {
+      showMsg(subMsg, 'error', '❌ Format invalide — exemple : +22961234567'); return;
+    }
+
+    btnSubscribe.disabled = true;
+    btnSubscribe.textContent = '⏳ Envoi en cours…';
+
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) { showMsg(subMsg, 'error', '❌ Reconnectez-vous.'); btnSubscribe.disabled = false; return; }
+
+    try {
+      const res = await fetch(`${SUPABASE_URL}/functions/v1/whatsapp-subscribe`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ phone, secteurs, villes }),
+      });
+      const json = await res.json();
+
+      if (!res.ok) {
+        showMsg(subMsg, 'error', `❌ ${json.error ?? 'Erreur'}`);
+        return;
+      }
+
+      if (json.already_verified) {
+        showMsg(subMsg, 'ok', '✅ Préférences mises à jour !');
+        return;
+      }
+
+      // Passer à l'étape OTP
+      currentPhone = phone;
+      stepSubscribe.style.display = 'none';
+      stepOtp.style.display = 'block';
+      phoneDisplay.textContent = maskPhone(phone);
+      startResendCountdown();
+
+    } catch (err) {
+      showMsg(subMsg, 'error', `❌ Erreur réseau : ${err.message}`);
+    } finally {
+      btnSubscribe.disabled = false;
+      btnSubscribe.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg> Recevoir les alertes sur WhatsApp`;
+    }
+  });
+
+  // ── Étape 2 : Vérification OTP ─────────────────────────────────────
+  btnConfirm.addEventListener('click', async () => {
+    clearMsg(otpMsg);
+    const code = otpInput.value.trim();
+    if (!/^\d{6}$/.test(code)) {
+      showMsg(otpMsg, 'error', '❌ Entrez le code à 6 chiffres reçu sur WhatsApp.');
+      return;
+    }
+
+    btnConfirm.disabled = true;
+    btnConfirm.textContent = '⏳';
+
+    try {
+      const res = await fetch(`${SUPABASE_URL}/functions/v1/whatsapp-subscribe`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone: currentPhone, code }),
+      });
+      const json = await res.json();
+
+      if (!res.ok) {
+        showMsg(otpMsg, 'error', `❌ ${json.error ?? 'Code incorrect'}`);
+        return;
+      }
+
+      clearResendCountdown();
+      showActive(currentPhone);
+
+    } catch (err) {
+      showMsg(otpMsg, 'error', `❌ Erreur réseau : ${err.message}`);
+    } finally {
+      btnConfirm.disabled = false;
+      btnConfirm.textContent = 'Confirmer';
+    }
+  });
+
+  // Valider avec Entrée
+  otpInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !btnConfirm.disabled) btnConfirm.click();
+  });
+
+  // ── Renvoyer le code ───────────────────────────────────────────────
+  btnResend.addEventListener('click', async () => {
+    clearMsg(otpMsg);
+    btnResend.disabled = true;
+
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return;
+
+    const secteurs = getSelectedValues('wa-secteurs');
+    const villes   = getSelectedValues('wa-villes');
+
+    try {
+      const res = await fetch(`${SUPABASE_URL}/functions/v1/whatsapp-subscribe`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ phone: currentPhone, secteurs, villes }),
+      });
+      const json = await res.json();
+      if (res.ok) {
+        showMsg(otpMsg, 'info', '📲 Nouveau code envoyé !');
+        startResendCountdown();
+      } else {
+        showMsg(otpMsg, 'error', `❌ ${json.error ?? 'Erreur'}`);
+        btnResend.disabled = false;
+        resendTimer.textContent = '';
+      }
+    } catch {
+      btnResend.disabled = false;
+    }
+  });
+
+  // ── Retour / changer numéro ────────────────────────────────────────
+  btnBack.addEventListener('click', () => {
+    clearResendCountdown();
+    clearMsg(otpMsg);
+    stepOtp.style.display = 'none';
+    stepSubscribe.style.display = 'block';
+    otpInput.value = '';
+  });
+
+  // ── Minuterie 60s pour le bouton Renvoyer ─────────────────────────
+  function startResendCountdown() {
+    let secs = 60;
+    btnResend.disabled = true;
+    resendTimer.textContent = `Disponible dans ${secs}s`;
+    resendCountdown = setInterval(() => {
+      secs--;
+      if (secs <= 0) {
+        clearInterval(resendCountdown);
+        btnResend.disabled = false;
+        resendTimer.textContent = '';
+      } else {
+        resendTimer.textContent = `Disponible dans ${secs}s`;
+      }
+    }, 1000);
+  }
+  function clearResendCountdown() {
+    if (resendCountdown) { clearInterval(resendCountdown); resendCountdown = null; }
+    resendTimer.textContent = '';
+  }
+
+  // ── État actif — Modifier ──────────────────────────────────────────
+  btnModify.addEventListener('click', () => {
+    clearMsg(activeMsg);
+    stepActive.style.display = 'none';
+    stepSubscribe.style.display = 'block';
+    phoneInput.value = currentPhone;
+  });
+
+  // ── État actif — Désactiver ────────────────────────────────────────
+  btnDeactivate.addEventListener('click', async () => {
+    if (!confirm('Désactiver les alertes WhatsApp ?')) return;
+    btnDeactivate.disabled = true;
+
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) { btnDeactivate.disabled = false; return; }
+
+    const { error } = await supabase
+      .from('whatsapp_subscribers')
+      .update({ is_active: false })
+      .eq('user_id', session.user.id);
+
+    if (error) {
+      showMsg(activeMsg, 'error', '❌ Erreur lors de la désactivation.');
+    } else {
+      stepActive.style.display = 'none';
+      stepSubscribe.style.display = 'block';
+      showMsg(subMsg, 'info', 'ℹ️ Alertes WhatsApp désactivées. Vous pouvez vous réabonner à tout moment.');
+    }
+    btnDeactivate.disabled = false;
+  });
+
+  // ── Initialisation ─────────────────────────────────────────────────
+  supabase.auth.getSession().then(({ data: { session } }) => {
+    if (session) checkExistingSubscription(session);
+  });
+
+})();
+</script>

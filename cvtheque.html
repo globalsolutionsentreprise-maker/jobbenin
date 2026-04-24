@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CVthèque — Talenco.bj</title>
+  <meta name="description" content="Accédez à la base de CV des candidats béninois. Filtrez par compétence, ville, secteur.">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Hanken+Grotesk:wght@300;400;500;700;900&family=Space+Grotesk:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap">
+  <link rel="stylesheet" href="/design-system.css">
+  <style>
+    .cvth-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 14px;
+      margin-top: 24px;
+    }
+    .cv-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      filter: blur(4px);
+      pointer-events: none;
+      user-select: none;
+    }
+    .cv-card-avatar {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: var(--bg-soft);
+      border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-sans); font-size: 16px; font-weight: 900;
+      color: var(--text-muted);
+    }
+    .cv-card-name { font-family: var(--font-body); font-weight: 700; font-size: 14px; color: var(--text); }
+    .cv-card-meta { font-family: var(--font-mono); font-size: 9px; color: var(--text-muted); }
+    .lock-overlay {
+      position: relative;
+      overflow: hidden;
+    }
+    .lock-overlay::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, transparent 40%, var(--bg) 90%);
+      pointer-events: none;
+    }
+    @media (max-width: 768px) {
+      .cvth-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 480px) {
+      .cvth-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="navbar" id="main-nav">
+  <a href="/index.html" class="talenco-logo">
+    <div class="nav-logo">
+      <div class="nav-logo-text">
+        <span class="logo-primary">Talenco</span><span class="logo-dot">.</span><span class="logo-tld">bj</span>
+      </div>
+      <div class="logo-tagline">Recrutement au Bénin</div>
+    </div>
+  </a>
+
+  <ul class="navbar-links">
+    <li><a href="/index.html">Accueil</a></li>
+    <li><a href="/offres.html">Offres</a></li>
+    <li><a href="/entreprises.html">Recruteurs</a></li>
+    <li><a href="/cvtheque.html" class="active">CVthèque</a></li>
+    <li><a href="/coach.html">✨ Coach IA</a></li>
+  </ul>
+
+  <div class="navbar-actions" id="nav-actions">
+    <a href="/candidat.html" class="btn btn-outline btn-sm">Mon profil</a>
+    <a href="/connexion.html" class="btn btn-dark btn-sm">Connexion</a>
+  </div>
+
+  <button class="navbar-toggle" id="nav-toggle" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<div class="nav-drawer" id="nav-drawer">
+  <div class="nav-drawer-overlay" id="nav-overlay"></div>
+  <div class="nav-drawer-panel">
+    <button class="nav-drawer-close" id="nav-close">✕</button>
+    <div class="nav-logo">
+      <div class="nav-logo-text">
+        <span class="logo-primary">Talenco</span><span class="logo-dot">.</span><span class="logo-tld">bj</span>
+      </div>
+    </div>
+    <ul class="nav-drawer-links">
+      <li><a href="/index.html">Accueil</a></li>
+      <li><a href="/offres.html">Offres d'emploi</a></li>
+      <li><a href="/entreprises.html">Recruteurs</a></li>
+      <li><a href="/cvtheque.html">CVthèque</a></li>
+      <li><a href="/coach.html">✨ Coach IA</a></li>
+    </ul>
+  </div>
+</div>
+
+<main>
+  <div class="ds-page-header">
+    <div class="ds-page-eyebrow">Recruteurs</div>
+    <h1 class="ds-page-title">CVthèque</h1>
+    <p style="color:var(--text-muted);font-size:13px;margin-top:8px;">Base de CV des candidats actifs au Bénin.</p>
+  </div>
+
+  <!-- ── Barre recherche ───────────────────────────────────────────── -->
+  <div style="border-bottom:1px solid var(--border);padding:16px 24px;background:var(--bg);">
+    <div style="max-width:1140px;margin:0 auto;display:flex;gap:10px;flex-wrap:wrap;">
+      <div class="ds-search" style="flex:1;min-width:200px;">
+        <input type="search" id="cv-search" class="ds-search-input" placeholder="Développeur, Commercial, Comptable…">
+        <button class="ds-search-btn" id="cv-search-btn">Chercher</button>
+      </div>
+      <select id="cv-filter-ville" style="width:160px;">
+        <option value="">Toutes les villes</option>
+        <option>Cotonou</option>
+        <option>Abomey-Calavi</option>
+        <option>Porto-Novo</option>
+        <option>Parakou</option>
+      </select>
+      <select id="cv-filter-secteur" style="width:160px;">
+        <option value="">Tous les secteurs</option>
+        <option>Tech</option>
+        <option>Finance</option>
+        <option>Santé</option>
+        <option>Marketing</option>
+        <option>RH</option>
+        <option>BTP</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="container" style="padding-top:24px;padding-bottom:64px;">
+
+    <!-- ── Lock screen (non-premium) ──────────────────────────────── -->
+    <div id="lock-screen" class="ds-lock-screen" style="display:none;">
+      <div class="ds-lock-icon">🔒</div>
+      <h2 class="ds-lock-title">Accès recruteurs uniquement</h2>
+      <p class="ds-lock-desc">La CVthèque est réservée aux recruteurs abonnés. Accédez à tous les profils, filtrez par compétence et contactez directement les candidats.</p>
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:8px;">
+        <a href="/connexion.html?mode=recruteur" class="btn btn-primary">Accès recruteur</a>
+        <a href="/entreprises.html" class="btn btn-outline">En savoir plus</a>
+      </div>
+    </div>
+
+    <!-- ── Aperçu flou (utilisateur non-premium) ──────────────────── -->
+    <div id="cv-preview-section" style="display:none;">
+      <div class="alert alert-info" style="margin-bottom:20px;">
+        🔒 Aperçu — Connectez-vous en tant que recruteur pour accéder aux coordonnées et CVs complets.
+      </div>
+      <div class="lock-overlay">
+        <div class="cvth-grid" id="cv-preview-grid">
+          <!-- Cartes floues générées -->
+        </div>
+      </div>
+      <div style="text-align:center;margin-top:32px;">
+        <a href="/connexion.html?mode=recruteur" class="btn btn-primary">Débloquer la CVthèque</a>
+      </div>
+    </div>
+
+    <!-- ── CVthèque complète (recruteur authentifié) ───────────────── -->
+    <div id="cv-full-section" style="display:none;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+        <span class="results-count" id="cv-count" style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);">Chargement…</span>
+      </div>
+      <div class="cvth-grid" id="cv-grid">
+        <!-- Injecté par JS -->
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer class="footer">
+  <div class="footer-grid">
+    <a href="/index.html" class="talenco-logo" style="text-decoration:none;">
+      <div class="nav-logo">
+        <div class="nav-logo-text">
+          <span class="logo-primary">Talenco</span><span class="logo-dot">.</span><span class="logo-tld">bj</span>
+        </div>
+        <div class="logo-tagline">Recrutement au Bénin</div>
+      </div>
+    </a>
+    <ul class="footer-links">
+      <li><a href="/offres.html">Offres d'emploi</a></li>
+      <li><a href="/entreprises.html">Espace Recruteurs</a></li>
+      <li><a href="mailto:contact@talenco.bj">Contact</a></li>
+    </ul>
+    <div class="footer-bottom">© 2025 Talenco.bj</div>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="/pwa.js"></script>
+<script>
+  const SUPABASE_URL     = 'https://ywteoxnkkdgdpbkrlkar.supabase.co';
+  const SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY ?? '';
+  const { createClient } = supabase;
+  const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  // ── Drawer ─────────────────────────────────────────────────────────
+  const drawer = document.getElementById('nav-drawer');
+  document.getElementById('nav-toggle').addEventListener('click', () => drawer.classList.add('open'));
+  document.getElementById('nav-overlay').addEventListener('click', () => drawer.classList.remove('open'));
+  document.getElementById('nav-close').addEventListener('click', () => drawer.classList.remove('open'));
+
+  // ── Auth ────────────────────────────────────────────────────────────
+  sb.auth.getSession().then(async ({ data: { session } }) => {
+    if (!session) {
+      // Afficher l'aperçu flou + lock screen
+      document.getElementById('lock-screen').style.display = 'flex';
+      afficherApercu();
+      return;
+    }
+
+    document.getElementById('nav-actions').innerHTML = `
+      <a href="/candidat.html" class="btn btn-outline btn-sm">Mon profil</a>
+      <button class="btn btn-dark btn-sm" onclick="sb.auth.signOut().then(()=>location.reload())">Déconnexion</button>
+    `;
+
+    // Vérifier si recruteur
+    const { data: profile } = await sb.from('users').select('role').eq('id', session.user.id).maybeSingle();
+    if (profile?.role === 'recruteur' || profile?.role === 'admin') {
+      document.getElementById('cv-full-section').style.display = 'block';
+      chargerCVs();
+    } else {
+      document.getElementById('cv-preview-section').style.display = 'block';
+      afficherApercu();
+    }
+  });
+
+  function afficherApercu() {
+    document.getElementById('cv-preview-section').style.display = 'block';
+    const grid = document.getElementById('cv-preview-grid');
+    const initiales = ['AK', 'BS', 'CM', 'DO', 'EF', 'FG', 'GH', 'HI'];
+    const posts = ['Développeur', 'Comptable', 'Commercial', 'Designer', 'Manager', 'Ingénieur', 'Médecin', 'Enseignant'];
+    const villes = ['Cotonou', 'Porto-Novo', 'Parakou', 'Abomey-Calavi'];
+    grid.innerHTML = initiales.map((init, i) => `
+      <div class="cv-card">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div class="cv-card-avatar">${init}</div>
+          <div>
+            <div class="cv-card-name">••••••• •••••</div>
+            <div class="cv-card-meta">${posts[i]} — ${villes[i % villes.length]}</div>
+          </div>
+        </div>
+        <div class="job-tags">
+          <span class="tag">••••••</span>
+          <span class="tag">••••</span>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  async function chargerCVs() {
+    const q    = document.getElementById('cv-search').value.trim();
+    const ville   = document.getElementById('cv-filter-ville').value;
+    const secteur = document.getElementById('cv-filter-secteur').value;
+
+    let query = sb.from('users')
+      .select('id, prenom, nom, ville, secteur, cv_path, cv_uploaded_at', { count: 'exact' })
+      .not('cv_path', 'is', null)
+      .order('cv_uploaded_at', { ascending: false })
+      .limit(30);
+
+    if (ville)   query = query.eq('ville', ville);
+    if (secteur) query = query.eq('secteur', secteur);
+    if (q)       query = query.or(`prenom.ilike.%${q}%,nom.ilike.%${q}%`);
+
+    const { data: profiles, count } = await query;
+    document.getElementById('cv-count').textContent = `${count ?? 0} profil${(count ?? 0) > 1 ? 's' : ''}`;
+
+    const grid = document.getElementById('cv-grid');
+    if (!profiles?.length) { grid.innerHTML = '<p class="text-muted">Aucun profil trouvé.</p>'; return; }
+
+    grid.innerHTML = profiles.map(p => {
+      const initials = ((p.prenom?.[0] ?? '') + (p.nom?.[0] ?? '')).toUpperCase() || '?';
+      const name     = [p.prenom, p.nom].filter(Boolean).join(' ') || 'Candidat';
+      return `
+        <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:18px;display:flex;flex-direction:column;gap:10px;">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div class="cv-card-avatar" style="filter:none;pointer-events:auto;">${initials}</div>
+            <div>
+              <div class="cv-card-name">${name}</div>
+              <div class="cv-card-meta">${p.ville ?? ''}</div>
+            </div>
+          </div>
+          <div class="job-tags">
+            ${p.secteur ? `<span class="tag tag-accent">${p.secteur}</span>` : ''}
+          </div>
+          ${p.cv_path ? `<a href="#" class="btn btn-outline btn-sm" onclick="voirCV('${p.cv_path}');return false;">📄 Voir le CV</a>` : '<span class="text-muted" style="font-size:11px;">Pas encore de CV</span>'}
+        </div>
+      `;
+    }).join('');
+  }
+
+  async function voirCV(path) {
+    const { data } = await sb.storage.from('cvs').createSignedUrl(path, 3600);
+    if (data?.signedUrl) window.open(data.signedUrl, '_blank');
+  }
+
+  document.getElementById('cv-search-btn').addEventListener('click', chargerCVs);
+  document.getElementById('cv-search').addEventListener('keydown', e => { if (e.key === 'Enter') chargerCVs(); });
+  document.getElementById('cv-filter-ville').addEventListener('change', chargerCVs);
+  document.getElementById('cv-filter-secteur').addEventListener('change', chargerCVs);
+</script>
+</body>
+</html>

@@ -1,0 +1,119 @@
+<!-- ══════════════════════════════════════════════════════════
+  SNIPPET : Bouton "Envoyer le digest maintenant" pour admin.html
+  À insérer dans la section d'administration existante.
+  ══════════════════════════════════════════════════════════ -->
+
+<!-- CSS : à ajouter dans le <style> existant de admin.html -->
+<style>
+.digest-section {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 24px;
+  margin-top: 24px;
+}
+.digest-section h3 {
+  font-size: 15px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 6px 0;
+}
+.digest-section p {
+  font-size: 13px;
+  color: #6b7280;
+  margin: 0 0 16px 0;
+  line-height: 1.5;
+}
+#btn-digest {
+  background: #16a34a;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: background 0.15s;
+}
+#btn-digest:hover:not(:disabled) { background: #15803d; }
+#btn-digest:disabled { opacity: 0.6; cursor: not-allowed; }
+#digest-result {
+  margin-top: 14px;
+  font-size: 13px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  display: none;
+}
+#digest-result.ok    { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
+#digest-result.error { background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
+</style>
+
+<!-- HTML : à insérer dans le <body> de admin.html à l'endroit souhaité -->
+<div class="digest-section">
+  <h3>📧 Digest hebdomadaire</h3>
+  <p>
+    Envoie immédiatement le digest email à tous les candidats ayant des alertes configurées,
+    sans attendre le lundi matin. Idéal pour tester ou lancer manuellement.
+  </p>
+  <button id="btn-digest" type="button">
+    <span id="digest-icon">📬</span>
+    <span id="digest-label">Envoyer le digest maintenant</span>
+  </button>
+  <div id="digest-result"></div>
+</div>
+
+<!-- JS : à ajouter dans le <script> existant de admin.html -->
+<script>
+(function () {
+  const SUPABASE_URL  = 'https://ywteoxnkkdgdpbkrlkar.supabase.co';
+  // Utiliser la clé anon si la fonction est sécurisée par JWT,
+  // ou la service_role_key si l'admin est déjà authentifié en service_role.
+  const SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY || 'VOTRE_ANON_KEY_ICI';
+
+  const btn    = document.getElementById('btn-digest');
+  const result = document.getElementById('digest-result');
+  const icon   = document.getElementById('digest-icon');
+  const label  = document.getElementById('digest-label');
+
+  btn.addEventListener('click', async () => {
+    btn.disabled = true;
+    icon.textContent  = '⏳';
+    label.textContent = 'Envoi en cours…';
+    result.style.display = 'none';
+    result.className = '';
+
+    try {
+      const res = await fetch(`${SUPABASE_URL}/functions/v1/weekly-digest`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+        },
+        body: JSON.stringify({}),
+      });
+
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        result.className = 'ok';
+        result.textContent =
+          `✅ Digest envoyé — ${data.sent} email(s) envoyé(s), ${data.skipped} candidat(s) ignoré(s) (aucune offre correspondante). Durée : ${data.duration_ms}ms`;
+      } else {
+        result.className = 'error';
+        result.textContent = `❌ Erreur : ${data.error || JSON.stringify(data)}`;
+      }
+    } catch (err) {
+      result.className = 'error';
+      result.textContent = `❌ Erreur réseau : ${err.message}`;
+    } finally {
+      result.style.display = 'block';
+      btn.disabled = false;
+      icon.textContent  = '📬';
+      label.textContent = 'Envoyer le digest maintenant';
+    }
+  });
+})();
+</script>

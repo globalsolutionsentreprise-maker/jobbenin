@@ -1,0 +1,42 @@
+<!--
+  ══════════════════════════════════════════════════════════════
+  SNIPPET : Kanban dans entreprises.html
+  ══════════════════════════════════════════════════════════════
+  Remplacer la section "liste des candidatures" existante par :
+-->
+
+<!-- 1. Script à ajouter avant </body> -->
+<script src="/kanban.js"></script>
+
+<!-- 2. HTML : remplace le tableau/liste existant -->
+<section id="section-candidatures">
+  <h2 style="font-size:18px;font-weight:700;color:#111827;margin:0 0 16px;">
+    Candidatures reçues
+  </h2>
+  <!-- Le kanban s'injecte ici -->
+  <div id="kanban"></div>
+</section>
+
+<!-- 3. JS : dans le callback de session existant -->
+<script>
+// Ajouter dans votre bloc d'initialisation Supabase existant,
+// après avoir vérifié que l'utilisateur est connecté en tant que recruteur :
+
+supabase.auth.getSession().then(({ data: { session } }) => {
+  if (!session) {
+    window.location.href = '/connexion.html';
+    return;
+  }
+  // Initialiser le kanban avec l'ID du recruteur connecté
+  kanban.init(supabase, 'kanban', session.user.id);
+});
+</script>
+
+<!--
+  ── Activation Realtime (obligatoire) ─────────────────────────────────────
+  Dans le Dashboard Supabase → Database → Replication :
+  Cocher "applications" dans la liste des tables.
+  Ou via SQL Editor :
+    ALTER PUBLICATION supabase_realtime ADD TABLE public.applications;
+  (déjà inclus dans kanban_schema.sql)
+-->

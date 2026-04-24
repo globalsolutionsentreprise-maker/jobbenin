@@ -1,0 +1,82 @@
+<!--
+  ══════════════════════════════════════════════════════════════
+  SNIPPET : Lien "Coach IA" dans la navigation
+  À intégrer dans candidat.html et index.html
+  ══════════════════════════════════════════════════════════════
+-->
+
+
+<!-- ════════════════════════════════════════════════════════════
+  1. candidat.html — dans la nav ou la sidebar de profil
+  Chercher le lien "Mes candidatures", "Mon profil" ou similaire
+  et ajouter juste après :
+  ════════════════════════════════════════════════════════════ -->
+<a href="/coach.html" class="nav-link nav-link--coach">
+  ✨ Coach IA
+</a>
+
+<!-- Style à ajouter si le badge violet n'est pas encore défini : -->
+<style>
+.nav-link--coach {
+  /* Hérite des styles de .nav-link existants — ajouter juste la couleur */
+  color: #7c3aed !important;
+  font-weight: 600;
+}
+/* Optionnel : badge "Nouveau" si vous l'affichez -->
+.nav-link--coach::after {
+  content: 'IA';
+  display: inline-block;
+  background: #7c3aed;
+  color: #fff;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 99px;
+  margin-left: 5px;
+  vertical-align: middle;
+  letter-spacing: 0.03em;
+}
+</style>
+
+
+<!-- ════════════════════════════════════════════════════════════
+  2. index.html — menu desktop (dans la <nav> principale)
+  Chercher les liens "Offres", "Candidats", "Recruteurs"
+  et ajouter :
+  ════════════════════════════════════════════════════════════ -->
+<a href="/coach.html" class="nav-item">✨ Coach IA</a>
+
+
+<!-- ════════════════════════════════════════════════════════════
+  3. index.html — menu mobile (drawer / hamburger)
+  Ajouter dans la liste du menu mobile :
+  ════════════════════════════════════════════════════════════ -->
+<li>
+  <a href="/coach.html" class="mobile-nav-link">
+    <span class="mobile-nav-icon">✨</span>
+    Coach IA
+  </a>
+</li>
+
+
+<!-- ════════════════════════════════════════════════════════════
+  4. candidat.html — section tableau de bord (card d'accès rapide)
+  Si vous avez une grille de fonctionnalités sur le tableau
+  de bord candidat, ajouter cette card :
+  ════════════════════════════════════════════════════════════ -->
+<a href="/coach.html" style="
+  display:block;
+  background:linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+  color:#fff;
+  border-radius:12px;
+  padding:16px 20px;
+  text-decoration:none;
+  transition:opacity 0.15s;
+" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
+  <div style="font-size:24px;margin-bottom:6px;">✨</div>
+  <div style="font-weight:700;font-size:15px;margin-bottom:4px;">Coach IA</div>
+  <div style="font-size:12px;opacity:0.85;line-height:1.4;">
+    Préparez vos entretiens, rédigez votre lettre de motivation,
+    négociez votre salaire — avec votre coach emploi personnel.
+  </div>
+</a>

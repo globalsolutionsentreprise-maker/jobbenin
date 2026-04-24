@@ -1,0 +1,282 @@
+<!--
+  ══════════════════════════════════════════════════════════
+  SNIPPET : "Rédiger avec l'IA" pour ajouter-offre.html
+  ══════════════════════════════════════════════════════════
+
+  IDs de champs attendus dans le formulaire (à adapter si différents) :
+    #champ-poste          → intitulé du poste (input text)
+    #champ-entreprise     → nom de l'entreprise (input text)
+    #champ-ville          → ville (select ou input)
+    #champ-secteur        → secteur (select ou input)
+    #champ-type-contrat   → CDI / CDD / ... (select ou input)
+    #champ-titre          → titre de l'offre (input text) — rempli par l'IA
+    #champ-description    → description (textarea) — rempli par l'IA
+    #champ-profil         → profil recherché (textarea) — rempli par l'IA
+    #champ-competences    → compétences (textarea) — rempli par l'IA
+    #champ-avantages      → avantages (textarea) — rempli par l'IA (optionnel)
+  ══════════════════════════════════════════════════════════
+-->
+
+<!-- ── CSS : à coller dans le <style> existant de ajouter-offre.html ── -->
+<style>
+/* Conteneur du bouton IA (à placer à côté du label "Titre de l'offre") */
+.ia-btn-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+#btn-ia-generer {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #7c3aed;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 9px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, opacity 0.15s;
+  white-space: nowrap;
+}
+#btn-ia-generer:hover:not(:disabled) { background: #6d28d9; }
+#btn-ia-generer:disabled { opacity: 0.6; cursor: not-allowed; }
+
+#btn-ia-regenerer {
+  display: none;          /* visible uniquement après une 1ère génération */
+  align-items: center;
+  gap: 6px;
+  background: none;
+  color: #7c3aed;
+  border: 1.5px solid #7c3aed;
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+  white-space: nowrap;
+}
+#btn-ia-regenerer:hover:not(:disabled) { background: #f5f3ff; }
+#btn-ia-regenerer:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* Bandeau succès */
+#ia-bandeau {
+  display: none;
+  background: #dcfce7;
+  border: 1px solid #86efac;
+  border-radius: 10px;
+  padding: 12px 16px;
+  font-size: 13px;
+  color: #15803d;
+  font-weight: 500;
+  margin-top: 12px;
+}
+
+/* Erreur inline */
+#ia-erreur {
+  display: none;
+  background: #fee2e2;
+  border: 1px solid #fca5a5;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 13px;
+  color: #b91c1c;
+  margin-top: 8px;
+}
+
+/* Spinner */
+.ia-spinner {
+  width: 14px; height: 14px;
+  border: 2px solid rgba(255,255,255,0.4);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: ia-spin 0.7s linear infinite;
+  display: inline-block;
+  flex-shrink: 0;
+}
+@keyframes ia-spin { to { transform: rotate(360deg); } }
+</style>
+
+<!-- ── HTML : à insérer juste au-dessus du champ "Titre de l'offre" ── -->
+<div class="ia-btn-group">
+  <button id="btn-ia-generer" type="button">
+    ✨ Rédiger avec l'IA
+  </button>
+  <button id="btn-ia-regenerer" type="button">
+    🔄 Regénérer
+  </button>
+</div>
+
+<div id="ia-erreur"></div>
+<div id="ia-bandeau">✓ Offre rédigée par l'IA — vérifiez et ajustez avant de publier</div>
+
+<!-- ── JS : à coller dans le <script> existant de ajouter-offre.html ── -->
+<script>
+(function () {
+  'use strict';
+
+  const SUPABASE_URL     = 'https://ywteoxnkkdgdpbkrlkar.supabase.co';
+  // Utiliser la même clé anon que le reste de la page
+  const SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY ?? '';
+
+  // ── Correspondance champs du formulaire ────────────────────────────────────
+  // Adapter les IDs si vos champs portent des noms différents
+  const CHAMPS = {
+    poste:        '#champ-poste',
+    entreprise:   '#champ-entreprise',
+    ville:        '#champ-ville',
+    secteur:      '#champ-secteur',
+    type_contrat: '#champ-type-contrat',
+    // Champs remplis par l'IA :
+    titre:        '#champ-titre',
+    description:  '#champ-description',
+    profil:       '#champ-profil',
+    competences:  '#champ-competences',
+    avantages:    '#champ-avantages',   // optionnel
+  };
+
+  const REQUIS = ['poste', 'ville', 'secteur', 'type_contrat'];
+
+  const btnGenerer    = document.getElementById('btn-ia-generer');
+  const btnRegenerer  = document.getElementById('btn-ia-regenerer');
+  const bandeauOk     = document.getElementById('ia-bandeau');
+  const erreurEl      = document.getElementById('ia-erreur');
+
+  // Mémorise les paramètres du dernier appel pour la regénération
+  let dernierParams = null;
+
+  // ── Helpers ───────────────────────────────────────────────────────────────
+
+  function valeur(id) {
+    const el = document.querySelector(CHAMPS[id]);
+    return el?.value?.trim() ?? '';
+  }
+
+  function showErreur(msg) {
+    erreurEl.textContent = msg;
+    erreurEl.style.display = 'block';
+    bandeauOk.style.display = 'none';
+  }
+
+  function hideErreur() {
+    erreurEl.style.display = 'none';
+  }
+
+  function setLoading(on) {
+    const label = on
+      ? '<span class="ia-spinner"></span> L\'IA rédige votre offre…'
+      : '✨ Rédiger avec l\'IA';
+    btnGenerer.innerHTML   = label;
+    btnGenerer.disabled    = on;
+    btnRegenerer.disabled  = on;
+
+    // Désactiver tous les champs du formulaire pendant la génération
+    document.querySelectorAll('form input, form select, form textarea, form button')
+      .forEach((el) => {
+        if (el !== btnGenerer && el !== btnRegenerer) el.disabled = on;
+      });
+  }
+
+  // ── Remplir les champs et déclencher l'événement input (pour le score) ──────
+
+  function remplirChamp(cle, valeurTexte) {
+    const el = document.querySelector(CHAMPS[cle]);
+    if (!el || !valeurTexte) return;
+    el.value = valeurTexte;
+    // Déclencher input + change pour que les listeners existants réagissent
+    el.dispatchEvent(new Event('input', { bubbles: true }));
+    el.dispatchEvent(new Event('change', { bubbles: true }));
+  }
+
+  function tableauVersTexte(arr) {
+    if (!Array.isArray(arr)) return String(arr ?? '');
+    return arr.map((item) => `• ${item}`).join('\n');
+  }
+
+  // ── Appel Edge Function ───────────────────────────────────────────────────
+
+  async function generer(params) {
+    hideErreur();
+    setLoading(true);
+    bandeauOk.style.display = 'none';
+
+    try {
+      const res = await fetch(`${SUPABASE_URL}/functions/v1/generate-offre`, {
+        method: 'POST',
+        headers: {
+          'Content-Type':  'application/json',
+          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+        },
+        body: JSON.stringify(params),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        showErreur(`❌ ${data.error ?? 'Erreur lors de la génération. Réessayez.'}`);
+        return;
+      }
+
+      const { offre } = data;
+
+      // Remplir les champs (les converts tableaux → texte bullet)
+      remplirChamp('titre',       offre.titre);
+      remplirChamp('description', offre.description);
+      remplirChamp('profil',      tableauVersTexte(offre.profil_recherche));
+      remplirChamp('competences', tableauVersTexte(offre.competences_requises));
+      remplirChamp('avantages',   tableauVersTexte(offre.avantages));
+
+      // Afficher le bandeau succès et le bouton Regénérer
+      bandeauOk.style.display = 'block';
+      btnRegenerer.style.display = 'inline-flex';
+
+      // Scroll vers le premier champ rempli
+      document.querySelector(CHAMPS.titre)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+    } catch (err) {
+      showErreur(`❌ Erreur réseau : ${err.message}`);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  // ── Listeners boutons ─────────────────────────────────────────────────────
+
+  btnGenerer.addEventListener('click', () => {
+    // Validation des champs requis
+    const manquants = REQUIS
+      .filter((k) => !valeur(k))
+      .map((k) => ({
+        poste: 'Poste', ville: 'Ville', secteur: 'Secteur', type_contrat: 'Type de contrat',
+      }[k]));
+
+    if (manquants.length) {
+      showErreur(`⚠️ Remplissez d'abord : ${manquants.join(', ')}`);
+      // Focus sur le premier champ manquant
+      const firstMissing = REQUIS.find((k) => !valeur(k));
+      document.querySelector(CHAMPS[firstMissing])?.focus();
+      return;
+    }
+
+    dernierParams = {
+      poste:        valeur('poste'),
+      entreprise:   valeur('entreprise'),
+      ville:        valeur('ville'),
+      secteur:      valeur('secteur'),
+      type_contrat: valeur('type_contrat'),
+    };
+
+    generer(dernierParams);
+  });
+
+  btnRegenerer.addEventListener('click', () => {
+    if (dernierParams) generer(dernierParams);
+  });
+
+})();
+</script>

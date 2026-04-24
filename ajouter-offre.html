@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Publier une offre — Talenco.bj</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Hanken+Grotesk:wght@300;400;500;700;900&family=Space+Grotesk:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap">
+  <link rel="stylesheet" href="/design-system.css">
+  <style>
+    .form-layout {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 36px 24px 64px;
+    }
+    .form-section {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+    .form-section-header {
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-soft);
+    }
+    .form-section-title {
+      font-family: var(--font-sans);
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--text-muted);
+      margin: 0;
+    }
+    .form-section-body { padding: 20px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .ia-btn-group { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+    .ia-spinner { width: 14px; height: 14px; border: 2px solid rgba(255,255,255,.4); border-top-color: #fff; border-radius: 50%; animation: ia-spin .7s linear infinite; display: inline-block; flex-shrink: 0; }
+    @keyframes ia-spin { to { transform: rotate(360deg); } }
+    #ia-bandeau { display: none; padding: 12px 16px; border-radius: var(--radius-sm); margin-top: 10px; }
+    #ia-erreur  { display: none; padding: 10px 14px; border-radius: var(--radius-sm); margin-top: 8px; font-size: 13px; }
+    .form-submit-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      padding: 16px 20px;
+      background: var(--bg-soft);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+    }
+    @media (max-width: 600px) {
+      .form-layout { padding: 20px 16px 40px; }
+      .form-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="navbar" id="main-nav">
+  <a href="/index.html" class="talenco-logo">
+    <div class="nav-logo">
+      <div class="nav-logo-text">
+        <span class="logo-primary">Talenco</span><span class="logo-dot">.</span><span class="logo-tld">bj</span>
+      </div>
+      <div class="logo-tagline">Recrutement au Bénin</div>
+    </div>
+  </a>
+
+  <ul class="navbar-links">
+    <li><a href="/index.html">Accueil</a></li>
+    <li><a href="/offres.html">Offres</a></li>
+    <li><a href="/entreprises.html" class="active">Recruteurs</a></li>
+    <li><a href="/cvtheque.html">CVthèque</a></li>
+  </ul>
+
+  <div class="navbar-actions" id="nav-actions">
+    <a href="/entreprises.html" class="btn btn-outline btn-sm">← Tableau de bord</a>
+  </div>
+
+  <button class="navbar-toggle" id="nav-toggle" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<div class="nav-drawer" id="nav-drawer">
+  <div class="nav-drawer-overlay" id="nav-overlay"></div>
+  <div class="nav-drawer-panel">
+    <button class="nav-drawer-close" id="nav-close">✕</button>
+    <div class="nav-logo">
+      <div class="nav-logo-text">
+        <span class="logo-primary">Talenco</span><span class="logo-dot">.</span><span class="logo-tld">bj</span>
+      </div>
+    </div>
+    <ul class="nav-drawer-links">
+      <li><a href="/index.html">Accueil</a></li>
+      <li><a href="/offres.html">Offres d'emploi</a></li>
+      <li><a href="/entreprises.html">Espace Recruteurs</a></li>
+    </ul>
+  </div>
+</div>
+
+<main>
+  <div class="ds-page-header">
+    <div class="ds-page-eyebrow">Espace recruteur</div>
+    <h1 class="ds-page-title">Publier une offre</h1>
+  </div>
+
+  <div class="form-layout">
+
+    <!-- ── Boutons IA ────────────────────────────────────────────── -->
+    <div class="ia-btn-group">
+      <button id="btn-ia-generer" type="button">
+        ✨ Rédiger avec l'IA
+      </button>
+      <button id="btn-ia-regenerer" type="button">
+        🔄 Regénérer
+      </button>
+    </div>
+    <div id="ia-erreur" class="alert-error"></div>
+    <div id="ia-bandeau" class="alert-info">✓ Offre rédigée par l'IA — vérifiez et ajustez avant de publier</div>
+
+    <form id="form-offre" novalidate>
+
+      <!-- Informations de base -->
+      <div class="form-section">
+        <div class="form-section-header">
+          <p class="form-section-title">Informations de base</p>
+        </div>
+        <div class="form-section-body">
+          <div class="form-row">
+            <div class="form-field">
+              <label class="form-label" for="champ-poste">Intitulé du poste <span style="color:var(--accent)">*</span></label>
+              <input type="text" id="champ-poste" placeholder="Ex: Développeur Full Stack" required>
+            </div>
+            <div class="form-field">
+              <label class="form-label" for="champ-entreprise">Entreprise</label>
+              <input type="text" id="champ-entreprise" placeholder="Nom de votre entreprise">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-field">
+              <label class="form-label" for="champ-ville">Ville <span style="color:var(--accent)">*</span></label>
+              <select id="champ-ville" required>
+                <option value="">Sélectionnez une ville</option>
+                <option>Cotonou</option>
+                <option>Abomey-Calavi</option>
+                <option>Porto-Novo</option>
+                <option>Parakou</option>
+                <option>Bohicon</option>
+                <option>Natitingou</option>
+                <option>Ouidah</option>
+                <option>Lokossa</option>
+                <option>Autre</option>
+              </select>
+            </div>
+            <div class="form-field">
+              <label class="form-label" for="champ-secteur">Secteur <span style="color:var(--accent)">*</span></label>
+              <select id="champ-secteur" required>
+                <option value="">Sélectionnez un secteur</option>
+                <option>Tech</option>
+                <option>Finance</option>
+                <option>Santé</option>
+                <option>BTP</option>
+                <option>Agriculture</option>
+                <option>Marketing</option>
+                <option>RH</option>
+                <option>Stage</option>
+                <option>Transport</option>
+                <option>Éducation</option>
+                <option>Autre</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-field">
+            <label class="form-label" for="champ-type-contrat">Type de contrat <span style="color:var(--accent)">*</span></label>
+            <select id="champ-type-contrat" required>
+              <option value="">Sélectionnez</option>
+              <option>CDI</option>
+              <option>CDD</option>
+              <option>Stage</option>
+              <option>Freelance</option>
+              <option>Temps partiel</option>
+              <option>Alternance</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Contenu de l'offre (rempli par l'IA) -->
+      <div class="form-section">
+        <div class="form-section-header">
+          <p class="form-section-title">Contenu de l'offre</p>
+        </div>
+        <div class="form-section-body">
+          <div class="form-field">
+            <label class="form-label" for="champ-titre">Titre de l'offre</label>
+            <input type="text" id="champ-titre" placeholder="Généré automatiquement par l'IA">
+          </div>
+          <div class="form-field">
+            <label class="form-label" for="champ-description">Description du poste</label>
+            <textarea id="champ-description" rows="6" placeholder="Décrivez les missions et responsabilités…"></textarea>
+          </div>
+          <div class="form-field">
+            <label class="form-label" for="champ-profil">Profil recherché</label>
+            <textarea id="champ-profil" rows="4" placeholder="Formation requise, expérience, qualités…"></textarea>
+          </div>
+          <div class="form-field">
+            <label class="form-label" for="champ-competences">Compétences requises</label>
+            <textarea id="champ-competences" rows="3" placeholder="Compétences techniques et comportementales…"></textarea>
+          </div>
+          <div class="form-field">
+            <label class="form-label" for="champ-avantages">Avantages &amp; conditions</label>
+            <textarea id="champ-avantages" rows="3" placeholder="Salaire, avantages, télétravail…"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Barre de soumission -->
+      <div class="form-submit-bar">
+        <div>
+          <div id="form-msg" class="alert" style="display:none;"></div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <a href="/entreprises.html" class="btn btn-outline btn-sm">Annuler</a>
+          <button type="submit" class="btn btn-dark" id="btn-submit">Publier l'offre</button>
+        </div>
+      </div>
+
+    </form>
+  </div>
+</main>
+
+<footer class="footer">
+  <div class="footer-grid">
+    <a href="/index.html" class="talenco-logo" style="text-decoration:none;">
+      <div class="nav-logo">
+        <div class="nav-logo-text">
+          <span class="logo-primary">Talenco</span><span class="logo-dot">.</span><span class="logo-tld">bj</span>
+        </div>
+        <div class="logo-tagline">Recrutement au Bénin</div>
+      </div>
+    </a>
+    <ul class="footer-links">
+      <li><a href="/entreprises.html">Tableau de bord recruteur</a></li>
+      <li><a href="/offres.html">Toutes les offres</a></li>
+    </ul>
+    <div class="footer-bottom">© 2025 Talenco.bj</div>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="/pwa.js"></script>
+<script>
+  const SUPABASE_URL     = 'https://ywteoxnkkdgdpbkrlkar.supabase.co';
+  const SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY ?? '';
+  const { createClient } = supabase;
+  const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  // ── Drawer ─────────────────────────────────────────────────────────
+  const drawer = document.getElementById('nav-drawer');
+  document.getElementById('nav-toggle').addEventListener('click', () => drawer.classList.add('open'));
+  document.getElementById('nav-overlay').addEventListener('click', () => drawer.classList.remove('open'));
+  document.getElementById('nav-close').addEventListener('click', () => drawer.classList.remove('open'));
+
+  // ── Auth ────────────────────────────────────────────────────────────
+  let currentSession = null;
+  sb.auth.getSession().then(({ data: { session } }) => {
+    if (!session) { window.location.href = '/connexion.html?next=/ajouter-offre.html'; return; }
+    currentSession = session;
+    document.getElementById('nav-actions').innerHTML = `
+      <a href="/entreprises.html" class="btn btn-outline btn-sm">← Tableau de bord</a>
+      <button class="btn btn-dark btn-sm" onclick="sb.auth.signOut().then(()=>location.href='/index.html')">Déconnexion</button>
+    `;
+    // Pré-remplir entreprise depuis le profil
+    sb.from('users').select('entreprise').eq('id', session.user.id).maybeSingle()
+      .then(({ data }) => { if (data?.entreprise) document.getElementById('champ-entreprise').value = data.entreprise; });
+  });
+
+  // ── Soumission du formulaire ─────────────────────────────────────
+  document.getElementById('form-offre').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!currentSession) return;
+
+    const msgEl  = document.getElementById('form-msg');
+    const btnSubmit = document.getElementById('btn-submit');
+    btnSubmit.disabled = true;
+    btnSubmit.textContent = '⏳ Publication…';
+    msgEl.style.display = 'none';
+
+    const payload = {
+      user_id:       currentSession.user.id,
+      titre:         document.getElementById('champ-titre').value.trim()       || document.getElementById('champ-poste').value.trim(),
+      entreprise:    document.getElementById('champ-entreprise').value.trim(),
+      ville:         document.getElementById('champ-ville').value,
+      secteur:       document.getElementById('champ-secteur').value,
+      type_contrat:  document.getElementById('champ-type-contrat').value,
+      description:   document.getElementById('champ-description').value.trim(),
+      profil:        document.getElementById('champ-profil').value.trim(),
+      competences:   document.getElementById('champ-competences').value.trim(),
+      avantages:     document.getElementById('champ-avantages').value.trim(),
+      statut:        'publie',
+    };
+
+    const { data: newJob, error } = await sb.from('jobs').insert(payload).select().single();
+
+    if (error) {
+      msgEl.className = 'alert alert-error';
+      msgEl.textContent = '❌ Erreur : ' + error.message;
+      msgEl.style.display = 'block';
+      btnSubmit.disabled = false;
+      btnSubmit.textContent = 'Publier l\'offre';
+      return;
+    }
+
+    // Push notifications (fire-and-forget)
+    fetch(`${SUPABASE_URL}/functions/v1/send-push`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${SUPABASE_ANON_KEY}` },
+      body: JSON.stringify({ job_id: newJob.id }),
+    }).catch(() => {});
+
+    // WhatsApp notifications (fire-and-forget)
+    fetch(`${SUPABASE_URL}/functions/v1/whatsapp-send`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${SUPABASE_ANON_KEY}` },
+      body: JSON.stringify({ job_id: newJob.id }),
+    }).catch(() => {});
+
+    // Redirection
+    window.location.href = `/offre-detail.html?id=${newJob.id}&published=1`;
+  });
+</script>
+
+<!-- ── Script IA (snippet generate-offre) ──────────────────────────── -->
+<script>
+(function () {
+  'use strict';
+
+  const CHAMPS = {
+    poste:        '#champ-poste',
+    entreprise:   '#champ-entreprise',
+    ville:        '#champ-ville',
+    secteur:      '#champ-secteur',
+    type_contrat: '#champ-type-contrat',
+    titre:        '#champ-titre',
+    description:  '#champ-description',
+    profil:       '#champ-profil',
+    competences:  '#champ-competences',
+    avantages:    '#champ-avantages',
+  };
+
+  const REQUIS = ['poste', 'ville', 'secteur', 'type_contrat'];
+
+  const btnGenerer   = document.getElementById('btn-ia-generer');
+  const btnRegenerer = document.getElementById('btn-ia-regenerer');
+  const bandeauOk    = document.getElementById('ia-bandeau');
+  const erreurEl     = document.getElementById('ia-erreur');
+
+  let dernierParams = null;
+
+  function valeur(id) { const el = document.querySelector(CHAMPS[id]); return el?.value?.trim() ?? ''; }
+  function showErreur(msg) { erreurEl.textContent = msg; erreurEl.style.display = 'block'; bandeauOk.style.display = 'none'; }
+  function hideErreur() { erreurEl.style.display = 'none'; }
+
+  function setLoading(on) {
+    btnGenerer.innerHTML   = on ? '<span class="ia-spinner"></span> L\'IA rédige votre offre…' : '✨ Rédiger avec l\'IA';
+    btnGenerer.disabled    = on;
+    btnRegenerer.disabled  = on;
+    document.querySelectorAll('#form-offre input, #form-offre select, #form-offre textarea, #form-offre button')
+      .forEach(el => { if (el !== btnGenerer && el !== btnRegenerer) el.disabled = on; });
+  }
+
+  function remplirChamp(cle, valeurTexte) {
+    const el = document.querySelector(CHAMPS[cle]);
+    if (!el || !valeurTexte) return;
+    el.value = valeurTexte;
+    el.dispatchEvent(new Event('input', { bubbles: true }));
+    el.dispatchEvent(new Event('change', { bubbles: true }));
+  }
+
+  function tableauVersTexte(arr) {
+    if (!Array.isArray(arr)) return String(arr ?? '');
+    return arr.map(item => `• ${item}`).join('\n');
+  }
+
+  async function generer(params) {
+    hideErreur();
+    setLoading(true);
+    bandeauOk.style.display = 'none';
+    try {
+      const { data: { session } } = await sb.auth.getSession();
+      const res = await fetch(`${SUPABASE_URL}/functions/v1/generate-offre`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token ?? SUPABASE_ANON_KEY}` },
+        body: JSON.stringify(params),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) { showErreur(`❌ ${data.error ?? 'Erreur lors de la génération.'}`); return; }
+      const { offre } = data;
+      remplirChamp('titre',       offre.titre);
+      remplirChamp('description', offre.description);
+      remplirChamp('profil',      tableauVersTexte(offre.profil_recherche));
+      remplirChamp('competences', tableauVersTexte(offre.competences_requises));
+      remplirChamp('avantages',   tableauVersTexte(offre.avantages));
+      bandeauOk.style.display = 'block';
+      btnRegenerer.style.display = 'inline-flex';
+      document.querySelector(CHAMPS.titre)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    } catch (err) {
+      showErreur(`❌ Erreur réseau : ${err.message}`);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  btnGenerer.addEventListener('click', () => {
+    const manquants = REQUIS.filter(k => !valeur(k)).map(k => ({ poste:'Poste', ville:'Ville', secteur:'Secteur', type_contrat:'Type de contrat' }[k]));
+    if (manquants.length) { showErreur(`⚠️ Remplissez d'abord : ${manquants.join(', ')}`); document.querySelector(CHAMPS[REQUIS.find(k => !valeur(k))])?.focus(); return; }
+    dernierParams = { poste: valeur('poste'), entreprise: valeur('entreprise'), ville: valeur('ville'), secteur: valeur('secteur'), type_contrat: valeur('type_contrat') };
+    generer(dernierParams);
+  });
+
+  btnRegenerer.addEventListener('click', () => { if (dernierParams) generer(dernierParams); });
+})();
+</script>
+</body>
+</html>
