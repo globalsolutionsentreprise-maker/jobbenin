@@ -67,6 +67,54 @@
       .content { padding: 16px; }
       .profile-grid { grid-template-columns: 1fr; }
     }
+  
+  .premium-lock {
+    position:relative;
+    overflow:hidden;
+  }
+  .premium-lock::after {
+    content:'';
+    position:absolute;
+    inset:0;
+    background:rgba(255,255,255,0.85);
+    backdrop-filter:blur(3px);
+    z-index:10;
+  }
+  .premium-badge {
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    background:linear-gradient(135deg,#c9a84c,#f0d080);
+    color:#7a5c00;
+    font-family:var(--font-mono);
+    font-size:9px;
+    font-weight:600;
+    text-transform:uppercase;
+    letter-spacing:.1em;
+    padding:4px 10px;
+    border-radius:20px;
+    margin-bottom:8px;
+  }
+  .premium-overlay {
+    position:absolute;
+    inset:0;
+    z-index:20;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+    text-align:center;
+  }
+  .premium-wall {
+    background:var(--bg-card);
+    border:1px solid #c9a84c44;
+    border-radius:var(--radius-md);
+    padding:32px 24px;
+    text-align:center;
+    margin:16px 0;
+  }
+
   </style>
 </head>
 <body>
@@ -630,6 +678,89 @@
     });
     sb.auth.getSession().then(({ data: { session } }) => { if (session) checkExistingSubscription(session); });
   })();
+
+  let userIsPremium = false;
+
+  async function checkPremium(userId) {
+    const { data } = await sb.from('users').select('premium_until, full_name').eq('id', userId).single();
+    if (data?.premium_until && new Date(data.premium_until) > new Date()) {
+      userIsPremium = true;
+      document.getElementById('premium-actif-banner').style.display = 'flex';
+      document.getElementById('premium-banner').style.display = 'none';
+      const exp = new Date(data.premium_until).toLocaleDateString('fr-FR');
+      document.getElementById('premium-expiry').textContent = 'Valide jusqu'au ' + exp;
+    } else {
+      userIsPremium = false;
+      document.getElementById('premium-banner').style.display = 'flex';
+      document.getElementById('premium-actif-banner').style.display = 'none';
+      appliquerLocksNonPremium();
+    }
+  }
+
+  function appliquerLocksNonPremium() {
+    // Bloquer Coach IA
+    const coachTab = document.querySelector('[data-tab="coach"]');
+    if (coachTab) {
+      coachTab.innerHTML += ' 🔒';
+      coachTab.addEventListener('click', (e) => {
+        if (!userIsPremium) { e.stopImmediatePropagation(); afficherWallPremium('coach-content'); }
+      }, true);
+    }
+    // Bloquer alertes
+    const alertesTab = document.querySelector('[data-tab="alertes"]');
+    if (alertesTab) {
+      alertesTab.innerHTML += ' 🔒';
+      alertesTab.addEventListener('click', (e) => {
+        if (!userIsPremium) { e.stopImmediatePropagation(); afficherWallPremium('alertes-content'); }
+      }, true);
+    }
+  }
+
+  function afficherWallPremium(containerId) {
+    const el = document.getElementById(containerId);
+    if (!el) return;
+    el.innerHTML = `
+      <div class="premium-wall">
+        <div style="font-size:40px;margin-bottom:12px;">⭐</div>
+        <div class="premium-badge">Fonctionnalité Premium</div>
+        <p style="font-family:var(--font-serif);font-style:italic;font-size:16px;margin:12px 0 8px;">Accès réservé aux membres Premium</p>
+        <p class="text-muted" style="margin-bottom:20px;font-size:13px;">Débloquez cette fonctionnalité pour 1 000 FCFA/mois</p>
+        <button onclick="payerPremium()" class="btn btn-primary" style="background:linear-gradient(135deg,#c9a84c,#f0d080);color:#7a5c00;border:none;font-weight:600;">
+          Devenir Premium maintenant
+        </button>
+      </div>`;
+  }
+
+  async function payerPremium() {
+    const session = (await sb.auth.getSession()).data.session;
+    if (!session) return;
+
+    const handler = FedaPay.init({
+      public_key: 'pk_sandbox_your_key_here',
+      transaction: {
+        amount: 1000,
+        description: 'Abonnement Premium Talenco.bj — 30 jours',
+      },
+      customer: { email: session.user.email },
+      onComplete: async (transaction) => {
+        if (transaction.reason === FedaPay.TRANSACTION_APPROVED) {
+          await sb.from('payments').insert({
+            user_id: session.user.id,
+            amount: 1000,
+            status: 'approved',
+            metadata: { type: 'candidat_premium', user_id: session.user.id }
+          });
+          // Active directement côté client aussi
+          await sb.from('users').update({
+            premium_until: new Date(Date.now() + 30*24*60*60*1000).toISOString()
+          }).eq('id', session.user.id);
+          checkPremium(session.user.id);
+        }
+      }
+    });
+    handler.open();
+  }
+
 </script>
 </body>
 </html>
