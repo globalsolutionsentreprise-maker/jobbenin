@@ -211,6 +211,7 @@
       <button class="tab-btn active" data-tab="kanban">Candidatures</button>
       <button class="tab-btn" data-tab="offres">Mes offres</button>
       <button class="tab-btn" data-tab="cvtheque-tab">CVthèque</button>
+      <button class="tab-btn" data-tab="actualites">Actualités</button>
     </div>
 
     <div class="tab-panel active" id="tab-kanban">
@@ -235,6 +236,28 @@
     </div>
   </div>
 </div>
+
+
+    <div class="tab-panel" id="tab-actualites">
+      <div id="news-plan-lock" style="display:none;text-align:center;padding:32px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);margin-bottom:24px;">
+        <div style="font-size:32px;margin-bottom:12px;">🔒</div>
+        <p style="font-family:var(--font-serif);font-style:italic;font-size:16px;margin-bottom:8px;">Fonctionnalité réservée aux plans payants</p>
+        <p class="text-muted" style="margin-bottom:16px;">Passez en Standard ou Premium pour publier des actualités.</p>
+        <a href="/cvtheque.html" class="btn btn-primary">Voir les plans</a>
+      </div>
+      <div id="news-form-wrapper" style="display:none;margin-bottom:32px;">
+        <h3 style="font-family:var(--font-serif);font-style:italic;margin-bottom:16px;">Publier une actualité</h3>
+        <div style="display:flex;flex-direction:column;gap:12px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:20px;">
+          <input id="news-title" type="text" placeholder="Titre de l'actualité" style="padding:10px 14px;border:1px solid var(--border);border-radius:var(--radius-sm);font-family:var(--font-body);font-size:14px;background:var(--bg);">
+          <textarea id="news-content" rows="4" placeholder="Contenu de l'actualité…" style="padding:10px 14px;border:1px solid var(--border);border-radius:var(--radius-sm);font-family:var(--font-body);font-size:14px;background:var(--bg);resize:vertical;"></textarea>
+          <input id="news-image" type="url" placeholder="URL image (optionnel)" style="padding:10px 14px;border:1px solid var(--border);border-radius:var(--radius-sm);font-family:var(--font-body);font-size:14px;background:var(--bg);">
+          <button onclick="publierNews()" class="btn btn-primary" style="align-self:flex-start;">Publier</button>
+          <p id="news-feedback" style="font-size:13px;color:var(--accent);display:none;"></p>
+        </div>
+      </div>
+      <h3 style="font-family:var(--font-serif);font-style:italic;margin-bottom:16px;">Mes actualités publiées</h3>
+      <div id="mes-news-list"><p class="text-muted">Chargement…</p></div>
+    </div>
 
 <footer class="footer">
   <div class="footer-grid">
@@ -299,6 +322,7 @@
 
     chargerStats(session.user.id);
     chargerMesOffres(session.user.id);
+    chargerNews(session.user.id);
   });
 
   async function chargerStats(userId) {
@@ -341,6 +365,45 @@
       </div>
     `).join('')}</div>`;
   }
+
+  async function chargerNews(userId) {
+    const { data: comp } = await sb.from('companies').select('plan').eq('owner_id', userId).single();
+    const isPaid = comp && ['standard','premium'].includes(comp.plan);
+    document.getElementById('news-plan-lock').style.display = isPaid ? 'none' : 'block';
+    document.getElementById('news-form-wrapper').style.display = isPaid ? 'block' : 'none';
+    const { data: news } = await sb.from('company_news')
+      .select('*').eq('company_id', userId).order('created_at', { ascending: false });
+    const list = document.getElementById('mes-news-list');
+    if (!news?.length) { list.innerHTML = '<p class="text-muted">Aucune actualité publiée.</p>'; return; }
+    list.innerHTML = news.map(n => `
+      <div style="padding:16px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-sm);margin-bottom:10px;">
+        ${n.image_url ? `<img src="${n.image_url}" style="width:100%;height:160px;object-fit:cover;border-radius:var(--radius-sm);margin-bottom:10px;">` : ''}
+        <div style="font-family:var(--font-serif);font-style:italic;font-size:15px;margin-bottom:6px;">${n.title}</div>
+        <div style="font-size:13px;color:var(--text-muted);margin-bottom:8px;">${n.content}</div>
+        <div style="font-family:var(--font-mono);font-size:9px;color:var(--text-muted);">${new Date(n.created_at).toLocaleDateString('fr-FR')}</div>
+      </div>`).join('');
+  }
+
+  async function publierNews() {
+    const session = (await sb.auth.getSession()).data.session;
+    if (!session) return;
+    const title = document.getElementById('news-title').value.trim();
+    const content = document.getElementById('news-content').value.trim();
+    const image_url = document.getElementById('news-image').value.trim();
+    const fb = document.getElementById('news-feedback');
+    if (!title || !content) { fb.textContent = '⚠️ Titre et contenu requis.'; fb.style.display='block'; return; }
+    const { error } = await sb.from('company_news').insert({
+      company_id: session.user.id, title, content,
+      image_url: image_url || null, status: 'published'
+    });
+    if (error) { fb.textContent = '❌ Erreur : ' + error.message; fb.style.display='block'; return; }
+    fb.textContent = '✅ Actualité publiée !'; fb.style.display='block';
+    document.getElementById('news-title').value = '';
+    document.getElementById('news-content').value = '';
+    document.getElementById('news-image').value = '';
+    chargerNews(session.user.id);
+  }
+
 </script>
 </body>
 </html>
