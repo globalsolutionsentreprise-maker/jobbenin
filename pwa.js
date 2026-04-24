@@ -11,7 +11,7 @@ function urlBase64ToUint8Array(b64) {
 }
 
 // ── Enregistrement du Service Worker ──
-export async function registerSW() {
+async function registerSW() {
   if (!('serviceWorker' in navigator)) return null;
   try {
     const reg = await navigator.serviceWorker.register('/sw.js', { scope: '/' });
@@ -24,25 +24,17 @@ export async function registerSW() {
 }
 
 // ── Abonnement push après login candidat ──
-// Appeler cette fonction juste après un login Supabase réussi :
-//   const { data: { user } } = await supabase.auth.getUser();
-//   await subscribeToPush(supabase, user.id);
-export async function subscribeToPush(supabase, userId) {
+async function subscribeToPush(supabase, userId) {
   if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
     console.log('[PWA] Push notifications non supportées sur ce navigateur');
     return;
   }
-
-  // Demander la permission
   const permission = await Notification.requestPermission();
   if (permission !== 'granted') {
     console.log('[PWA] Permission push refusée');
     return;
   }
-
   const registration = await navigator.serviceWorker.ready;
-
-  // Réutiliser une subscription existante ou en créer une
   let subscription = await registration.pushManager.getSubscription();
   if (!subscription) {
     subscription = await registration.pushManager.subscribe({
@@ -50,24 +42,21 @@ export async function subscribeToPush(supabase, userId) {
       applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
     });
   }
-
-  // Sauvegarder la subscription dans Supabase (upsert sur user_id)
   const { error } = await supabase
     .from('push_subscriptions')
     .upsert(
       { user_id: userId, subscription: subscription.toJSON() },
       { onConflict: 'user_id' },
     );
-
   if (error) {
     console.error('[PWA] Erreur sauvegarde subscription :', error.message);
   } else {
-    console.log('[PWA] ✅ Push subscription enregistrée pour', userId);
+    console.log('[PWA] Push subscription enregistrée pour', userId);
   }
 }
 
 // ── Désabonnement (optionnel, à appeler sur logout) ──
-export async function unsubscribeFromPush(supabase, userId) {
+async function unsubscribeFromPush(supabase, userId) {
   const registration = await navigator.serviceWorker.ready;
   const subscription = await registration.pushManager.getSubscription();
   if (subscription) {
@@ -75,4 +64,11 @@ export async function unsubscribeFromPush(supabase, userId) {
     await supabase.from('push_subscriptions').delete().eq('user_id', userId);
     console.log('[PWA] Subscription push supprimée');
   }
+}
+
+// Auto-init Service Worker au chargement
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', registerSW);
+} else {
+  registerSW();
 }
