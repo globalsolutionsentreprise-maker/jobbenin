@@ -437,6 +437,38 @@
 
   chargerFilActualites();
 
+
+  async function filtrerOffresPartenaires() {
+    const session = (await sb.auth.getSession()).data.session;
+    let isPremium = false;
+
+    if (session) {
+      const { data } = await sb.from('users')
+        .select('premium_until').eq('id', session.user.id).single();
+      isPremium = data?.premium_until && new Date(data.premium_until) > new Date();
+    }
+
+    // Ajoute un lock visuel sur toutes les offres partenaires
+    document.querySelectorAll('.offre-card[data-partner="true"]').forEach(card => {
+      if (!isPremium) {
+        card.style.position = 'relative';
+        card.style.overflow = 'hidden';
+        const overlay = document.createElement('div');
+        overlay.style.cssText = 'position:absolute;inset:0;background:rgba(255,255,255,0.88);backdrop-filter:blur(4px);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:10;padding:16px;text-align:center;';
+        overlay.innerHTML = `
+          <div style="font-size:24px;margin-bottom:8px;">⭐</div>
+          <div style="font-family:var(--font-mono);font-size:9px;font-weight:600;color:#7a5c00;background:linear-gradient(135deg,#c9a84c,#f0d080);padding:3px 10px;border-radius:20px;margin-bottom:8px;">OFFRE PARTENAIRE</div>
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">Réservé aux membres Premium</div>
+          <a href="/candidat.html" style="background:linear-gradient(135deg,#c9a84c,#f0d080);color:#7a5c00;font-weight:600;padding:8px 16px;border-radius:var(--radius-sm);font-size:12px;text-decoration:none;">
+            Devenir Premium — 1 000 FCFA/mois
+          </a>`;
+        card.appendChild(overlay);
+      }
+    });
+  }
+
+  filtrerOffresPartenaires();
+
 </script>
 </body>
 </html>
