@@ -8,7 +8,7 @@
  * sur window.supabase ou passé en argument.
  */
 
-const SUPABASE_URL  = window.SUPABASE_URL || 'https://ywteoxnkkdgdpbkrlkar.supabase.co';
+var SUPABASE_URL  = window.SUPABASE_URL || 'https://ywteoxnkkdgdpbkrlkar.supabase.co';
 const SITE_URL      = 'https://talenco.bj';
 const CV_BUCKET     = 'cvs';
 const MAX_CV_SIZE   = 5 * 1024 * 1024; // 5 Mo
