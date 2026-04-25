@@ -233,7 +233,7 @@
   async function chargerOffre() {
     const [{ data: job }, { data: { session } }] = await Promise.all([
       sb.from('jobs')
-        .select('id, titre, entreprise, ville, secteur, type_contrat, description, profil, competences, avantages, created_at, score_ia')
+        .select('id, title, company_id, city, sector, contract_type, description, profil, competences, avantages, created_at, score')
         .eq('id', jobId)
         .single(),
       sb.auth.getSession(),
@@ -250,7 +250,7 @@
     }
 
     // Titre page
-    document.title = `${job.titre} — Talenco.bj`;
+    document.title = `${job.title} — Talenco.bj`;
 
     // Rendu
     document.getElementById('detail-main').innerHTML = `
@@ -258,15 +258,15 @@
         <div class="detail-hero-inner">
           <div>
             <div class="detail-breadcrumb">
-              <a href="/offres.html">Offres</a> / ${job.secteur ?? ''}
+              <a href="/offres.html">Offres</a> / ${job.sector ?? ''}
             </div>
-            <h1 class="detail-title">${job.titre}</h1>
-            <p class="detail-company">${job.entreprise ?? 'Entreprise'} — ${job.ville ?? ''}</p>
+            <h1 class="detail-title">${job.title}</h1>
+            <p class="detail-company">Entreprise — ${job.city ?? ''}</p>
             <div class="detail-meta">
-              <span class="tag">${job.ville ?? ''}</span>
-              <span class="tag">${job.type_contrat ?? ''}</span>
-              <span class="tag tag-accent">${job.secteur ?? ''}</span>
-              ${job.score_ia ? `<span class="badge badge-score">Score IA ${job.score_ia}%</span>` : ''}
+              <span class="tag">${job.city ?? ''}</span>
+              <span class="tag">${job.contract_type ?? ''}</span>
+              <span class="tag tag-accent">${job.sector ?? ''}</span>
+              ${job.score ? `<span class="badge badge-score">Score IA ${job.score}%</span>` : ''}
               ${badgeNouveau.isNew(job.created_at) ? '<span class="badge badge-new">Nouveau</span>' : ''}
             </div>
             <p class="text-muted" style="font-size:11px;">${badgeNouveau.tempsRelatif(job.created_at)}</p>
@@ -274,19 +274,19 @@
           <div class="detail-sidebar-card">
             <div class="sidebar-info-row">
               <span class="sidebar-info-label">Entreprise</span>
-              <span class="sidebar-info-val">${job.entreprise ?? '—'}</span>
+              <span class="sidebar-info-val">Entreprise</span>
             </div>
             <div class="sidebar-info-row">
               <span class="sidebar-info-label">Localisation</span>
-              <span class="sidebar-info-val">${job.ville ?? '—'}</span>
+              <span class="sidebar-info-val">${job.city ?? '—'}</span>
             </div>
             <div class="sidebar-info-row">
               <span class="sidebar-info-label">Contrat</span>
-              <span class="sidebar-info-val">${job.type_contrat ?? '—'}</span>
+              <span class="sidebar-info-val">${job.contract_type ?? '—'}</span>
             </div>
             <div class="sidebar-info-row">
               <span class="sidebar-info-label">Secteur</span>
-              <span class="sidebar-info-val">${job.secteur ?? '—'}</span>
+              <span class="sidebar-info-val">${job.sector ?? '—'}</span>
             </div>
           </div>
         </div>
@@ -346,19 +346,19 @@
     `;
 
     // Initialiser le bouton postuler
-    candidature.initPostulerDetail(sb, jobId, 'postuler-zone');
+    candidature?.initPostulerDetail?.(sb, jobId, 'postuler-zone');
 
     // Offres similaires
-    chargerSimilaires(job.secteur, job.id);
+    chargerSimilaires(job.sector, job.id);
   }
 
   async function chargerSimilaires(secteur, excludeId) {
     if (!secteur) return;
     const { data: similaires } = await sb
       .from('jobs')
-      .select('id, titre, ville, type_contrat')
-      .eq('secteur', secteur)
-      .eq('statut', 'publie')
+      .select('id, title, city, contract_type')
+      .eq('sector', secteur)
+      .eq('status', 'published')
       .neq('id', excludeId)
       .limit(4);
 
@@ -366,8 +366,8 @@
     if (!container || !similaires?.length) return;
     container.innerHTML = similaires.map(j => `
       <a href="/offre-detail.html?id=${j.id}" class="similar-job-link">
-        <span class="similar-job-title">${j.titre}</span>
-        <span class="similar-job-meta">${j.ville ?? ''} · ${j.type_contrat ?? ''}</span>
+        <span class="similar-job-title">${j.title}</span>
+        <span class="similar-job-meta">${j.city ?? ''} · ${j.contract_type ?? ''}</span>
       </a>
     `).join('');
   }
