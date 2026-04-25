@@ -378,6 +378,7 @@
     const { data: offres, count, error } = await query;
 
     if (error) { container.innerHTML = '<p class="text-muted">Erreur de chargement.</p>'; return; }
+    if (!offres?.length && !append) { container.innerHTML = '<p class="text-muted" style="padding:40px 0;text-align:center;">Aucune offre pour le moment. Revenez bientôt !</p>'; if(countEl) countEl.textContent='0 offre'; if(loadMoreBtn) loadMoreBtn.style.display='none'; return; }
 
     if (!append) countEl.textContent = `${count ?? 0} offre${(count ?? 0) > 1 ? 's' : ''}`;
 
