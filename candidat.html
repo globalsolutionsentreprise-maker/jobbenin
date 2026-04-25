@@ -241,6 +241,122 @@
         </div>
       </div>
 
+      <!-- Profil professionnel -->
+      <div class="section-card" id="profil-pro">
+        <div class="section-card-header">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <h2 class="section-card-title">Profil professionnel</h2>
+            <span id="badge-verifie" style="display:none;background:#dcfce7;color:#15803d;font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;letter-spacing:.04em;">✓ CERTIFIÉ</span>
+          </div>
+          <button class="btn btn-outline btn-sm" id="btn-save-pro">Enregistrer</button>
+        </div>
+        <div class="section-card-body">
+          <p style="font-size:12px;color:var(--text-muted);margin-bottom:16px;">Ces informations permettent aux recruteurs de vous trouver en 30 secondes. Un profil complet = plus de chances d'être contacté.</p>
+          <div class="profile-grid">
+            <div class="form-field" style="grid-column:1/-1;">
+              <label class="form-label">Titre de poste <span style="color:var(--text-muted);font-weight:400;">ce que vous cherchez</span></label>
+              <input type="text" id="pro-titre" placeholder="ex: Développeur Full Stack, Comptable senior, Chef de projet…">
+            </div>
+            <div class="form-field">
+              <label class="form-label">Secteur</label>
+              <select id="pro-secteur">
+                <option value="">Sélectionnez</option>
+                <option>Tech</option><option>Finance</option><option>Santé</option>
+                <option>BTP</option><option>Agriculture</option><option>Marketing</option>
+                <option>RH</option><option>Commerce</option><option>Éducation</option>
+                <option>Logistique</option><option>Juridique</option><option>Autre</option>
+              </select>
+            </div>
+            <div class="form-field">
+              <label class="form-label">Niveau</label>
+              <select id="pro-niveau">
+                <option value="">Sélectionnez</option>
+                <option value="junior">Junior (0-2 ans)</option>
+                <option value="confirme">Confirmé (3-6 ans)</option>
+                <option value="senior">Senior (7 ans+)</option>
+              </select>
+            </div>
+            <div class="form-field">
+              <label class="form-label">Années d'expérience</label>
+              <input type="number" id="pro-experience" min="0" max="40" placeholder="ex: 4">
+            </div>
+            <div class="form-field">
+              <label class="form-label">Disponibilité</label>
+              <select id="pro-dispo">
+                <option value="">Sélectionnez</option>
+                <option value="immediate">Immédiatement disponible</option>
+                <option value="1mois">Dans 1 mois</option>
+                <option value="3mois">Dans 3 mois</option>
+                <option value="non_disponible">Non disponible</option>
+              </select>
+            </div>
+            <div class="form-field">
+              <label class="form-label">Ville</label>
+              <select id="pro-ville">
+                <option value="">Sélectionnez</option>
+                <option>Cotonou</option><option>Abomey-Calavi</option>
+                <option>Porto-Novo</option><option>Parakou</option>
+                <option>Bohicon</option><option>Natitingou</option><option>Autre</option>
+              </select>
+            </div>
+            <div class="form-field" style="grid-column:1/-1;">
+              <label class="form-label">Prétention salariale <span style="color:var(--text-muted);font-weight:400;">(optionnel)</span></label>
+              <input type="text" id="pro-salaire" placeholder="ex: 200 000 – 300 000 FCFA / mois">
+            </div>
+            <div class="form-field" style="grid-column:1/-1;">
+              <label class="form-label">5 compétences clés <span style="color:var(--text-muted);font-weight:400;">séparées par des virgules</span></label>
+              <input type="text" id="pro-competences" placeholder="ex: JavaScript, React, Node.js, Gestion de projet, Excel">
+            </div>
+            <div class="form-field" style="grid-column:1/-1;">
+              <label class="form-label">Bio <span style="color:var(--text-muted);font-weight:400;">2-3 phrases max</span></label>
+              <textarea id="pro-bio" rows="3" placeholder="Décrivez votre profil en quelques mots. Ex: Développeur avec 4 ans d'expérience en fintech, passionné par les solutions mobiles…" style="resize:vertical;"></textarea>
+            </div>
+          </div>
+          <div id="pro-msg" class="alert" style="display:none;margin-top:12px;"></div>
+        </div>
+      </div>
+
+      <!-- Certification -->
+      <div class="section-card" id="certification">
+        <div class="section-card-header">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <h2 class="section-card-title">Certification du profil</h2>
+            <span id="badge-certif-status" style="font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;letter-spacing:.04em;display:none;"></span>
+          </div>
+        </div>
+        <div class="section-card-body">
+          <div id="certif-content">
+            <div style="background:#fefce8;border:1px solid #fde68a;border-radius:10px;padding:16px 18px;margin-bottom:18px;">
+              <div style="font-weight:600;font-size:13px;color:#92400e;margin-bottom:6px;">🏅 Pourquoi se faire certifier ?</div>
+              <ul style="font-size:12px;color:#78350f;line-height:1.8;padding-left:16px;margin:0;">
+                <li>Badge <strong>✓ Certifié Talenco</strong> visible par les recruteurs</li>
+                <li>Votre profil apparaît en <strong>priorité</strong> dans la CVthèque</li>
+                <li>Les recruteurs font davantage confiance aux profils certifiés</li>
+                <li>Un call de 30 min avec un expert RH Talenco</li>
+              </ul>
+            </div>
+            <div id="certif-form-zone">
+              <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px;">Remplissez ce formulaire rapide pour demander votre certification. Un expert vous contactera pour planifier le call de 30 min.</p>
+              <div class="profile-grid">
+                <div class="form-field" style="grid-column:1/-1;">
+                  <label class="form-label">Vos disponibilités pour le call <span style="color:var(--text-muted);font-weight:400;">donnez 2-3 créneaux</span></label>
+                  <textarea id="certif-dispo" rows="2" placeholder="ex: Lundi 28 avril 10h-12h, Mercredi 30 avril 14h-16h, Jeudi 1er mai toute la journée" style="resize:vertical;"></textarea>
+                </div>
+                <div class="form-field">
+                  <label class="form-label">LinkedIn <span style="color:var(--text-muted);font-weight:400;">(optionnel)</span></label>
+                  <input type="url" id="certif-linkedin" placeholder="https://linkedin.com/in/votre-profil">
+                </div>
+                <div class="form-field">
+                  <label class="form-label">Motivation en 1 phrase</label>
+                  <input type="text" id="certif-motivation" placeholder="ex: Je cherche un poste en tech à Cotonou d'ici 2 mois">
+                </div>
+              </div>
+              <button class="btn btn-primary" id="btn-certif" style="margin-top:16px;">🏅 Demander la certification</button>
+              <div id="certif-msg" class="alert" style="display:none;margin-top:12px;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
       <!-- CV -->
       <div class="section-card" id="cv">
         <div class="section-card-header">
@@ -477,7 +593,17 @@
       if (telEl) telEl.value = profile.telephone ?? '';
       const villeEl = document.getElementById('profile-ville');
       if (villeEl && profile.ville) villeEl.value = profile.ville;
+
+      // Charger profil professionnel
+      if (profile.full_name) {
+        const parts = profile.full_name.split(' ');
+        document.getElementById('sidebar-avatar').textContent = parts.map(p=>p[0]).join('').substring(0,2).toUpperCase();
+        document.getElementById('sidebar-name').textContent = profile.full_name;
+      }
     }
+
+    // Profil pro avec nouvelles colonnes
+    remplirProfilPro(user.id);
 
     // CV
     candidature.initUploadCV(sb, 'mon-cv');
@@ -508,11 +634,103 @@
     setTimeout(() => { msgEl.style.display = 'none'; }, 3000);
   });
 
-  async function chargerCandidatures(userId) {
+  // Sauvegarder profil professionnel
+  document.getElementById('btn-save-pro').addEventListener('click', async () => {
+    const { data: { user } } = await sb.auth.getUser();
+    if (!user) return;
+    const btn = document.getElementById('btn-save-pro');
+    btn.disabled = true; btn.textContent = '⏳';
+    const { error } = await sb.from('users').update({
+      job_title:         document.getElementById('pro-titre').value.trim(),
+      sector:            document.getElementById('pro-secteur').value,
+      level:             document.getElementById('pro-niveau').value,
+      experience_years:  parseInt(document.getElementById('pro-experience').value) || null,
+      availability:      document.getElementById('pro-dispo').value,
+      city:              document.getElementById('pro-ville').value,
+      salary_expectation: document.getElementById('pro-salaire').value.trim(),
+      skills:            document.getElementById('pro-competences').value.split(',').map(s=>s.trim()).filter(Boolean),
+      bio:               document.getElementById('pro-bio').value.trim(),
+    }).eq('id', user.id);
+    const msgEl = document.getElementById('pro-msg');
+    if (error) {
+      msgEl.className = 'alert alert-error'; msgEl.textContent = '❌ ' + error.message;
+    } else {
+      msgEl.className = 'alert alert-success'; msgEl.textContent = '✓ Profil professionnel enregistré ! Il sera visible dans la CVthèque après validation.';
+    }
+    msgEl.style.display = 'block';
+    btn.disabled = false; btn.textContent = 'Enregistrer';
+    setTimeout(() => { msgEl.style.display = 'none'; }, 5000);
+  });
+
+  // ── Certification ─────────────────────────────────────
+  async function chargerStatutCertif(userId) {
+    const { data } = await sb.from('certification_requests')
+      .select('status').eq('candidate_id', userId).order('created_at',{ascending:false}).limit(1).maybeSingle();
+    const badge = document.getElementById('badge-certif-status');
+    const formZone = document.getElementById('certif-form-zone');
+    if (!data) return; // Pas encore de demande
+    const statusLabel = { pending: '⏳ En attente de traitement', scheduled: '📅 Call planifié', certified: '✅ Certifié', rejected: '❌ Refusé' };
+    const statusColor = { pending: '#fef9c3:#854d0e', scheduled: '#dbeafe:#1e40af', certified: '#dcfce7:#15803d', rejected: '#fee2e2:#b91c1c' };
+    const [bg, color] = (statusColor[data.status] || '#f3f4f6:#374151').split(':');
+    badge.style.display = 'inline-flex';
+    badge.style.background = bg;
+    badge.style.color = color;
+    badge.textContent = statusLabel[data.status] || data.status;
+    if (data.status === 'certified' || data.status === 'pending' || data.status === 'scheduled') {
+      formZone.innerHTML = `<p style="font-size:13px;color:var(--text-muted);padding:8px 0;">${
+        data.status === 'certified' ? '🎉 Votre profil est certifié ! Le badge apparaît dans la CVthèque.' :
+        data.status === 'scheduled' ? '📅 Votre call est planifié. Vous serez contacté très prochainement.' :
+        '⏳ Votre demande est en cours de traitement. Nous vous contacterons dans 48h.'
+      }</p>`;
+    }
+  }
+
+  document.getElementById('btn-certif')?.addEventListener('click', async () => {
+    const { data: { user } } = await sb.auth.getUser();
+    if (!user) return;
+    const btn = document.getElementById('btn-certif');
+    const msg = document.getElementById('certif-msg');
+    const dispo = document.getElementById('certif-dispo').value.trim();
+    if (!dispo) { msg.className='alert alert-error'; msg.textContent='⚠️ Merci d\'indiquer vos disponibilités.'; msg.style.display='block'; return; }
+    btn.disabled = true; btn.textContent = '⏳ Envoi…';
+    const { error } = await sb.from('certification_requests').insert({
+      candidate_id: user.id,
+      availability: dispo,
+      linkedin_url: document.getElementById('certif-linkedin').value.trim() || null,
+      motivation:   document.getElementById('certif-motivation').value.trim() || null,
+    });
+    if (error) {
+      msg.className='alert alert-error'; msg.textContent='❌ '+error.message;
+      btn.disabled=false; btn.textContent='🏅 Demander la certification';
+    } else {
+      msg.className='alert alert-success'; msg.textContent='✅ Demande envoyée ! Nous vous contactons dans 48h pour planifier le call.';
+      btn.style.display='none';
+      chargerStatutCertif(user.id);
+    }
+    msg.style.display='block';
+  });
+
+  // ── Remplissage du profil pro au chargement ───────────
+  async function remplirProfilPro(userId) {
+    const { data } = await sb.from('users').select('job_title,sector,level,experience_years,availability,city,salary_expectation,skills,bio,is_certified').eq('id',userId).maybeSingle();
+    if (!data) return;
+    if (data.job_title) document.getElementById('pro-titre').value = data.job_title;
+    if (data.sector) document.getElementById('pro-secteur').value = data.sector;
+    if (data.level) document.getElementById('pro-niveau').value = data.level;
+    if (data.experience_years) document.getElementById('pro-experience').value = data.experience_years;
+    if (data.availability) document.getElementById('pro-dispo').value = data.availability;
+    if (data.city) document.getElementById('pro-ville').value = data.city;
+    if (data.salary_expectation) document.getElementById('pro-salaire').value = data.salary_expectation;
+    if (data.skills?.length) document.getElementById('pro-competences').value = data.skills.join(', ');
+    if (data.bio) document.getElementById('pro-bio').value = data.bio;
+    if (data.is_certified) { document.getElementById('badge-verifie').style.display='inline-flex'; }
+    chargerStatutCertif(userId);
+  }
+
     const { data: apps } = await sb
       .from('applications')
-      .select('id, statut, created_at, jobs(id, titre, entreprise)')
-      .eq('user_id', userId)
+      .select('id, status, created_at, jobs(id, title, city)')
+      .eq('candidate_id', userId)
       .order('created_at', { ascending: false })
       .limit(20);
 

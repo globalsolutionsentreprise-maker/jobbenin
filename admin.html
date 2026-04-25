@@ -98,6 +98,7 @@
       <div class="side-label">Utilisateurs</div>
       <button class="side-link" onclick="showTab('users',this)">👥 Tous les comptes</button>
       <button class="side-link" onclick="showTab('companies',this)">🏢 Entreprises</button>
+      <button class="side-link" onclick="showTab('certifications',this)">🏅 Certifications <span class="badge-count" id="badge-certif">0</span></button>
 
       <div class="side-label">Communication</div>
       <button class="side-link" onclick="showTab('whatsapp',this)">📱 WhatsApp</button>
@@ -175,6 +176,13 @@
         <div id="companies-list" class="table-wrap"></div>
       </div>
 
+      <!-- ── CERTIFICATIONS ── -->
+      <div id="tab-certifications" class="tab-section">
+        <h2 class="section-title">Demandes de certification</h2>
+        <p style="color:var(--text-muted);font-size:13px;margin-bottom:16px;">Ces candidats ont demandé à être certifiés. Planifiez un call de 30 min puis validez ou refusez.</p>
+        <div id="certif-list" class="table-wrap"></div>
+      </div>
+
       <!-- ── WHATSAPP ── -->
       <div id="tab-whatsapp" class="tab-section">
         <h2 class="section-title">Notification WhatsApp manuelle</h2>
@@ -250,7 +258,7 @@ function showTab(id, btn) {
   if (id === 'moderation') chargerModeration();
   if (id === 'companies') chargerCompanies();
   if (id === 'news') chargerNews();
-  if (id === 'whatsapp') chargerWAUsers();
+  if (id === 'certifications') chargerCertifications();
 }
 
 // ── Auth ────────────────────────────────────────────────
@@ -267,7 +275,7 @@ sb.auth.getSession().then(async ({ data: { session } }) => {
 async function chargerStats() {
   const [
     { count: nbOffres }, { count: nbUsers }, { count: nbApps },
-    { count: nbWa }, { count: nbCompanies }, { count: nbPending }, { count: nbNews }
+    { count: nbWa }, { count: nbCompanies }, { count: nbPending }, { count: nbNews }, { count: nbCertif }
   ] = await Promise.all([
     sb.from('jobs').select('*',{count:'exact',head:true}).eq('status','published'),
     sb.from('users').select('*',{count:'exact',head:true}),
@@ -276,6 +284,7 @@ async function chargerStats() {
     sb.from('users').select('*',{count:'exact',head:true}).eq('role','company'),
     sb.from('jobs').select('*',{count:'exact',head:true}).eq('status','pending'),
     sb.from('company_news').select('*',{count:'exact',head:true}).eq('status','published'),
+    sb.from('certification_requests').select('*',{count:'exact',head:true}).eq('status','pending'),
   ]);
   document.getElementById('s-offres').textContent = nbOffres ?? 0;
   document.getElementById('s-users').textContent = nbUsers ?? 0;
@@ -285,6 +294,7 @@ async function chargerStats() {
   document.getElementById('s-pending').textContent = nbPending ?? 0;
   document.getElementById('s-news').textContent = nbNews ?? 0;
   document.getElementById('badge-mod').textContent = nbPending ?? 0;
+  document.getElementById('badge-certif').textContent = nbCertif ?? 0;
 
   // Dernières inscriptions
   const { data: recentUsers } = await sb.from('users').select('id,email,full_name,role,created_at').order('created_at',{ascending:false}).limit(5);
@@ -479,6 +489,60 @@ async function chargerCompanies() {
       <span class="badge ${u.is_active===false?'b-inactive':'b-active'}">${u.is_active===false?'Inactif':'Actif'}</span>
       <span style="font-size:11px;color:var(--text-muted);">${new Date(u.created_at).toLocaleDateString('fr-FR')}</span>
     </div>`).join('');
+}
+
+// ── CERTIFICATIONS ────────────────────────────────────────
+async function chargerCertifications() {
+  const { data } = await sb.from('certification_requests')
+    .select('id,status,availability,linkedin_url,motivation,created_at,candidate_id,users(full_name,email,phone,job_title,level,city)')
+    .order('created_at',{ascending:false});
+  const el = document.getElementById('certif-list');
+  if (!data?.length) { el.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-muted);font-size:13px;">✅ Aucune demande en attente.</div>'; return; }
+  const statusLabel = { pending:'⏳ En attente', scheduled:'📅 Planifié', certified:'✅ Certifié', rejected:'❌ Refusé' };
+  const statusColor = { pending:'b-pending', scheduled:'b-company', certified:'b-active', rejected:'b-inactive' };
+  el.innerHTML = `<div class="table-head" style="grid-template-columns:auto 1fr auto auto auto;display:grid;">
+    <span></span><span>Candidat</span><span>Statut</span><span>Créneaux</span><span>Actions</span>
+  </div>` + data.map(c => `
+    <div class="table-row" style="grid-template-columns:auto 1fr auto auto auto;" id="certif-row-${c.id}">
+      <div class="avatar">${(c.users?.full_name||c.users?.email||'?')[0].toUpperCase()}</div>
+      <div>
+        <div style="font-weight:500;font-size:13px;">${c.users?.full_name||'—'} ${c.users?.job_title?`<span style="font-weight:400;color:var(--text-muted);">· ${c.users.job_title}</span>`:''}</div>
+        <div style="font-size:11px;color:var(--text-muted);">${c.users?.email||''}${c.users?.phone?` · 📱 ${c.users.phone}`:''}</div>
+        ${c.motivation?`<div style="font-size:11px;color:var(--text-muted);font-style:italic;margin-top:2px;">"${c.motivation}"</div>`:''}
+        ${c.linkedin_url?`<a href="${c.linkedin_url}" target="_blank" style="font-size:10px;color:#1e40af;">LinkedIn →</a>`:''}
+      </div>
+      <span class="badge ${statusColor[c.status]||'b-pending'}">${statusLabel[c.status]||c.status}</span>
+      <div style="font-size:11px;color:var(--text-muted);max-width:180px;line-height:1.4;">${c.availability||'—'}</div>
+      <div style="display:flex;flex-direction:column;gap:5px;">
+        ${c.status!=='certified'?`<button class="btn-action btn-publish" onclick="certifierCandidat('${c.id}','${c.candidate_id}')">✓ Certifier</button>`:''}
+        ${c.status==='pending'?`<button class="btn-action" style="border-color:#1e40af;color:#1e40af;" onclick="planifierCall('${c.id}')">📅 Planifié</button>`:''}
+        ${c.status!=='rejected'?`<button class="btn-action btn-reject" onclick="rejeterCertif('${c.id}')">✕ Refuser</button>`:''}
+      </div>
+    </div>`).join('');
+}
+
+async function certifierCandidat(certifId, candidateId) {
+  if (!confirm('Certifier ce candidat ?')) return;
+  await Promise.all([
+    sb.from('certification_requests').update({ status: 'certified', certified_at: new Date().toISOString() }).eq('id', certifId),
+    sb.from('users').update({ is_certified: true, certified_at: new Date().toISOString() }).eq('id', candidateId),
+  ]);
+  toast('🏅 Candidat certifié !');
+  chargerCertifications();
+  chargerStats();
+}
+
+async function planifierCall(certifId) {
+  await sb.from('certification_requests').update({ status: 'scheduled' }).eq('id', certifId);
+  toast('📅 Statut mis à jour : call planifié');
+  chargerCertifications();
+}
+
+async function rejeterCertif(certifId) {
+  if (!confirm('Refuser cette demande ?')) return;
+  await sb.from('certification_requests').update({ status: 'rejected' }).eq('id', certifId);
+  toast('❌ Demande refusée');
+  chargerCertifications();
 }
 
 // ── WHATSAPP ──────────────────────────────────────────────
