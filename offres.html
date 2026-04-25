@@ -361,19 +361,19 @@
     if (!append) { container.innerHTML = '<p class="text-muted">Chargement…</p>'; }
 
     let query = sb.from('jobs')
-      .select('id, titre, entreprise, ville, secteur, type_contrat, created_at, score_ia', { count: 'exact' })
-      .eq('statut', 'publie')
+      .select('id, title, company_id, city, sector, contract_type, created_at, score', { count: 'exact' })
+      .eq('status', 'published')
       .range(currentPage * PAGE_SIZE, (currentPage + 1) * PAGE_SIZE - 1);
 
     if (sort === 'recent')  query = query.order('created_at', { ascending: false });
-    if (sort === 'score')   query = query.order('score_ia',   { ascending: false });
-    if (activeFilters.ville)   query = query.eq('ville', activeFilters.ville);
-    if (activeFilters.secteur) query = query.eq('secteur', activeFilters.secteur);
-    if (activeFilters.contrat) query = query.eq('type_contrat', activeFilters.contrat);
+    if (sort === 'score')   query = query.order('score',   { ascending: false });
+    if (activeFilters.ville)   query = query.eq('city', activeFilters.ville);
+    if (activeFilters.secteur) query = query.eq('sector', activeFilters.secteur);
+    if (activeFilters.contrat) query = query.eq('contract_type', activeFilters.contrat);
     if (activeFilters.date === '24h') query = query.gte('created_at', new Date(Date.now() - 86400000).toISOString());
     if (activeFilters.date === '7j')  query = query.gte('created_at', new Date(Date.now() - 7*86400000).toISOString());
     if (activeFilters.date === '30j') query = query.gte('created_at', new Date(Date.now() - 30*86400000).toISOString());
-    if (searchQuery) query = query.ilike('titre', `%${searchQuery}%`);
+    if (searchQuery) query = query.ilike('title', `%${searchQuery}%`);
 
     const { data: offres, count, error } = await query;
 
@@ -386,13 +386,13 @@
       <a href="/offre-detail.html?id=${j.id}" class="job-card badge-nouveau-host">
         ${badgeNouveau.badge(j.created_at)}
         <div class="job-body">
-          <p class="job-title">${j.titre}</p>
-          <p class="job-company">${j.entreprise ?? 'Entreprise'}</p>
+          <p class="job-title">${j.title}</p>
+          <p class="job-company">${j.company_id ?? 'Entreprise'}</p>
           <div class="job-tags">
-            <span class="tag">${j.ville ?? ''}</span>
-            <span class="tag">${j.type_contrat ?? ''}</span>
-            <span class="tag tag-accent">${j.secteur ?? ''}</span>
-            ${j.score_ia ? `<span class="badge badge-score">IA ${j.score_ia}%</span>` : ''}
+            <span class="tag">${j.city ?? ''}</span>
+            <span class="tag">${j.contract_type ?? ''}</span>
+            <span class="tag tag-accent">${j.sector ?? ''}</span>
+            ${j.score ? `<span class="badge badge-score">IA ${j.score}%</span>` : ''}
           </div>
         </div>
         <span class="job-time">${badgeNouveau.tempsRelatif(j.created_at)}</span>
