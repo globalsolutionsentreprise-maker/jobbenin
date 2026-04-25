@@ -390,6 +390,25 @@ async function _soumettreCandidature(supabase, user, jobId, cvPath, container, m
 
 // ── Notice sur candidat.html après redirection sans CV ────────────────────
 
+// Expose l'objet global candidature pour offres.html
+window.candidature = {
+  initPostuler: function(sb) {
+    document.querySelectorAll('.btn-postuler').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        const jobId = btn.dataset.jobId;
+        if (!jobId) return;
+        const { data: { session } } = await sb.auth.getSession();
+        if (!session) { window.location.href = '/connexion.html'; return; }
+        const { error } = await sb.from('applications').insert({ job_id: jobId, candidate_id: session.user.id });
+        if (error) { alert('Erreur lors de la candidature : ' + error.message); return; }
+        btn.textContent = '✅ Candidature envoyée';
+        btn.disabled = true;
+      });
+    });
+  }
+};
+
 function afficherNoticeUpload(containerId = 'notice-cv-upload') {
   if (!sessionStorage.getItem('cv-upload-notice')) return;
   sessionStorage.removeItem('cv-upload-notice');
