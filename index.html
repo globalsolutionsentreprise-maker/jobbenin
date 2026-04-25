@@ -148,7 +148,14 @@
   </style>
 </head>
 <body>
-<script>if(!sessionStorage.getItem("talenco_profil_choisi")){window.location.href="/bienvenue.html"}</script>
+<script>
+  const hash = window.location.hash;
+  if (hash.includes('type=recovery') || hash.includes('type=invite')) {
+    window.location.href = '/mot-de-passe-oublie.html' + hash;
+  } else if (!sessionStorage.getItem('talenco_profil_choisi')) {
+    window.location.href = '/bienvenue.html';
+  }
+</script>
 
 <!-- ── Navbar ────────────────────────────────────────────────────────── -->
 <nav class="navbar" id="main-nav">

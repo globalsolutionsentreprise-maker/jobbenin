@@ -63,11 +63,26 @@
   const refreshToken = params.get('refresh_token');
   const type = params.get('type');
 
-  if (accessToken && type === 'recovery') {
-    sb.auth.setSession({ access_token: accessToken, refresh_token: refreshToken });
-  } else if (!accessToken) {
-    showMsg('error', '❌ Lien invalide ou expiré. Redemandez un email de réinitialisation.');
-    document.getElementById('btn-reset').disabled = true;
+  if (accessToken && (type === 'recovery' || type === 'invite')) {
+    sb.auth.setSession({ access_token: accessToken, refresh_token: refreshToken || '' })
+      .then(({ error }) => {
+        if (error) showMsg('error', '❌ Lien invalide ou expiré.');
+      });
+  } else {
+    // Attendre que Supabase détecte la session depuis l'URL
+    sb.auth.onAuthStateChange((event, session) => {
+      if (event === 'PASSWORD_RECOVERY' || event === 'SIGNED_IN') {
+        // Session détectée, on peut changer le mot de passe
+        document.getElementById('btn-reset').disabled = false;
+      }
+    });
+    // Vérifier si session déjà active
+    sb.auth.getSession().then(({ data: { session } }) => {
+      if (!session) {
+        showMsg('error', '❌ Lien invalide ou expiré. Redemandez un email de réinitialisation.');
+        document.getElementById('btn-reset').disabled = true;
+      }
+    });
   }
 
   document.getElementById('btn-reset').addEventListener('click', async () => {
