@@ -233,7 +233,7 @@
   async function chargerOffre() {
     const [{ data: job }, { data: { session } }] = await Promise.all([
       sb.from('jobs')
-        .select('id, title, company_id, city, sector, contract_type, description, profil, competences, avantages, created_at, score')
+        .select('id, title, company_id, city, sector, contract_type, description, created_at, score')
         .eq('id', jobId)
         .single(),
       sb.auth.getSession(),
