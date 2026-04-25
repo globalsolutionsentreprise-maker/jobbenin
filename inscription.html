@@ -132,10 +132,13 @@
     }
 
     if (data?.user) {
-      await sb.from('users').upsert({
-        id: data.user.id, email, prenom, nom, role: selectedRole,
-        ...(entreprise ? { entreprise } : {}),
+      const { error: dbError } = await sb.from('users').upsert({
+        id: data.user.id,
+        email,
+        full_name: `${prenom} ${nom}`.trim(),
+        role: selectedRole === 'recruteur' ? 'company' : 'candidate',
       });
+      if (dbError) { showMsg('error', '❌ Database error saving new user'); btn.disabled = false; btn.textContent = 'Créer mon compte'; return; }
     }
 
     showMsg('success', '✅ Compte créé ! Vérifiez votre email pour activer votre compte.');
