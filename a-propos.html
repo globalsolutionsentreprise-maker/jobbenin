@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>À propos — Talenco.bj</title>
+  <meta name="description" content="Talenco.bj est né d'un constat de terrain : trouver les bons profils au Bénin reste long, incertain, inefficace. Découvrez notre histoire.">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Hanken+Grotesk:wght@300;400;500;700;900&display=swap">
+  <link rel="stylesheet" href="/design-system.css">
+  <style>
+    .hero {
+      background: #080808;
+      color: #fff;
+      padding: 80px 24px 72px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      width: 600px; height: 600px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(201,150,58,.1) 0%, transparent 70%);
+      top: -200px; left: 50%;
+      transform: translateX(-50%);
+      pointer-events: none;
+    }
+    .hero-eyebrow {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: #c9963a;
+      margin-bottom: 20px;
+    }
+    .hero-title {
+      font-family: 'Instrument Serif', serif;
+      font-style: italic;
+      font-size: clamp(36px, 5vw, 60px);
+      line-height: 1.1;
+      letter-spacing: -.02em;
+      margin-bottom: 20px;
+    }
+    .hero-sub {
+      font-size: 15px;
+      font-weight: 300;
+      color: rgba(255,255,255,.5);
+      max-width: 480px;
+      margin: 0 auto;
+      line-height: 1.7;
+    }
+    .content-wrap {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 64px 24px;
+    }
+    .story-block {
+      margin-bottom: 56px;
+    }
+    .story-label {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      color: #c9963a;
+      margin-bottom: 14px;
+      display: block;
+    }
+    .story-heading {
+      font-family: 'Instrument Serif', serif;
+      font-style: italic;
+      font-size: clamp(22px, 3vw, 30px);
+      line-height: 1.25;
+      color: var(--text);
+      margin-bottom: 18px;
+    }
+    .story-text {
+      font-size: 15px;
+      font-weight: 300;
+      line-height: 1.85;
+      color: var(--text-muted);
+    }
+    .story-text strong {
+      color: var(--text);
+      font-weight: 600;
+    }
+    .pull-quote {
+      border-left: 3px solid #c9963a;
+      padding: 6px 0 6px 24px;
+      margin: 28px 0;
+    }
+    .pull-quote p {
+      font-family: 'Instrument Serif', serif;
+      font-style: italic;
+      font-size: 20px;
+      line-height: 1.5;
+      color: var(--text);
+      margin: 0;
+    }
+    .stats-strip {
+      background: #080808;
+      color: #fff;
+      padding: 48px 24px;
+      margin: 0;
+    }
+    .stats-inner {
+      max-width: 720px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 32px;
+      text-align: center;
+    }
+    .stat-num {
+      font-family: 'Instrument Serif', serif;
+      font-style: italic;
+      font-size: 48px;
+      color: #c9963a;
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+    .stat-label {
+      font-size: 12px;
+      color: rgba(255,255,255,.45);
+      line-height: 1.5;
+    }
+    .values-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-top: 24px;
+    }
+    .value-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 20px;
+    }
+    .value-icon { font-size: 22px; margin-bottom: 10px; }
+    .value-title {
+      font-weight: 700;
+      font-size: 13px;
+      margin-bottom: 6px;
+      color: var(--text);
+    }
+    .value-desc {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+    .founder-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 28px;
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      margin-top: 48px;
+    }
+    .founder-avatar {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #1a1a1a, #333);
+      border: 2px solid #c9963a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Instrument Serif', serif;
+      font-style: italic;
+      font-size: 28px;
+      color: #c9963a;
+      flex-shrink: 0;
+    }
+    .founder-name {
+      font-weight: 700;
+      font-size: 15px;
+      color: var(--text);
+      margin-bottom: 3px;
+    }
+    .founder-role {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+    }
+    .founder-tags {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .founder-tag {
+      font-size: 10px;
+      padding: 3px 9px;
+      border-radius: 20px;
+      background: var(--bg-soft);
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+    }
+    .cta-section {
+      background: #080808;
+      color: #fff;
+      padding: 64px 24px;
+      text-align: center;
+    }
+    .cta-section h2 {
+      font-family: 'Instrument Serif', serif;
+      font-style: italic;
+      font-size: clamp(24px, 4vw, 40px);
+      margin-bottom: 12px;
+    }
+    .cta-section p {
+      font-size: 14px;
+      color: rgba(255,255,255,.45);
+      margin-bottom: 28px;
+      max-width: 420px;
+      margin-left: auto;
+      margin-right: auto;
+      line-height: 1.7;
+    }
+    .cta-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .btn-gold {
+      background: #c9963a;
+      color: #fff;
+      padding: 12px 28px;
+      border-radius: 30px;
+      font-size: 13px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: opacity .2s;
+    }
+    .btn-gold:hover { opacity: .88; }
+    .btn-ghost-white {
+      background: none;
+      color: rgba(255,255,255,.6);
+      padding: 12px 28px;
+      border-radius: 30px;
+      font-size: 13px;
+      font-weight: 500;
+      text-decoration: none;
+      border: 1px solid rgba(255,255,255,.15);
+      transition: all .2s;
+    }
+    .btn-ghost-white:hover { border-color: rgba(255,255,255,.4); color: #fff; }
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 40px 0;
+    }
+    @media (max-width: 600px) {
+      .stats-inner { grid-template-columns: 1fr; gap: 24px; }
+      .values-grid { grid-template-columns: 1fr; }
+      .founder-card { flex-direction: column; text-align: center; }
+      .founder-tags { justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="navbar">
+  <a href="/index.html" class="talenco-logo">
+    <div class="nav-logo">
+      <div class="nav-logo-text"><span class="logo-primary">Talenco</span><span class="logo-dot">.</span><span class="logo-tld">bj</span></div>
+      <div class="logo-tagline">Recrutement au Bénin</div>
+    </div>
+  </a>
+  <ul class="navbar-links">
+    <li><a href="/offres.html">Offres</a></li>
+    <li><a href="/cvtheque.html">CVthèque</a></li>
+    <li><a href="/a-propos.html" class="active">À propos</a></li>
+  </ul>
+  <div class="navbar-actions">
+    <a href="/connexion.html" class="btn btn-outline btn-sm">Connexion</a>
+    <a href="/inscription.html" class="btn btn-dark btn-sm">Créer un compte</a>
+  </div>
+</nav>
+
+<!-- Hero -->
+<div class="hero">
+  <div class="hero-eyebrow">Notre histoire</div>
+  <h1 class="hero-title">Je ne suis pas arrivé<br>dans le recrutement par hasard.</h1>
+  <p class="hero-sub">Depuis plus de 10 ans, une seule obsession : trouver rapidement les bons profils.</p>
+</div>
+
+<!-- Stats -->
+<div class="stats-strip">
+  <div class="stats-inner">
+    <div>
+      <div class="stat-num">10+</div>
+      <div class="stat-label">Années d'expérience<br>en recrutement RH</div>
+    </div>
+    <div>
+      <div class="stat-num">2</div>
+      <div class="stat-label">Continents<br>France & Afrique</div>
+    </div>
+    <div>
+      <div class="stat-num">5</div>
+      <div class="stat-label">Secteurs maîtrisés<br>Banque, IT, Industrie…</div>
+    </div>
+  </div>
+</div>
+
+<!-- Contenu principal -->
+<div class="content-wrap">
+
+  <!-- Bloc 1 : Le constat -->
+  <div class="story-block">
+    <span class="story-label">Le constat de terrain</span>
+    <h2 class="story-heading">Une réalité m'a toujours frappé.</h2>
+    <p class="story-text">
+      J'ai évolué dans les ressources humaines en France comme en Afrique, spécialisé dans le recrutement de profils variés : <strong>industrie, banque, assurance, IT et fonctions support</strong>. Au fil des missions, j'ai accompagné des entreprises exigeantes avec une seule ligne directrice — identifier les bons profils vite et bien.
+    </p>
+    <div class="pull-quote">
+      <p>"Malgré la quantité de CV disponibles, trouver le bon candidat reste long, incertain, et inefficace."</p>
+    </div>
+    <p class="story-text">
+      Trop de profils peu qualifiés. Des informations peu fiables. Des candidats difficilement joignables. Et au final, une perte de temps et d'énergie considérable pour les recruteurs — qu'ils soient en PME ou en grande structure.
+    </p>
+  </div>
+
+  <hr class="divider">
+
+  <!-- Bloc 2 : La réflexion -->
+  <div class="story-block">
+    <span class="story-label">Une question simple</span>
+    <h2 class="story-heading">Plutôt qu'accumuler des CV, pourquoi ne pas sélectionner les bons ?</h2>
+    <p class="story-text">
+      C'est ce constat qui m'a poussé à réfléchir différemment. <strong>Pas une plateforme de plus</strong>. Pas une base de données où tout le monde est noyé dans la masse. Mais une sélection de profils réellement exploitables — structurés, qualifiés, alignés avec les attentes du marché.
+    </p>
+    <p class="story-text" style="margin-top:16px;">
+      Chaque candidat présent dans Talenco répond à une logique simple : être pertinent, disponible, et identifiable <strong>en moins de 30 secondes</strong> par un recruteur. C'est notre promesse.
+    </p>
+  </div>
+
+  <hr class="divider">
+
+  <!-- Bloc 3 : Nos valeurs -->
+  <div class="story-block">
+    <span class="story-label">Ce en quoi nous croyons</span>
+    <h2 class="story-heading">Le recrutement peut être plus humain et plus fiable.</h2>
+    <div class="values-grid">
+      <div class="value-card">
+        <div class="value-icon">🎯</div>
+        <div class="value-title">Pertinence avant volume</div>
+        <div class="value-desc">30 profils qualifiés valent mieux que 3 000 CV non triés. Nous choisissons la qualité.</div>
+      </div>
+      <div class="value-card">
+        <div class="value-icon">✅</div>
+        <div class="value-title">Certification humaine</div>
+        <div class="value-desc">Chaque profil certifié a passé un call de 30 min avec un expert RH Talenco. Pas un algorithme.</div>
+      </div>
+      <div class="value-card">
+        <div class="value-icon">⚡</div>
+        <div class="value-title">Rapidité de sourcing</div>
+        <div class="value-desc">Un recruteur doit pouvoir identifier un profil pertinent en moins de 30 secondes. C'est notre standard.</div>
+      </div>
+      <div class="value-card">
+        <div class="value-icon">🌍</div>
+        <div class="value-title">Ancrage local</div>
+        <div class="value-desc">Nous connaissons le marché béninois de l'intérieur. Pas une copie d'un modèle occidental.</div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- Bloc 4 : L'ambition -->
+  <div class="story-block">
+    <span class="story-label">Notre ambition</span>
+    <h2 class="story-heading">Faciliter la rencontre entre les bons talents et les bonnes opportunités.</h2>
+    <p class="story-text">
+      Talenco s'inscrit dans une vision claire : <strong>rendre le recrutement plus efficace, plus humain, et surtout plus fiable</strong>. Réduire le temps et l'incertitude dans le processus de recrutement. Permettre à chaque candidat de mettre en valeur ce qu'il sait vraiment faire. Et permettre à chaque recruteur de trouver rapidement ce dont il a besoin.
+    </p>
+    <p class="story-text" style="margin-top:16px;">
+      Ce n'est pas une promesse abstraite. C'est le résultat de 10 ans de terrain, distillé dans un outil simple et efficace.
+    </p>
+  </div>
+
+  <!-- Carte fondateur -->
+  <div class="founder-card">
+    <div class="founder-avatar">K</div>
+    <div>
+      <div class="founder-name">Kabir Yakoubou</div>
+      <div class="founder-role">Fondateur — Expert RH & Recrutement</div>
+      <div class="founder-tags">
+        <span class="founder-tag">10+ ans RH</span>
+        <span class="founder-tag">France & Bénin</span>
+        <span class="founder-tag">Banque · IT · Industrie</span>
+        <span class="founder-tag">Recrutement terrain</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- CTA -->
+<div class="cta-section">
+  <h2>Prêt à recruter autrement ?</h2>
+  <p>Accédez à des profils sélectionnés, certifiés, et disponibles sur le marché béninois.</p>
+  <div class="cta-btns">
+    <a href="/cvtheque.html" class="btn-gold">Accéder à la CVthèque</a>
+    <a href="/offres.html" class="btn-ghost-white">Voir les offres</a>
+  </div>
+</div>
+
+<!-- Footer -->
+<footer style="background:#1a1a1a;color:#fff;padding:28px 24px;">
+  <div style="max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;">
+    <div style="font-family:'Instrument Serif',serif;font-style:italic;font-size:16px;color:#c9963a;">Talenco.bj</div>
+    <div style="display:flex;gap:24px;font-size:12px;color:rgba(255,255,255,.4);">
+      <a href="/offres.html" style="color:inherit;text-decoration:none;">Offres</a>
+      <a href="/cvtheque.html" style="color:inherit;text-decoration:none;">CVthèque</a>
+      <a href="/inscription.html" style="color:inherit;text-decoration:none;">Créer un compte</a>
+      <a href="mailto:contact@talenco.bj" style="color:inherit;text-decoration:none;">contact@talenco.bj</a>
+    </div>
+    <span style="font-size:11px;color:rgba(255,255,255,.25);">© 2025 Talenco.bj</span>
+  </div>
+</footer>
+
+<script src="/pwa.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+var SUPABASE_URL = 'https://ywteoxnkkdgdpbkrlkar.supabase.co';
+var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl3dGVveG5ra2RnZHBia3Jsa2FyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1MjA1MjYsImV4cCI6MjA5MDA5NjUyNn0.jzgNVgYR6iCEV_GIpvBTs4aN3RzK3E3MJW9YtBmLI3c';
+const { createClient } = supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+sb.auth.getSession().then(({ data: { session } }) => {
+  if (session) {
+    document.querySelector('.navbar-actions').innerHTML = `
+      <a href="/candidat.html" class="btn btn-outline btn-sm">Mon profil</a>
+      <button class="btn btn-dark btn-sm" onclick="sb.auth.signOut().then(()=>location.reload())">Déconnexion</button>
+    `;
+  }
+});
+</script>
+</body>
+</html>
