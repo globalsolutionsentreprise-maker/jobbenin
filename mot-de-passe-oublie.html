@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nouveau mot de passe — Talenco.bj</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Hanken+Grotesk:wght@300;400;500;700&display=swap">
+  <link rel="stylesheet" href="/design-system.css">
+</head>
+<body>
+<nav class="navbar">
+  <a href="/index.html" class="talenco-logo">
+    <div class="nav-logo">
+      <div class="nav-logo-text"><span class="logo-primary">Talenco</span><span class="logo-dot">.</span><span class="logo-tld">bj</span></div>
+      <div class="logo-tagline">Recrutement au Bénin</div>
+    </div>
+  </a>
+</nav>
+
+<div style="min-height:80vh;display:flex;align-items:center;justify-content:center;padding:24px;">
+  <div style="background:#fff;border:1px solid var(--border);border-radius:16px;padding:40px 36px;width:100%;max-width:420px;text-align:center;">
+    <div style="font-family:'Instrument Serif',serif;font-style:italic;font-size:26px;margin-bottom:8px;">Nouveau mot de passe</div>
+    <p style="color:var(--text-muted);font-size:13px;margin-bottom:28px;">Choisissez un mot de passe sécurisé pour votre compte.</p>
+
+    <div id="auth-msg" style="display:none;padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:16px;"></div>
+
+    <div style="display:flex;flex-direction:column;gap:14px;text-align:left;">
+      <div>
+        <label style="font-size:11px;font-weight:500;letter-spacing:.04em;text-transform:uppercase;color:var(--text-muted);display:block;margin-bottom:6px;">Nouveau mot de passe</label>
+        <input type="password" id="new-password" placeholder="Minimum 8 caractères" autocomplete="new-password"
+          style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;">
+      </div>
+      <div>
+        <label style="font-size:11px;font-weight:500;letter-spacing:.04em;text-transform:uppercase;color:var(--text-muted);display:block;margin-bottom:6px;">Confirmer le mot de passe</label>
+        <input type="password" id="confirm-password" placeholder="Répétez le mot de passe" autocomplete="new-password"
+          style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;">
+      </div>
+      <button id="btn-reset" class="btn btn-dark btn-full" style="margin-top:4px;">Enregistrer le mot de passe</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+  var SUPABASE_URL = 'https://ywteoxnkkdgdpbkrlkar.supabase.co';
+  var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl3dGVveG5ra2RnZHBia3Jsa2FyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1MjA1MjYsImV4cCI6MjA5MDA5NjUyNn0.jzgNVgYR6iCEV_GIpvBTs4aN3RzK3E3MJW9YtBmLI3c';
+  const { createClient } = supabase;
+  const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  function showMsg(type, text) {
+    const el = document.getElementById('auth-msg');
+    el.style.display = 'block';
+    el.style.background = type === 'error' ? '#fef2f2' : '#f0fdf4';
+    el.style.color = type === 'error' ? '#b91c1c' : '#15803d';
+    el.style.border = '1px solid ' + (type === 'error' ? '#fca5a5' : '#86efac');
+    el.textContent = text;
+  }
+
+  // Récupérer le token depuis l'URL
+  const hash = window.location.hash;
+  const params = new URLSearchParams(hash.substring(1));
+  const accessToken = params.get('access_token');
+  const refreshToken = params.get('refresh_token');
+  const type = params.get('type');
+
+  if (accessToken && type === 'recovery') {
+    sb.auth.setSession({ access_token: accessToken, refresh_token: refreshToken });
+  } else if (!accessToken) {
+    showMsg('error', '❌ Lien invalide ou expiré. Redemandez un email de réinitialisation.');
+    document.getElementById('btn-reset').disabled = true;
+  }
+
+  document.getElementById('btn-reset').addEventListener('click', async () => {
+    const password = document.getElementById('new-password').value;
+    const confirm = document.getElementById('confirm-password').value;
+    const btn = document.getElementById('btn-reset');
+
+    if (password.length < 8) { showMsg('error', '❌ Le mot de passe doit contenir au moins 8 caractères.'); return; }
+    if (password !== confirm) { showMsg('error', '❌ Les mots de passe ne correspondent pas.'); return; }
+
+    btn.disabled = true;
+    btn.textContent = '⏳ Enregistrement…';
+
+    const { error } = await sb.auth.updateUser({ password });
+
+    if (error) {
+      showMsg('error', '❌ ' + error.message);
+      btn.disabled = false;
+      btn.textContent = 'Enregistrer le mot de passe';
+    } else {
+      showMsg('success', '✅ Mot de passe mis à jour ! Redirection…');
+      btn.textContent = 'Mot de passe mis à jour ✓';
+      setTimeout(() => window.location.href = '/admin.html', 2000);
+    }
+  });
+</script>
+</body>
+</html>
