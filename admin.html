@@ -209,10 +209,10 @@
 
   async function chargerStats() {
     const [{ count: nbOffres }, { count: nbUsers }, { count: nbApps }, { count: nbWa }] = await Promise.all([
-      sb.from('jobs').select('*', { count: 'exact', head: true }).eq('statut', 'publie'),
+      sb.from('jobs').select('*', { count: 'exact', head: true }).eq('status', 'published'),
       sb.from('users').select('*', { count: 'exact', head: true }),
       sb.from('applications').select('*', { count: 'exact', head: true }),
-      sb.from('whatsapp_subscribers').select('*', { count: 'exact', head: true }).eq('is_verified', true).eq('is_active', true),
+      sb.from('users').select('*', { count: 'exact', head: true }).not('phone', 'is', null),
     ]);
     document.getElementById('admin-nb-offres').textContent = nbOffres ?? 0;
     document.getElementById('admin-nb-users').textContent = nbUsers ?? 0;
@@ -221,29 +221,34 @@
   }
 
   async function chargerOffresAdmin() {
-    const { data: offres } = await sb.from('jobs').select('id, titre, ville, statut, created_at').order('created_at', { ascending: false }).limit(10);
+    const { data: offres } = await sb.from('jobs').select('id, title, city, status, created_at').order('created_at', { ascending: false }).limit(10);
     const list = document.getElementById('offres-admin-list');
     if (!offres?.length) { list.innerHTML = '<p class="text-muted">Aucune offre.</p>'; return; }
     list.innerHTML = `<div style="display:flex;flex-direction:column;gap:6px;">${offres.map(o => `
       <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-sm);">
-        <div style="flex:1;font-family:var(--font-serif);font-style:italic;font-size:13px;">${o.titre}</div>
-        <span class="badge badge-${o.statut === 'publie' ? 'success' : 'warning'}">${o.statut}</span>
+        <div style="flex:1;font-family:var(--font-serif);font-style:italic;font-size:13px;">${o.title}</div>
+        <span style="font-size:11px;color:var(--text-muted);">${o.city ?? ''}</span>
+        <span class="badge badge-${o.status === 'published' ? 'success' : 'warning'}">${o.status}</span>
         <a href="/offre-detail.html?id=${o.id}" class="btn btn-ghost btn-sm">Voir →</a>
       </div>
     `).join('')}</div>`;
   }
 
   async function chargerUsersAdmin() {
-    const { data: users } = await sb.from('users').select('id, email, prenom, nom, created_at').order('created_at', { ascending: false }).limit(10);
+    const { data: users } = await sb.from('users').select('id, email, full_name, role, created_at').order('created_at', { ascending: false }).limit(20);
     const list = document.getElementById('users-admin-list');
     if (!users?.length) { list.innerHTML = '<p class="text-muted">Aucun utilisateur.</p>'; return; }
     list.innerHTML = `<div style="display:flex;flex-direction:column;gap:6px;">${users.map(u => `
       <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-sm);">
-        <div style="flex:1;">
-          <div style="font-family:var(--font-body);font-size:13px;">${[u.prenom, u.nom].filter(Boolean).join(' ') || u.email}</div>
-          <div style="font-family:var(--font-mono);font-size:9px;color:var(--text-muted);">${u.email}</div>
+        <div style="width:32px;height:32px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;">
+          ${(u.full_name || u.email || '?')[0].toUpperCase()}
         </div>
-        <span class="text-muted" style="font-size:11px;">${new Date(u.created_at).toLocaleDateString('fr-FR')}</span>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:13px;font-weight:500;">${u.full_name || '—'}</div>
+          <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${u.email}</div>
+        </div>
+        <span class="badge badge-${u.role === 'admin' ? 'warning' : u.role === 'company' ? 'info' : 'success'}" style="font-size:9px;">${u.role || 'candidate'}</span>
+        <span style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);">${new Date(u.created_at).toLocaleDateString('fr-FR')}</span>
       </div>
     `).join('')}</div>`;
   }
