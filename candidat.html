@@ -688,7 +688,7 @@
       document.getElementById('premium-actif-banner').style.display = 'flex';
       document.getElementById('premium-banner').style.display = 'none';
       const exp = new Date(data.premium_until).toLocaleDateString('fr-FR');
-      document.getElementById('premium-expiry').textContent = 'Valide jusqu'au ' + exp;
+      document.getElementById('premium-expiry').textContent = "Valide jusqu'au " + exp;
     } else {
       userIsPremium = false;
       document.getElementById('premium-banner').style.display = 'flex';

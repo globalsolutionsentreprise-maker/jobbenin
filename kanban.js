@@ -244,8 +244,8 @@ async function loadApplications() {
 
   _apps = (data ?? []).map(a => ({
     ...a,
-    email:    (a.users as any)?.email ?? '',
-    jobTitre: (a.jobs as any)?.titre ?? (a.jobs as any)?.title ?? '—',
+    email:    (a.users)?.email ?? '',
+    jobTitre: (a.jobs)?.titre ?? (a.jobs)?.title ?? '—',
   }));
 }
 
