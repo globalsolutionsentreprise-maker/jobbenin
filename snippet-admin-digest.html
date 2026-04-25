@@ -68,10 +68,10 @@
 <!-- JS : à ajouter dans le <script> existant de admin.html -->
 <script>
 (function () {
-  const SUPABASE_URL  = 'https://ywteoxnkkdgdpbkrlkar.supabase.co';
+  var SUPABASE_URL  = 'https://ywteoxnkkdgdpbkrlkar.supabase.co';
   // Utiliser la clé anon si la fonction est sécurisée par JWT,
   // ou la service_role_key si l'admin est déjà authentifié en service_role.
-  const SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY || 'VOTRE_ANON_KEY_ICI';
+  var SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY || 'VOTRE_ANON_KEY_ICI';
 
   const btn    = document.getElementById('btn-digest');
   const result = document.getElementById('digest-result');
