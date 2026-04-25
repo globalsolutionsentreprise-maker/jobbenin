@@ -727,6 +727,7 @@
     chargerStatutCertif(userId);
   }
 
+  async function chargerCandidatures(userId) {
     const { data: apps } = await sb
       .from('applications')
       .select('id, status, created_at, jobs(id, title, city)')
@@ -744,10 +745,10 @@
     list.innerHTML = apps.map(a => `
       <div class="application-row">
         <div class="application-job">
-          <div class="application-title">${a.jobs?.titre ?? 'Offre supprimée'}</div>
-          <div class="application-company">${a.jobs?.entreprise ?? ''}</div>
+          <div class="application-title">${a.jobs?.title ?? 'Offre supprimée'}</div>
+          <div class="application-company">${a.jobs?.city ?? ''}</div>
         </div>
-        <span class="badge badge-${statusMap[a.statut] ?? 'info'}">${a.statut ?? '—'}</span>
+        <span class="badge badge-${a.status === 'accepted' ? 'success' : a.status === 'rejected' ? 'danger' : 'warning'}">${a.status ?? 'En attente'}</span>
       </div>
     `).join('');
   }
