@@ -314,7 +314,7 @@
     <p class="subline">Choisissez votre profil pour accéder à l'espace qui vous correspond.</p>
 
     <div class="cards">
-      <a href="/offres.html" class="card card-candidat">
+      <a href="/offres.html" class="card card-candidat" onclick="sessionStorage.setItem('talenco_profil_choisi','candidat')">
         <span class="card-icon">🎯</span>
         <div class="card-label">Je cherche un emploi</div>
         <div class="card-title">Je suis candidat</div>
@@ -328,7 +328,7 @@
         <div class="divider-line"></div>
       </div>
 
-      <a href="/entreprises.html" class="card card-recruteur">
+      <a href="/entreprises.html" class="card card-recruteur" onclick="sessionStorage.setItem('talenco_profil_choisi','recruteur')">
         <span class="card-icon">🏢</span>
         <div class="card-label">Je recrute</div>
         <div class="card-title">Je suis recruteur</div>
