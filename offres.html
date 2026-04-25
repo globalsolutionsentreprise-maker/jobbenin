@@ -91,6 +91,7 @@
       color: var(--text);
       width: auto;
     }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
     @media (max-width: 768px) {
       .page-layout { grid-template-columns: 1fr; }
       .filters-panel {
@@ -358,7 +359,18 @@
     const loadMoreBtn = document.getElementById('load-more-container');
     const sort        = document.getElementById('sort-select').value;
 
-    if (!append) { container.innerHTML = '<p class="text-muted">Chargement…</p>'; }
+    if (!append) {
+      container.innerHTML = Array(4).fill(`
+        <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:20px;animation:pulse 1.4s ease-in-out infinite;">
+          <div style="height:14px;background:var(--border);border-radius:4px;width:60%;margin-bottom:10px;"></div>
+          <div style="height:10px;background:var(--border);border-radius:4px;width:30%;margin-bottom:14px;"></div>
+          <div style="display:flex;gap:8px;">
+            <div style="height:20px;width:60px;background:var(--border);border-radius:20px;"></div>
+            <div style="height:20px;width:60px;background:var(--border);border-radius:20px;"></div>
+            <div style="height:20px;width:60px;background:var(--border);border-radius:20px;"></div>
+          </div>
+        </div>`).join('');
+    }
 
     let query = sb.from('jobs')
       .select('id, title, company_id, city, sector, contract_type, created_at, score', { count: 'exact' })

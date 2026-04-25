@@ -1,4 +1,13 @@
 // ── Clé publique VAPID (générée via npx web-push generate-vapid-keys) ──
+// ── Favicon injection globale ──────────────────────────
+(function() {
+  if (!document.querySelector('link[rel="icon"]')) {
+    var lnk = document.createElement('link');
+    lnk.rel = 'icon'; lnk.type = 'image/svg+xml'; lnk.href = '/favicon.svg';
+    document.head.appendChild(lnk);
+  }
+})();
+
 const VAPID_PUBLIC_KEY =
   'BM4Xv-k-mb4QfCxNxx5H5LNqASlJalpwsUqwDFVB-EHGxNcx98ILu8uwUeeaJc6tnhqbYdSvpCCrXpkINu8u-ck';
 
