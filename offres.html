@@ -347,7 +347,7 @@
         <a href="/candidat.html" class="btn btn-outline btn-sm">Mon profil</a>
         <button class="btn btn-dark btn-sm" onclick="sb.auth.signOut().then(()=>location.reload())">Déconnexion</button>
       `;
-      candidature.initPostuler(sb);
+      candidature?.initPostuler?.(sb);
     }
   });
 
