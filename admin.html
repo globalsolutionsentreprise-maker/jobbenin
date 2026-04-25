@@ -4,31 +4,55 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin — Talenco.bj</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Hanken+Grotesk:wght@300;400;500;700;900&family=Space+Grotesk:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Hanken+Grotesk:wght@300;400;500;700;900&display=swap">
   <link rel="stylesheet" href="/design-system.css">
   <style>
-    .admin-layout {
-      display: grid;
-      grid-template-columns: 200px 1fr;
-      max-width: 1140px;
-      margin: 0 auto;
-      min-height: calc(100vh - var(--nav-h));
-    }
-    .admin-sidebar { border-right: 1px solid var(--border); padding: 24px 16px; }
-    .admin-content { padding: 28px; }
-    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 28px; }
-    .stat-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 18px; }
-    .stat-card-num { font-family: var(--font-sans); font-size: 28px; font-weight: 900; color: var(--accent); letter-spacing: -.03em; margin-bottom: 4px; }
-    .stat-card-label { font-family: var(--font-mono); font-size: 9px; text-transform: uppercase; letter-spacing: .1em; color: var(--text-muted); }
-    @media (max-width: 900px) {
-      .stats-grid { grid-template-columns: 1fr 1fr; }
-    }
-    @media (max-width: 768px) {
-      .admin-layout { grid-template-columns: 1fr; }
-      .admin-sidebar { border-right: none; border-bottom: 1px solid var(--border); }
-      .admin-content { padding: 16px; }
-      .stats-grid { grid-template-columns: 1fr 1fr; }
-    }
+    .admin-wrap { display:grid; grid-template-columns:220px 1fr; min-height:calc(100vh - 56px); }
+    .admin-side { border-right:1px solid var(--border); padding:20px 12px; position:sticky; top:56px; height:calc(100vh - 56px); overflow-y:auto; }
+    .admin-main { padding:28px 32px; }
+    .side-label { font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--text-muted);padding:0 8px;margin:16px 0 6px; }
+    .side-link { display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;font-size:13px;font-weight:500;color:var(--text-muted);text-decoration:none;cursor:pointer;transition:all .15s;border:none;background:none;width:100%;text-align:left; }
+    .side-link:hover { background:var(--bg-card);color:var(--text); }
+    .side-link.active { background:var(--accent);color:#fff; }
+    .side-link .badge-count { margin-left:auto;background:rgba(255,255,255,.25);color:inherit;font-size:10px;padding:1px 6px;border-radius:10px; }
+    .tab-section { display:none; }
+    .tab-section.active { display:block; }
+    .stats-row { display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px; }
+    .stat-box { background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:18px 20px; }
+    .stat-num { font-size:32px;font-weight:900;color:var(--accent);letter-spacing:-.03em;line-height:1; }
+    .stat-label { font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--text-muted);margin-top:4px; }
+    .stat-delta { font-size:11px;color:#15803d;margin-top:2px; }
+    .section-title { font-family:'Instrument Serif',serif;font-style:italic;font-size:22px;margin:0 0 16px; }
+    .table-wrap { background:var(--bg-card);border:1px solid var(--border);border-radius:12px;overflow:hidden; }
+    .table-row { display:grid;align-items:center;padding:12px 16px;border-bottom:1px solid var(--border);gap:12px;font-size:13px; }
+    .table-row:last-child { border-bottom:none; }
+    .table-head { font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--text-muted);background:var(--bg);padding:10px 16px;border-bottom:1px solid var(--border); }
+    .badge { display:inline-flex;align-items:center;padding:3px 8px;border-radius:20px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.04em; }
+    .b-published { background:#dcfce7;color:#15803d; }
+    .b-rejected { background:#fee2e2;color:#b91c1c; }
+    .b-pending { background:#fef9c3;color:#854d0e; }
+    .b-admin { background:#fef3c7;color:#92400e; }
+    .b-company { background:#dbeafe;color:#1e40af; }
+    .b-candidate { background:#f3f4f6;color:#374151; }
+    .b-active { background:#dcfce7;color:#15803d; }
+    .b-inactive { background:#fee2e2;color:#b91c1c; }
+    .btn-action { font-size:11px;font-weight:600;padding:4px 10px;border-radius:6px;border:1px solid var(--border);background:none;cursor:pointer;transition:all .15s; }
+    .btn-publish { border-color:#15803d;color:#15803d; }
+    .btn-publish:hover { background:#15803d;color:#fff; }
+    .btn-reject { border-color:#b91c1c;color:#b91c1c; }
+    .btn-reject:hover { background:#b91c1c;color:#fff; }
+    .btn-delete { border-color:#b91c1c;color:#b91c1c; }
+    .btn-delete:hover { background:#b91c1c;color:#fff; }
+    .btn-activate { border-color:#15803d;color:#15803d; }
+    .btn-activate:hover { background:#15803d;color:#fff; }
+    .btn-deactivate { border-color:#b91c1c;color:#b91c1c; }
+    .btn-deactivate:hover { background:#b91c1c;color:#fff; }
+    .avatar { width:32px;height:32px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0; }
+    .search-bar { padding:8px 14px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;width:260px;margin-bottom:14px; }
+    .notif-box { background:#f0f9ff;border:1px solid #bae6fd;border-radius:10px;padding:14px 16px;margin-bottom:16px;font-size:13px;color:#0369a1; }
+    .toast { position:fixed;bottom:24px;right:24px;background:#1a1a1a;color:#fff;padding:12px 20px;border-radius:10px;font-size:13px;z-index:999;display:none;animation:slideup .2s ease; }
+    @keyframes slideup { from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1} }
+    @media(max-width:900px){ .admin-wrap{grid-template-columns:1fr} .admin-side{display:none} .stats-row{grid-template-columns:1fr 1fr} }
   </style>
 </head>
 <body>
@@ -36,277 +60,506 @@
 <nav class="navbar" id="main-nav">
   <a href="/index.html" class="talenco-logo">
     <div class="nav-logo">
-      <div class="nav-logo-text">
-        <span class="logo-primary">Talenco</span><span class="logo-dot">.</span><span class="logo-tld">bj</span>
-      </div>
+      <div class="nav-logo-text"><span class="logo-primary">Talenco</span><span class="logo-dot">.</span><span class="logo-tld">bj</span></div>
       <div class="logo-tagline">Recrutement au Bénin</div>
     </div>
   </a>
-
   <ul class="navbar-links">
     <li><a href="/index.html">Accueil</a></li>
     <li><a href="/offres.html">Offres</a></li>
-    <li><a href="/entreprises.html">Recruteurs</a></li>
     <li><a href="/admin.html" class="active">Admin</a></li>
   </ul>
-
-  <div class="navbar-actions" id="nav-actions">
+  <div class="navbar-actions">
     <button class="btn btn-dark btn-sm" onclick="sb?.auth?.signOut().then(()=>location.href='/index.html')">Déconnexion</button>
   </div>
-
-  <button class="navbar-toggle" id="nav-toggle" aria-label="Menu">
-    <span></span><span></span><span></span>
-  </button>
 </nav>
 
-<div class="nav-drawer" id="nav-drawer">
-  <div class="nav-drawer-overlay" id="nav-overlay"></div>
-  <div class="nav-drawer-panel">
-    <button class="nav-drawer-close" id="nav-close">✕</button>
-    <div class="nav-logo">
-      <div class="nav-logo-text">
-        <span class="logo-primary">Talenco</span><span class="logo-dot">.</span><span class="logo-tld">bj</span>
-      </div>
-    </div>
-    <ul class="nav-drawer-links">
-      <li><a href="/index.html">Accueil</a></li>
-      <li><a href="/offres.html">Offres</a></li>
-      <li><a href="/entreprises.html">Recruteurs</a></li>
-      <li><a href="/admin.html">Admin</a></li>
-    </ul>
-  </div>
-</div>
-
-<!-- ── Mur auth admin ────────────────────────────────────────────────── -->
-<div id="auth-wall" style="display:none;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;text-align:center;padding:40px;">
-  <h2 style="font-family:var(--font-serif);font-style:italic;">Accès réservé aux administrateurs</h2>
+<!-- Mur auth -->
+<div id="auth-wall" style="display:none;flex-direction:column;align-items:center;justify-content:center;min-height:70vh;text-align:center;">
+  <h2 style="font-family:'Instrument Serif',serif;font-style:italic;">Accès réservé aux administrateurs</h2>
   <a href="/index.html" class="btn btn-dark" style="margin-top:20px;">Retour à l'accueil</a>
 </div>
 
-<!-- ── Dashboard admin ───────────────────────────────────────────────── -->
+<!-- Dashboard -->
 <div id="admin-dashboard" style="display:none;">
-  <div class="admin-layout">
-    <aside class="admin-sidebar">
-      <div style="font-family:var(--font-sans);font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--text-muted);margin-bottom:12px;">Navigation</div>
-      <ul class="ds-sidebar-links">
-        <li><a href="#stats" class="active">📊 Statistiques</a></li>
-        <li><a href="#offres-admin">💼 Offres</a></li>
-        <li><a href="#users-admin">👥 Utilisateurs</a></li>
-        <li><a href="#digest-admin">📧 Digest email</a></li>
-        <li><a href="#whatsapp-admin">📱 WhatsApp</a></li>
-        <li><a href="#logs-admin">🔍 Logs IA</a></li>
-      </ul>
+  <div class="admin-wrap">
+
+    <!-- Sidebar -->
+    <aside class="admin-side">
+      <div class="side-label">Tableau de bord</div>
+      <button class="side-link active" onclick="showTab('stats',this)">📊 Vue d'ensemble</button>
+      <button class="side-link" onclick="showTab('moderation',this)">⚠️ Modération <span class="badge-count" id="badge-mod">0</span></button>
+
+      <div class="side-label">Contenu</div>
+      <button class="side-link" onclick="showTab('offres',this)">💼 Offres</button>
+      <button class="side-link" onclick="showTab('candidatures',this)">📋 Candidatures</button>
+      <button class="side-link" onclick="showTab('news',this)">📰 Actualités</button>
+
+      <div class="side-label">Utilisateurs</div>
+      <button class="side-link" onclick="showTab('users',this)">👥 Tous les comptes</button>
+      <button class="side-link" onclick="showTab('companies',this)">🏢 Entreprises</button>
+
+      <div class="side-label">Communication</div>
+      <button class="side-link" onclick="showTab('whatsapp',this)">📱 WhatsApp</button>
+      <button class="side-link" onclick="showTab('digest',this)">📧 Digest email</button>
     </aside>
 
-    <main class="admin-content">
+    <!-- Main -->
+    <main class="admin-main">
 
-      <!-- Statistiques -->
-      <div id="stats" style="margin-bottom:32px;">
-        <h2 style="font-family:var(--font-serif);font-style:italic;margin:0 0 16px;">Vue d'ensemble</h2>
-        <div class="stats-grid">
-          <div class="stat-card">
-            <div class="stat-card-num" id="admin-nb-offres">—</div>
-            <div class="stat-card-label">Offres publiées</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-card-num" id="admin-nb-users">—</div>
-            <div class="stat-card-label">Utilisateurs</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-card-num" id="admin-nb-candidatures">—</div>
-            <div class="stat-card-label">Candidatures</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-card-num" id="admin-nb-wa">—</div>
-            <div class="stat-card-label">Abonnés WhatsApp</div>
-          </div>
+      <!-- ── STATS ── -->
+      <div id="tab-stats" class="tab-section active">
+        <h2 class="section-title">Vue d'ensemble</h2>
+        <div class="stats-row">
+          <div class="stat-box"><div class="stat-num" id="s-offres">—</div><div class="stat-label">Offres publiées</div></div>
+          <div class="stat-box"><div class="stat-num" id="s-users">—</div><div class="stat-label">Utilisateurs</div></div>
+          <div class="stat-box"><div class="stat-num" id="s-apps">—</div><div class="stat-label">Candidatures</div></div>
+          <div class="stat-box"><div class="stat-num" id="s-wa">—</div><div class="stat-label">Numéros WhatsApp</div></div>
         </div>
+        <div class="stats-row" style="grid-template-columns:repeat(3,1fr);">
+          <div class="stat-box"><div class="stat-num" id="s-companies">—</div><div class="stat-label">Entreprises</div></div>
+          <div class="stat-box"><div class="stat-num" id="s-pending">—</div><div class="stat-label">Offres en attente</div></div>
+          <div class="stat-box"><div class="stat-num" id="s-news">—</div><div class="stat-label">Actualités publiées</div></div>
+        </div>
+        <h3 style="font-family:'Instrument Serif',serif;font-style:italic;margin:0 0 12px;">Dernières inscriptions</h3>
+        <div id="recent-users" class="table-wrap"></div>
       </div>
 
-      <!-- Digest hebdomadaire -->
-      <div id="digest-admin" style="margin-bottom:32px;">
-        <h2 style="font-family:var(--font-serif);font-style:italic;margin:0 0 16px;">Digest email</h2>
-        <div class="digest-section">
-          <h3>📧 Digest hebdomadaire</h3>
-          <p>Envoie immédiatement le digest email à tous les candidats ayant des alertes configurées, sans attendre le lundi matin.</p>
-          <button id="btn-digest" type="button">
-            <span id="digest-icon">📬</span>
-            <span id="digest-label">Envoyer le digest maintenant</span>
-          </button>
-          <div id="digest-result"></div>
-        </div>
+      <!-- ── MODERATION ── -->
+      <div id="tab-moderation" class="tab-section">
+        <h2 class="section-title">Modération — Offres en attente</h2>
+        <p style="color:var(--text-muted);font-size:13px;margin-bottom:16px;">Ces offres ont un score entre 40 et 74 et nécessitent une validation manuelle.</p>
+        <div id="mod-list" class="table-wrap"></div>
       </div>
 
-      <!-- Offres récentes -->
-      <div id="offres-admin" style="margin-bottom:32px;">
+      <!-- ── OFFRES ── -->
+      <div id="tab-offres" class="tab-section">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
-          <h2 style="font-family:var(--font-serif);font-style:italic;margin:0;">Dernières offres</h2>
+          <h2 class="section-title" style="margin:0;">Toutes les offres</h2>
           <a href="/ajouter-offre.html" class="btn btn-primary btn-sm">+ Publier une offre</a>
         </div>
-        <div id="offres-admin-list">Chargement…</div>
+        <input class="search-bar" id="search-offres" placeholder="Rechercher une offre…" oninput="filtrerOffres()">
+        <div id="offres-list" class="table-wrap"></div>
       </div>
 
-      <!-- Utilisateurs récents -->
-      <div id="users-admin" style="margin-bottom:32px;">
-        <h2 style="font-family:var(--font-serif);font-style:italic;margin:0 0 16px;">Derniers inscrits</h2>
-        <div id="users-admin-list">Chargement…</div>
+      <!-- ── CANDIDATURES ── -->
+      <div id="tab-candidatures" class="tab-section">
+        <h2 class="section-title">Toutes les candidatures</h2>
+        <div id="cand-list" class="table-wrap"></div>
       </div>
 
-      <!-- Logs IA -->
-      <div id="logs-admin">
-        <h2 style="font-family:var(--font-serif);font-style:italic;margin:0 0 16px;">Logs IA (Coach TalBot)</h2>
-        <div id="logs-admin-list">Chargement…</div>
+      <!-- ── ACTUALITÉS ── -->
+      <div id="tab-news" class="tab-section">
+        <h2 class="section-title">Actualités entreprises</h2>
+        <div id="news-list" class="table-wrap"></div>
+      </div>
+
+      <!-- ── USERS ── -->
+      <div id="tab-users" class="tab-section">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+          <h2 class="section-title" style="margin:0;">Tous les comptes</h2>
+          <select id="filter-role" onchange="filtrerUsers()" style="padding:6px 12px;border:1px solid var(--border);border-radius:8px;font-size:12px;">
+            <option value="">Tous les rôles</option>
+            <option value="candidate">Candidats</option>
+            <option value="company">Entreprises</option>
+            <option value="admin">Admins</option>
+          </select>
+        </div>
+        <input class="search-bar" id="search-users" placeholder="Rechercher un utilisateur…" oninput="filtrerUsers()">
+        <div id="users-list" class="table-wrap"></div>
+      </div>
+
+      <!-- ── ENTREPRISES ── -->
+      <div id="tab-companies" class="tab-section">
+        <h2 class="section-title">Entreprises inscrites</h2>
+        <div id="companies-list" class="table-wrap"></div>
+      </div>
+
+      <!-- ── WHATSAPP ── -->
+      <div id="tab-whatsapp" class="tab-section">
+        <h2 class="section-title">Notification WhatsApp manuelle</h2>
+        <div class="notif-box">Envoie un message WhatsApp à un numéro ou à tous les utilisateurs ayant un numéro enregistré.</div>
+        <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px;max-width:500px;">
+          <div style="margin-bottom:12px;">
+            <label style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:6px;">Destinataire</label>
+            <select id="wa-target" style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;">
+              <option value="single">Numéro spécifique</option>
+              <option value="all">Tous les utilisateurs avec WhatsApp</option>
+            </select>
+          </div>
+          <div id="wa-single-field" style="margin-bottom:12px;">
+            <label style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:6px;">Numéro (format international)</label>
+            <input id="wa-phone" type="text" placeholder="+22961234567" style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;">
+          </div>
+          <div style="margin-bottom:16px;">
+            <label style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:6px;">Message</label>
+            <textarea id="wa-message" rows="4" placeholder="Votre message…" style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;resize:vertical;"></textarea>
+          </div>
+          <button onclick="envoyerWA()" class="btn btn-primary">Envoyer le message WhatsApp</button>
+          <div id="wa-result" style="margin-top:10px;font-size:13px;"></div>
+        </div>
+        <h3 style="font-family:'Instrument Serif',serif;font-style:italic;margin:24px 0 12px;">Utilisateurs avec WhatsApp (<span id="wa-count">—</span>)</h3>
+        <div id="wa-users-list" class="table-wrap"></div>
+      </div>
+
+      <!-- ── DIGEST ── -->
+      <div id="tab-digest" class="tab-section">
+        <h2 class="section-title">Digest email hebdomadaire</h2>
+        <div class="notif-box">Le digest envoie un résumé des nouvelles offres à tous les candidats ayant configuré des alertes email. Il part automatiquement chaque lundi. Ce bouton permet de l'envoyer immédiatement.</div>
+        <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px;max-width:400px;">
+          <button id="btn-digest" onclick="envoyerDigest()" class="btn btn-primary">📬 Envoyer le digest maintenant</button>
+          <div id="digest-result" style="margin-top:12px;font-size:13px;"></div>
+        </div>
       </div>
 
     </main>
   </div>
 </div>
 
-<footer class="footer">
-  <div class="footer-grid">
-    <a href="/index.html" class="talenco-logo" style="text-decoration:none;">
-      <div class="nav-logo">
-        <div class="nav-logo-text">
-          <span class="logo-primary">Talenco</span><span class="logo-dot">.</span><span class="logo-tld">bj</span>
-        </div>
-        <div class="logo-tagline">Recrutement au Bénin</div>
-      </div>
-    </a>
-    <ul class="footer-links">
-      <li><a href="/offres.html">Offres</a></li>
-      <li><a href="/entreprises.html">Recruteurs</a></li>
-    </ul>
-    <div class="footer-bottom">© 2025 Talenco.bj — Admin</div>
-  </div>
-</footer>
+<!-- Toast -->
+<div class="toast" id="toast"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
-  var SUPABASE_URL     = 'https://ywteoxnkkdgdpbkrlkar.supabase.co';
-  var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl3dGVveG5ra2RnZHBia3Jsa2FyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1MjA1MjYsImV4cCI6MjA5MDA5NjUyNn0.jzgNVgYR6iCEV_GIpvBTs4aN3RzK3E3MJW9YtBmLI3c';
-  const { createClient } = supabase;
-  const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+var SUPABASE_URL = 'https://ywteoxnkkdgdpbkrlkar.supabase.co';
+var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl3dGVveG5ra2RnZHBia3Jsa2FyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1MjA1MjYsImV4cCI6MjA5MDA5NjUyNn0.jzgNVgYR6iCEV_GIpvBTs4aN3RzK3E3MJW9YtBmLI3c';
+const { createClient } = supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  // ── Drawer ─────────────────────────────────────────────────────────
-  const drawer = document.getElementById('nav-drawer');
-  document.getElementById('nav-toggle').addEventListener('click', () => drawer.classList.add('open'));
-  document.getElementById('nav-overlay').addEventListener('click', () => drawer.classList.remove('open'));
-  document.getElementById('nav-close').addEventListener('click', () => drawer.classList.remove('open'));
+let allOffres = [], allUsers = [], currentSession = null;
 
-  // ── Auth ────────────────────────────────────────────────────────────
-  sb.auth.getSession().then(async ({ data: { session } }) => {
-    if (!session) { document.getElementById('auth-wall').style.display = 'flex'; return; }
+// ── Toast ──────────────────────────────────────────────
+function toast(msg, ok=true) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.background = ok ? '#15803d' : '#b91c1c';
+  t.style.display = 'block';
+  setTimeout(() => t.style.display = 'none', 3000);
+}
 
-    const { data: profile } = await sb.from('users').select('role').eq('id', session.user.id).maybeSingle();
-    if (profile?.role !== 'admin') { document.getElementById('auth-wall').style.display = 'flex'; return; }
+// ── Navigation ─────────────────────────────────────────
+function showTab(id, btn) {
+  document.querySelectorAll('.tab-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.side-link').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  if (btn) btn.classList.add('active');
+  // Lazy load
+  if (id === 'offres' && !allOffres.length) chargerOffres();
+  if (id === 'users' && !allUsers.length) chargerUsers();
+  if (id === 'candidatures') chargerCandidatures();
+  if (id === 'moderation') chargerModeration();
+  if (id === 'companies') chargerCompanies();
+  if (id === 'news') chargerNews();
+  if (id === 'whatsapp') chargerWAUsers();
+}
 
-    document.getElementById('admin-dashboard').style.display = 'block';
-    chargerStats();
-    chargerOffresAdmin();
-    chargerUsersAdmin();
-    chargerLogsAdmin();
-  });
+// ── Auth ────────────────────────────────────────────────
+sb.auth.getSession().then(async ({ data: { session } }) => {
+  if (!session) { document.getElementById('auth-wall').style.display = 'flex'; return; }
+  currentSession = session;
+  const { data: profile } = await sb.from('users').select('role').eq('id', session.user.id).maybeSingle();
+  if (profile?.role !== 'admin') { document.getElementById('auth-wall').style.display = 'flex'; return; }
+  document.getElementById('admin-dashboard').style.display = 'block';
+  chargerStats();
+});
 
-  async function chargerStats() {
-    const [{ count: nbOffres }, { count: nbUsers }, { count: nbApps }, { count: nbWa }] = await Promise.all([
-      sb.from('jobs').select('*', { count: 'exact', head: true }).eq('status', 'published'),
-      sb.from('users').select('*', { count: 'exact', head: true }),
-      sb.from('applications').select('*', { count: 'exact', head: true }),
-      sb.from('users').select('*', { count: 'exact', head: true }).not('phone', 'is', null),
-    ]);
-    document.getElementById('admin-nb-offres').textContent = nbOffres ?? 0;
-    document.getElementById('admin-nb-users').textContent = nbUsers ?? 0;
-    document.getElementById('admin-nb-candidatures').textContent = nbApps ?? 0;
-    document.getElementById('admin-nb-wa').textContent = nbWa ?? 0;
-  }
+// ── STATS ────────────────────────────────────────────────
+async function chargerStats() {
+  const [
+    { count: nbOffres }, { count: nbUsers }, { count: nbApps },
+    { count: nbWa }, { count: nbCompanies }, { count: nbPending }, { count: nbNews }
+  ] = await Promise.all([
+    sb.from('jobs').select('*',{count:'exact',head:true}).eq('status','published'),
+    sb.from('users').select('*',{count:'exact',head:true}),
+    sb.from('applications').select('*',{count:'exact',head:true}),
+    sb.from('users').select('*',{count:'exact',head:true}).not('phone','is',null),
+    sb.from('users').select('*',{count:'exact',head:true}).eq('role','company'),
+    sb.from('jobs').select('*',{count:'exact',head:true}).eq('status','pending'),
+    sb.from('company_news').select('*',{count:'exact',head:true}).eq('status','published'),
+  ]);
+  document.getElementById('s-offres').textContent = nbOffres ?? 0;
+  document.getElementById('s-users').textContent = nbUsers ?? 0;
+  document.getElementById('s-apps').textContent = nbApps ?? 0;
+  document.getElementById('s-wa').textContent = nbWa ?? 0;
+  document.getElementById('s-companies').textContent = nbCompanies ?? 0;
+  document.getElementById('s-pending').textContent = nbPending ?? 0;
+  document.getElementById('s-news').textContent = nbNews ?? 0;
+  document.getElementById('badge-mod').textContent = nbPending ?? 0;
 
-  async function chargerOffresAdmin() {
-    const { data: offres } = await sb.from('jobs').select('id, title, city, status, created_at').order('created_at', { ascending: false }).limit(10);
-    const list = document.getElementById('offres-admin-list');
-    if (!offres?.length) { list.innerHTML = '<p class="text-muted">Aucune offre.</p>'; return; }
-    list.innerHTML = `<div style="display:flex;flex-direction:column;gap:6px;">${offres.map(o => `
-      <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-sm);">
-        <div style="flex:1;font-family:var(--font-serif);font-style:italic;font-size:13px;">${o.title}</div>
-        <span style="font-size:11px;color:var(--text-muted);">${o.city ?? ''}</span>
-        <span class="badge badge-${o.status === 'published' ? 'success' : 'warning'}">${o.status}</span>
-        <a href="/offre-detail.html?id=${o.id}" class="btn btn-ghost btn-sm">Voir →</a>
+  // Dernières inscriptions
+  const { data: recentUsers } = await sb.from('users').select('id,email,full_name,role,created_at').order('created_at',{ascending:false}).limit(5);
+  const el = document.getElementById('recent-users');
+  if (!recentUsers?.length) { el.innerHTML = '<div style="padding:16px;color:var(--text-muted);font-size:13px;">Aucun utilisateur.</div>'; return; }
+  el.innerHTML = recentUsers.map(u => `
+    <div class="table-row" style="grid-template-columns:auto 1fr auto auto;">
+      <div class="avatar">${(u.full_name||u.email||'?')[0].toUpperCase()}</div>
+      <div>
+        <div style="font-weight:500;font-size:13px;">${u.full_name||'—'}</div>
+        <div style="font-size:11px;color:var(--text-muted);">${u.email}</div>
       </div>
-    `).join('')}</div>`;
-  }
+      <span class="badge b-${u.role||'candidate'}">${u.role||'candidate'}</span>
+      <span style="font-size:11px;color:var(--text-muted);">${new Date(u.created_at).toLocaleDateString('fr-FR')}</span>
+    </div>`).join('');
+}
 
-  async function chargerUsersAdmin() {
-    const { data: users } = await sb.from('users').select('id, email, full_name, role, created_at').order('created_at', { ascending: false }).limit(20);
-    const list = document.getElementById('users-admin-list');
-    if (!users?.length) { list.innerHTML = '<p class="text-muted">Aucun utilisateur.</p>'; return; }
-    list.innerHTML = `<div style="display:flex;flex-direction:column;gap:6px;">${users.map(u => `
-      <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-sm);">
-        <div style="width:32px;height:32px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;">
-          ${(u.full_name || u.email || '?')[0].toUpperCase()}
-        </div>
-        <div style="flex:1;min-width:0;">
-          <div style="font-size:13px;font-weight:500;">${u.full_name || '—'}</div>
-          <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${u.email}</div>
-        </div>
-        <span class="badge badge-${u.role === 'admin' ? 'warning' : u.role === 'company' ? 'info' : 'success'}" style="font-size:9px;">${u.role || 'candidate'}</span>
-        <span style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);">${new Date(u.created_at).toLocaleDateString('fr-FR')}</span>
+// ── MODERATION ────────────────────────────────────────────
+async function chargerModeration() {
+  const { data: offres } = await sb.from('jobs').select('id,title,city,sector,score,created_at').eq('status','pending').order('created_at',{ascending:false});
+  const el = document.getElementById('mod-list');
+  if (!offres?.length) { el.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-muted);font-size:13px;">✅ Aucune offre en attente de modération.</div>'; return; }
+  el.innerHTML = `<div class="table-head" style="grid-template-columns:1fr auto auto auto auto;display:grid;">
+    <span>Offre</span><span>Ville</span><span>Score IA</span><span>Date</span><span>Actions</span>
+  </div>` + offres.map(o => `
+    <div class="table-row" style="grid-template-columns:1fr auto auto auto auto;">
+      <div style="font-weight:500;">${o.title}</div>
+      <span style="font-size:12px;color:var(--text-muted);">${o.city||'—'}</span>
+      <span class="badge b-pending">Score ${o.score||0}</span>
+      <span style="font-size:11px;color:var(--text-muted);">${new Date(o.created_at).toLocaleDateString('fr-FR')}</span>
+      <div style="display:flex;gap:6px;">
+        <button class="btn-action btn-publish" onclick="actionOffre('${o.id}','published')">✓ Publier</button>
+        <button class="btn-action btn-reject" onclick="actionOffre('${o.id}','rejected')">✕ Rejeter</button>
       </div>
-    `).join('')}</div>`;
-  }
+    </div>`).join('');
+}
 
-  async function chargerLogsAdmin() {
-    const { data: logs } = await sb.from('ai_logs').select('id, user_id, type, tokens_used, created_at').order('created_at', { ascending: false }).limit(20);
-    const list = document.getElementById('logs-admin-list');
-    if (!logs?.length) { list.innerHTML = '<p class="text-muted">Aucun log.</p>'; return; }
-    list.innerHTML = `<div style="display:flex;flex-direction:column;gap:6px;">${logs.map(l => `
-      <div style="display:flex;align-items:center;gap:10px;padding:8px 14px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-sm);">
-        <span class="badge badge-info">${l.type}</span>
-        <span style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);">${l.tokens_used ?? 0} tokens</span>
-        <span style="flex:1;"></span>
-        <span style="font-family:var(--font-mono);font-size:9px;color:var(--text-muted);">${new Date(l.created_at).toLocaleDateString('fr-FR')}</span>
+// ── OFFRES ────────────────────────────────────────────────
+async function chargerOffres() {
+  const { data } = await sb.from('jobs').select('id,title,city,sector,contract_type,status,score,created_at').order('created_at',{ascending:false});
+  allOffres = data || [];
+  afficherOffres(allOffres);
+}
+
+function afficherOffres(offres) {
+  const el = document.getElementById('offres-list');
+  if (!offres?.length) { el.innerHTML = '<div style="padding:16px;color:var(--text-muted);font-size:13px;">Aucune offre.</div>'; return; }
+  el.innerHTML = `<div class="table-head" style="grid-template-columns:1fr auto auto auto auto;display:grid;">
+    <span>Titre</span><span>Ville</span><span>Statut</span><span>Score</span><span>Actions</span>
+  </div>` + offres.map(o => `
+    <div class="table-row" style="grid-template-columns:1fr auto auto auto auto;" id="row-offre-${o.id}">
+      <div>
+        <div style="font-weight:500;font-size:13px;">${o.title}</div>
+        <div style="font-size:10px;color:var(--text-muted);">${o.sector||''} · ${o.contract_type||''}</div>
       </div>
-    `).join('')}</div>`;
-  }
+      <span style="font-size:12px;">${o.city||'—'}</span>
+      <span class="badge b-${o.status}">${o.status}</span>
+      <span style="font-size:11px;font-weight:600;color:${(o.score||0)>=75?'#15803d':(o.score||0)>=40?'#854d0e':'#b91c1c'}">${o.score||0}</span>
+      <div style="display:flex;gap:5px;">
+        ${o.status!=='published'?`<button class="btn-action btn-publish" onclick="actionOffre('${o.id}','published')">Publier</button>`:''}
+        ${o.status!=='rejected'?`<button class="btn-action btn-reject" onclick="actionOffre('${o.id}','rejected')">Rejeter</button>`:''}
+        <button class="btn-action btn-delete" onclick="supprimerOffre('${o.id}')">🗑</button>
+      </div>
+    </div>`).join('');
+}
 
-  // ── Digest (snippet) ────────────────────────────────────────────────
-  (function () {
-    const btn    = document.getElementById('btn-digest');
-    const result = document.getElementById('digest-result');
-    const icon   = document.getElementById('digest-icon');
-    const label  = document.getElementById('digest-label');
+function filtrerOffres() {
+  const q = document.getElementById('search-offres').value.toLowerCase();
+  afficherOffres(allOffres.filter(o => o.title?.toLowerCase().includes(q) || o.city?.toLowerCase().includes(q)));
+}
 
-    btn.addEventListener('click', async () => {
-      btn.disabled = true;
-      icon.textContent  = '⏳';
-      label.textContent = 'Envoi en cours…';
-      result.style.display = 'none';
-      result.className = '';
+async function actionOffre(id, newStatus) {
+  const { error } = await sb.from('jobs').update({ status: newStatus }).eq('id', id);
+  if (error) { toast('Erreur : ' + error.message, false); return; }
+  toast(newStatus === 'published' ? '✅ Offre publiée !' : '❌ Offre rejetée');
+  chargerOffres();
+  chargerStats();
+  chargerModeration();
+}
 
-      try {
-        const { data: { session } } = await sb.auth.getSession();
-        const res = await fetch(`${SUPABASE_URL}/functions/v1/weekly-digest`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token ?? SUPABASE_ANON_KEY}` },
-          body: JSON.stringify({}),
-        });
-        const data = await res.json();
-        if (res.ok && data.success) {
-          result.className = 'ok';
-          result.textContent = `✅ Digest envoyé — ${data.sent} email(s), ${data.skipped} ignoré(s). Durée : ${data.duration_ms}ms`;
-        } else {
-          result.className = 'error';
-          result.textContent = `❌ Erreur : ${data.error || JSON.stringify(data)}`;
+async function supprimerOffre(id) {
+  if (!confirm('Supprimer cette offre définitivement ?')) return;
+  const { error } = await sb.from('jobs').delete().eq('id', id);
+  if (error) { toast('Erreur : ' + error.message, false); return; }
+  toast('🗑 Offre supprimée');
+  chargerOffres();
+  chargerStats();
+}
+
+// ── CANDIDATURES ──────────────────────────────────────────
+async function chargerCandidatures() {
+  const { data } = await sb.from('applications').select('id,status,created_at,job_id,candidate_id').order('created_at',{ascending:false}).limit(50);
+  const el = document.getElementById('cand-list');
+  if (!data?.length) { el.innerHTML = '<div style="padding:16px;color:var(--text-muted);font-size:13px;">Aucune candidature.</div>'; return; }
+  el.innerHTML = `<div class="table-head" style="grid-template-columns:1fr auto auto;display:grid;"><span>ID Offre</span><span>Statut</span><span>Date</span></div>` +
+    data.map(c => `<div class="table-row" style="grid-template-columns:1fr auto auto;">
+      <span style="font-family:monospace;font-size:11px;color:var(--text-muted);">${c.job_id?.substring(0,8)}…</span>
+      <span class="badge b-${c.status==='accepted'?'active':c.status==='rejected'?'rejected':'pending'}">${c.status||'pending'}</span>
+      <span style="font-size:11px;color:var(--text-muted);">${new Date(c.created_at).toLocaleDateString('fr-FR')}</span>
+    </div>`).join('');
+}
+
+// ── ACTUALITÉS ────────────────────────────────────────────
+async function chargerNews() {
+  const { data } = await sb.from('company_news').select('id,title,status,created_at,company_id').order('created_at',{ascending:false}).limit(30);
+  const el = document.getElementById('news-list');
+  if (!data?.length) { el.innerHTML = '<div style="padding:16px;color:var(--text-muted);font-size:13px;">Aucune actualité.</div>'; return; }
+  el.innerHTML = `<div class="table-head" style="grid-template-columns:1fr auto auto auto;display:grid;"><span>Titre</span><span>Statut</span><span>Date</span><span>Action</span></div>` +
+    data.map(n => `<div class="table-row" style="grid-template-columns:1fr auto auto auto;">
+      <span style="font-weight:500;font-size:13px;">${n.title}</span>
+      <span class="badge b-${n.status==='published'?'published':'rejected'}">${n.status}</span>
+      <span style="font-size:11px;color:var(--text-muted);">${new Date(n.created_at).toLocaleDateString('fr-FR')}</span>
+      <button class="btn-action btn-delete" onclick="supprimerNews('${n.id}')">🗑 Supprimer</button>
+    </div>`).join('');
+}
+
+async function supprimerNews(id) {
+  if (!confirm('Supprimer cette actualité ?')) return;
+  await sb.from('company_news').delete().eq('id', id);
+  toast('🗑 Actualité supprimée');
+  chargerNews();
+}
+
+// ── USERS ─────────────────────────────────────────────────
+async function chargerUsers() {
+  const { data } = await sb.from('users').select('id,email,full_name,role,is_active,created_at,phone').order('created_at',{ascending:false});
+  allUsers = data || [];
+  afficherUsers(allUsers);
+}
+
+function afficherUsers(users) {
+  const el = document.getElementById('users-list');
+  if (!users?.length) { el.innerHTML = '<div style="padding:16px;color:var(--text-muted);font-size:13px;">Aucun utilisateur.</div>'; return; }
+  el.innerHTML = `<div class="table-head" style="grid-template-columns:auto 1fr auto auto auto;display:grid;"><span></span><span>Utilisateur</span><span>Rôle</span><span>Statut</span><span>Actions</span></div>` +
+    users.map(u => `<div class="table-row" style="grid-template-columns:auto 1fr auto auto auto;" id="row-user-${u.id}">
+      <div class="avatar">${(u.full_name||u.email||'?')[0].toUpperCase()}</div>
+      <div>
+        <div style="font-weight:500;font-size:13px;">${u.full_name||'—'}</div>
+        <div style="font-size:11px;color:var(--text-muted);">${u.email}${u.phone?` · 📱 ${u.phone}`:''}</div>
+      </div>
+      <select onchange="changerRole('${u.id}',this.value)" style="font-size:11px;padding:3px 6px;border:1px solid var(--border);border-radius:6px;">
+        <option ${u.role==='candidate'?'selected':''} value="candidate">Candidat</option>
+        <option ${u.role==='company'?'selected':''} value="company">Entreprise</option>
+        <option ${u.role==='admin'?'selected':''} value="admin">Admin</option>
+      </select>
+      <span class="badge ${u.is_active===false?'b-inactive':'b-active'}">${u.is_active===false?'Inactif':'Actif'}</span>
+      <div style="display:flex;gap:5px;">
+        ${u.is_active===false
+          ?`<button class="btn-action btn-activate" onclick="toggleUser('${u.id}',true)">Activer</button>`
+          :`<button class="btn-action btn-deactivate" onclick="toggleUser('${u.id}',false)">Désactiver</button>`
         }
-      } catch (err) {
-        result.className = 'error';
-        result.textContent = `❌ Erreur réseau : ${err.message}`;
-      } finally {
-        result.style.display = 'block';
-        btn.disabled = false;
-        icon.textContent  = '📬';
-        label.textContent = 'Envoyer le digest maintenant';
-      }
+      </div>
+    </div>`).join('');
+}
+
+function filtrerUsers() {
+  const q = document.getElementById('search-users').value.toLowerCase();
+  const role = document.getElementById('filter-role').value;
+  afficherUsers(allUsers.filter(u =>
+    (!q || u.email?.toLowerCase().includes(q) || u.full_name?.toLowerCase().includes(q)) &&
+    (!role || u.role === role)
+  ));
+}
+
+async function changerRole(id, role) {
+  const { error } = await sb.from('users').update({ role }).eq('id', id);
+  if (error) { toast('Erreur : ' + error.message, false); return; }
+  toast('✅ Rôle mis à jour');
+  allUsers = allUsers.map(u => u.id === id ? {...u, role} : u);
+}
+
+async function toggleUser(id, active) {
+  const { error } = await sb.from('users').update({ is_active: active }).eq('id', id);
+  if (error) { toast('Erreur : ' + error.message, false); return; }
+  toast(active ? '✅ Compte activé' : '🚫 Compte désactivé');
+  allUsers = allUsers.map(u => u.id === id ? {...u, is_active: active} : u);
+  filtrerUsers();
+}
+
+// ── ENTREPRISES ───────────────────────────────────────────
+async function chargerCompanies() {
+  const { data } = await sb.from('users').select('id,email,full_name,is_active,created_at').eq('role','company').order('created_at',{ascending:false});
+  const el = document.getElementById('companies-list');
+  if (!data?.length) { el.innerHTML = '<div style="padding:16px;color:var(--text-muted);font-size:13px;">Aucune entreprise.</div>'; return; }
+  el.innerHTML = `<div class="table-head" style="grid-template-columns:auto 1fr auto auto;display:grid;"><span></span><span>Entreprise</span><span>Statut</span><span>Inscription</span></div>` +
+    data.map(u => `<div class="table-row" style="grid-template-columns:auto 1fr auto auto;">
+      <div class="avatar" style="background:#1e40af;">${(u.full_name||u.email||'?')[0].toUpperCase()}</div>
+      <div>
+        <div style="font-weight:500;font-size:13px;">${u.full_name||'—'}</div>
+        <div style="font-size:11px;color:var(--text-muted);">${u.email}</div>
+      </div>
+      <span class="badge ${u.is_active===false?'b-inactive':'b-active'}">${u.is_active===false?'Inactif':'Actif'}</span>
+      <span style="font-size:11px;color:var(--text-muted);">${new Date(u.created_at).toLocaleDateString('fr-FR')}</span>
+    </div>`).join('');
+}
+
+// ── WHATSAPP ──────────────────────────────────────────────
+async function chargerWAUsers() {
+  const { data, count } = await sb.from('users').select('id,full_name,email,phone',{count:'exact'}).not('phone','is',null);
+  document.getElementById('wa-count').textContent = count || 0;
+  const el = document.getElementById('wa-users-list');
+  if (!data?.length) { el.innerHTML = '<div style="padding:16px;color:var(--text-muted);font-size:13px;">Aucun utilisateur avec numéro.</div>'; return; }
+  el.innerHTML = data.map(u => `<div class="table-row" style="grid-template-columns:auto 1fr auto;">
+    <div class="avatar">${(u.full_name||u.email||'?')[0].toUpperCase()}</div>
+    <div>
+      <div style="font-size:13px;font-weight:500;">${u.full_name||u.email}</div>
+      <div style="font-size:11px;color:var(--text-muted);">${u.phone}</div>
+    </div>
+    <button class="btn-action btn-publish" onclick="envoyerWAUser('${u.phone}')">📱 Envoyer</button>
+  </div>`).join('');
+
+  document.getElementById('wa-target').onchange = function() {
+    document.getElementById('wa-single-field').style.display = this.value === 'single' ? 'block' : 'none';
+  };
+}
+
+async function envoyerWAUser(phone) {
+  document.getElementById('wa-phone').value = phone;
+  document.querySelector('[onclick="showTab(\'whatsapp\',this)"]')?.click();
+}
+
+async function envoyerWA() {
+  const target = document.getElementById('wa-target').value;
+  const message = document.getElementById('wa-message').value.trim();
+  const result = document.getElementById('wa-result');
+  if (!message) { result.textContent = '⚠️ Le message est vide.'; return; }
+
+  const ANON = SUPABASE_ANON_KEY;
+
+  if (target === 'single') {
+    const phone = document.getElementById('wa-phone').value.trim();
+    if (!phone) { result.textContent = '⚠️ Numéro requis.'; return; }
+    const res = await fetch(`${SUPABASE_URL}/functions/v1/send-whatsapp`, {
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':`Bearer ${ANON}`},
+      body: JSON.stringify({ to: phone, message })
     });
-  })();
+    const data = await res.json();
+    result.textContent = data.success ? '✅ Message envoyé !' : '❌ ' + (data.error || 'Erreur');
+  } else {
+    const { data: users } = await sb.from('users').select('phone').not('phone','is',null);
+    let sent = 0;
+    for (const u of users || []) {
+      await fetch(`${SUPABASE_URL}/functions/v1/send-whatsapp`, {
+        method:'POST',
+        headers:{'Content-Type':'application/json','Authorization':`Bearer ${ANON}`},
+        body: JSON.stringify({ to: u.phone, message })
+      });
+      sent++;
+    }
+    result.textContent = `✅ Message envoyé à ${sent} utilisateur(s)`;
+  }
+}
+
+// ── DIGEST ────────────────────────────────────────────────
+async function envoyerDigest() {
+  const btn = document.getElementById('btn-digest');
+  const result = document.getElementById('digest-result');
+  btn.disabled = true;
+  btn.textContent = '⏳ Envoi en cours…';
+  try {
+    const res = await fetch(`${SUPABASE_URL}/functions/v1/weekly-digest`, {
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':`Bearer ${currentSession?.access_token || SUPABASE_ANON_KEY}`},
+      body:'{}'
+    });
+    const data = await res.json();
+    result.textContent = data.success ? `✅ Digest envoyé — ${data.sent||0} email(s)` : '❌ ' + (data.error || 'Erreur');
+  } catch(e) {
+    result.textContent = '❌ Erreur réseau';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '📬 Envoyer le digest maintenant';
+  }
+}
 </script>
 </body>
 </html>
