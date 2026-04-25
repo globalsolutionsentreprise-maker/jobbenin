@@ -267,16 +267,28 @@ sb.auth.getSession().then(async ({ data: { session } }) => {
 // ── Chargement profils ──────────────────────────────────
 async function chargerProfils() {
   const { data, error } = await sb.from('users')
-    .select('id, full_name, job_title, sector, level, availability, city, skills, bio, is_certified, certified_at, created_at')
+    .select('id, full_name, job_title, level, availability, city, skills, bio, is_certified, certified_at, created_at, sector')
     .eq('role', 'candidate')
     .not('job_title', 'is', null)
     .order('is_certified', { ascending: false })
     .order('created_at', { ascending: false })
     .limit(100);
 
-  if (error) { document.getElementById('cv-grid').innerHTML = '<div class="empty-state"><p>Erreur de chargement.</p></div>'; return; }
-
-  allProfiles = data || [];
+  if (error && error.message.includes('sector')) {
+    // Fallback sans sector si la colonne n'existe pas encore
+    const { data: d2, error: e2 } = await sb.from('users')
+      .select('id, full_name, job_title, level, availability, city, skills, bio, is_certified, certified_at, created_at')
+      .eq('role', 'candidate')
+      .not('job_title', 'is', null)
+      .order('created_at', { ascending: false })
+      .limit(100);
+    if (e2) { document.getElementById('cv-grid').innerHTML = '<div class="empty-state"><p>Erreur : ' + e2.message + '</p></div>'; return; }
+    allProfiles = d2 || [];
+  } else if (error) {
+    document.getElementById('cv-grid').innerHTML = '<div class="empty-state"><p>Erreur : ' + error.message + '</p></div>'; return;
+  } else {
+    allProfiles = data || [];
+  }
 
   // Stats
   document.getElementById('stat-total').textContent = allProfiles.length;
