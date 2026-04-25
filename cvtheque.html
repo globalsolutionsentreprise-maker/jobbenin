@@ -4,55 +4,57 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CVthèque — Talenco.bj</title>
-  <meta name="description" content="Accédez à la base de CV des candidats béninois. Filtrez par compétence, ville, secteur.">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Hanken+Grotesk:wght@300;400;500;700;900&family=Space+Grotesk:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap">
+  <meta name="description" content="Sourcez les meilleurs profils béninois. Filtrez par secteur, niveau, disponibilité et ville.">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Hanken+Grotesk:wght@300;400;500;700;900&display=swap">
   <link rel="stylesheet" href="/design-system.css">
   <style>
-    .cvth-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-      gap: 14px;
-      margin-top: 24px;
-    }
-    .cv-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-md);
-      padding: 18px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      filter: blur(4px);
-      pointer-events: none;
-      user-select: none;
-    }
-    .cv-card-avatar {
-      width: 40px; height: 40px; border-radius: 50%;
-      background: var(--bg-soft);
-      border: 1px solid var(--border);
-      display: flex; align-items: center; justify-content: center;
-      font-family: var(--font-sans); font-size: 16px; font-weight: 900;
-      color: var(--text-muted);
-    }
-    .cv-card-name { font-family: var(--font-body); font-weight: 700; font-size: 14px; color: var(--text); }
-    .cv-card-meta { font-family: var(--font-mono); font-size: 9px; color: var(--text-muted); }
-    .lock-overlay {
-      position: relative;
-      overflow: hidden;
-    }
-    .lock-overlay::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(to bottom, transparent 40%, var(--bg) 90%);
-      pointer-events: none;
-    }
-    @media (max-width: 768px) {
-      .cvth-grid { grid-template-columns: 1fr 1fr; }
-    }
-    @media (max-width: 480px) {
-      .cvth-grid { grid-template-columns: 1fr; }
-    }
+    .cvth-layout { display: grid; grid-template-columns: 240px 1fr; gap: 24px; max-width: 1200px; margin: 0 auto; padding: 28px 24px; }
+    .filters-panel { position: sticky; top: calc(var(--nav-h) + 16px); align-self: start; }
+    .filter-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 18px; }
+    .filter-title { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--text-muted); margin-bottom: 10px; }
+    .filter-group { margin-bottom: 16px; }
+    .filter-select { width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 13px; font-family: inherit; background: var(--bg); color: var(--text); }
+    .filter-search { width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 13px; font-family: inherit; background: var(--bg); color: var(--text); }
+    .filter-btn { width: 100%; padding: 8px; border: none; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; margin-top: 4px; }
+    .btn-reset { background: var(--bg-soft); color: var(--text-muted); border: 1px solid var(--border); }
+    .results-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+    .results-count { font-size: 13px; color: var(--text-muted); }
+    .sort-select { padding: 6px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 12px; font-family: inherit; }
+    .cv-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
+    .cv-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 20px; display: flex; flex-direction: column; gap: 12px; transition: border-color .2s, box-shadow .2s; }
+    .cv-card:hover { border-color: var(--accent); box-shadow: 0 2px 16px rgba(0,0,0,.06); }
+    .cv-card-top { display: flex; align-items: center; gap: 12px; }
+    .cv-avatar { width: 44px; height: 44px; border-radius: 50%; background: var(--accent-bg); border: 2px solid var(--accent); display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 16px; color: var(--accent); flex-shrink: 0; }
+    .cv-name { font-weight: 700; font-size: 14px; color: var(--text); }
+    .cv-title { font-size: 12px; color: var(--text-muted); margin-top: 1px; }
+    .cv-certif { display: inline-flex; align-items: center; gap: 4px; background: #dcfce7; color: #15803d; font-size: 9px; font-weight: 700; padding: 2px 7px; border-radius: 20px; letter-spacing: .04em; }
+    .cv-tags { display: flex; flex-wrap: wrap; gap: 5px; }
+    .cv-tag { font-size: 10px; padding: 3px 8px; border-radius: 20px; background: var(--bg-soft); color: var(--text-muted); border: 1px solid var(--border); font-weight: 500; }
+    .cv-tag.accent { background: var(--accent-bg); color: var(--accent); border-color: transparent; }
+    .cv-dispo { font-size: 11px; font-weight: 600; }
+    .dispo-immediate { color: #15803d; }
+    .dispo-1mois { color: #854d0e; }
+    .dispo-3mois { color: #1e40af; }
+    .dispo-non { color: #b91c1c; }
+    .cv-bio { font-size: 12px; color: var(--text-muted); line-height: 1.6; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .cv-footer { display: flex; align-items: center; justify-content: space-between; padding-top: 10px; border-top: 1px solid var(--border); }
+    .cv-level { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--text-muted); }
+    .btn-contact { font-size: 11px; font-weight: 600; padding: 5px 14px; border-radius: 20px; border: 1px solid var(--accent); color: var(--accent); background: none; cursor: pointer; transition: all .2s; }
+    .btn-contact:hover { background: var(--accent); color: #fff; }
+    .cv-card-blur { filter: blur(5px); pointer-events: none; user-select: none; }
+    .lock-banner { background: #1a1a1a; color: #fff; border-radius: var(--radius-md); padding: 20px; text-align: center; margin-bottom: 20px; }
+    .lock-banner h3 { font-family: 'Instrument Serif', serif; font-style: italic; font-size: 20px; margin-bottom: 6px; }
+    .lock-banner p { font-size: 13px; color: rgba(255,255,255,.6); margin-bottom: 14px; }
+    .empty-state { text-align: center; padding: 48px 24px; color: var(--text-muted); }
+    .empty-state p { font-size: 14px; margin-top: 8px; }
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 100; align-items: center; justify-content: center; }
+    .modal-overlay.open { display: flex; }
+    .modal { background: var(--bg-card); border-radius: 16px; padding: 28px; width: 90%; max-width: 440px; }
+    .modal h3 { font-family: 'Instrument Serif', serif; font-style: italic; font-size: 20px; margin-bottom: 16px; }
+    .modal-field { margin-bottom: 12px; }
+    .modal-field label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; display: block; margin-bottom: 5px; color: var(--text-muted); }
+    .modal-field input, .modal-field textarea { width: 100%; padding: 9px 13px; border: 1px solid var(--border); border-radius: 8px; font-size: 13px; font-family: inherit; }
+    @media (max-width: 768px) { .cvth-layout { grid-template-columns: 1fr; } .filters-panel { position: static; } .cv-grid { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
@@ -60,255 +62,364 @@
 <nav class="navbar" id="main-nav">
   <a href="/index.html" class="talenco-logo">
     <div class="nav-logo">
-      <div class="nav-logo-text">
-        <span class="logo-primary">Talenco</span><span class="logo-dot">.</span><span class="logo-tld">bj</span>
-      </div>
+      <div class="nav-logo-text"><span class="logo-primary">Talenco</span><span class="logo-dot">.</span><span class="logo-tld">bj</span></div>
       <div class="logo-tagline">Recrutement au Bénin</div>
     </div>
   </a>
-
   <ul class="navbar-links">
-    <li><a href="/index.html">Accueil</a></li>
     <li><a href="/offres.html">Offres</a></li>
     <li><a href="/entreprises.html">Recruteurs</a></li>
     <li><a href="/cvtheque.html" class="active">CVthèque</a></li>
-    <li><a href="/coach.html">✨ Coach IA</a></li>
   </ul>
-
   <div class="navbar-actions" id="nav-actions">
-    <a href="/candidat.html" class="btn btn-outline btn-sm">Mon profil</a>
-    <a href="/connexion.html" class="btn btn-dark btn-sm">Connexion</a>
+    <a href="/connexion.html" class="btn btn-outline btn-sm">Connexion</a>
   </div>
-
-  <button class="navbar-toggle" id="nav-toggle" aria-label="Menu">
-    <span></span><span></span><span></span>
-  </button>
 </nav>
 
-<div class="nav-drawer" id="nav-drawer">
-  <div class="nav-drawer-overlay" id="nav-overlay"></div>
-  <div class="nav-drawer-panel">
-    <button class="nav-drawer-close" id="nav-close">✕</button>
-    <div class="nav-logo">
-      <div class="nav-logo-text">
-        <span class="logo-primary">Talenco</span><span class="logo-dot">.</span><span class="logo-tld">bj</span>
-      </div>
-    </div>
-    <ul class="nav-drawer-links">
-      <li><a href="/index.html">Accueil</a></li>
-      <li><a href="/offres.html">Offres d'emploi</a></li>
-      <li><a href="/entreprises.html">Recruteurs</a></li>
-      <li><a href="/cvtheque.html">CVthèque</a></li>
-      <li><a href="/coach.html">✨ Coach IA</a></li>
-    </ul>
+<!-- Header -->
+<div style="background:var(--bg-card);border-bottom:1px solid var(--border);padding:20px 24px;">
+  <div style="max-width:1200px;margin:0 auto;">
+    <h1 style="font-family:'Instrument Serif',serif;font-style:italic;font-size:28px;margin:0 0 4px;">CVthèque Talenco.bj</h1>
+    <p style="font-size:13px;color:var(--text-muted);margin:0;">Sourcez les meilleurs profils béninois — certifiés et disponibles</p>
   </div>
 </div>
 
-<main>
-  <div class="ds-page-header">
-    <div class="ds-page-eyebrow">Recruteurs</div>
-    <h1 class="ds-page-title">CVthèque</h1>
-    <p style="color:var(--text-muted);font-size:13px;margin-top:8px;">Base de CV des candidats actifs au Bénin.</p>
-  </div>
-
-  <!-- ── Barre recherche ───────────────────────────────────────────── -->
-  <div style="border-bottom:1px solid var(--border);padding:16px 24px;background:var(--bg);">
-    <div style="max-width:1140px;margin:0 auto;display:flex;gap:10px;flex-wrap:wrap;">
-      <div class="ds-search" style="flex:1;min-width:200px;">
-        <input type="search" id="cv-search" class="ds-search-input" placeholder="Développeur, Commercial, Comptable…">
-        <button class="ds-search-btn" id="cv-search-btn">Chercher</button>
-      </div>
-      <select id="cv-filter-ville" style="width:160px;">
-        <option value="">Toutes les villes</option>
-        <option>Cotonou</option>
-        <option>Abomey-Calavi</option>
-        <option>Porto-Novo</option>
-        <option>Parakou</option>
-      </select>
-      <select id="cv-filter-secteur" style="width:160px;">
-        <option value="">Tous les secteurs</option>
-        <option>Tech</option>
-        <option>Finance</option>
-        <option>Santé</option>
-        <option>Marketing</option>
-        <option>RH</option>
-        <option>BTP</option>
-      </select>
+<!-- Lock banner pour non-connectés -->
+<div id="lock-banner" style="display:none;max-width:1200px;margin:20px auto;padding:0 24px;">
+  <div class="lock-banner">
+    <h3>Accès réservé aux recruteurs</h3>
+    <p>Créez un compte recruteur gratuit pour accéder aux profils complets et contacter les candidats.</p>
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+      <a href="/inscription.html?type=company" class="btn btn-primary">Créer un compte recruteur</a>
+      <a href="/connexion.html" class="btn btn-outline" style="color:#fff;border-color:rgba(255,255,255,.3);">Se connecter</a>
     </div>
   </div>
+</div>
 
-  <div class="container" style="padding-top:24px;padding-bottom:64px;">
+<div class="cvth-layout">
+  <!-- Filtres -->
+  <aside class="filters-panel">
+    <div class="filter-card">
+      <div class="filter-title">Filtres</div>
 
-    <!-- ── Lock screen (non-premium) ──────────────────────────────── -->
-    <div id="lock-screen" class="ds-lock-screen" style="display:none;">
-      <div class="ds-lock-icon">🔒</div>
-      <h2 class="ds-lock-title">Accès recruteurs uniquement</h2>
-      <p class="ds-lock-desc">La CVthèque est réservée aux recruteurs abonnés. Accédez à tous les profils, filtrez par compétence et contactez directement les candidats.</p>
-      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:8px;">
-        <a href="/connexion.html?mode=recruteur" class="btn btn-primary">Accès recruteur</a>
-        <a href="/entreprises.html" class="btn btn-outline">En savoir plus</a>
+      <div class="filter-group">
+        <div class="filter-title">Recherche</div>
+        <input class="filter-search" id="f-search" placeholder="Poste, compétence…" oninput="filtrer()">
       </div>
+
+      <div class="filter-group">
+        <div class="filter-title">Secteur</div>
+        <select class="filter-select" id="f-secteur" onchange="filtrer()">
+          <option value="">Tous</option>
+          <option>Tech</option><option>Finance</option><option>Santé</option>
+          <option>BTP</option><option>Agriculture</option><option>Marketing</option>
+          <option>RH</option><option>Commerce</option><option>Éducation</option>
+          <option>Logistique</option><option>Juridique</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <div class="filter-title">Niveau</div>
+        <select class="filter-select" id="f-niveau" onchange="filtrer()">
+          <option value="">Tous</option>
+          <option value="junior">Junior (0-2 ans)</option>
+          <option value="confirme">Confirmé (3-6 ans)</option>
+          <option value="senior">Senior (7 ans+)</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <div class="filter-title">Disponibilité</div>
+        <select class="filter-select" id="f-dispo" onchange="filtrer()">
+          <option value="">Toutes</option>
+          <option value="immediate">Disponible immédiatement</option>
+          <option value="1mois">Dans 1 mois</option>
+          <option value="3mois">Dans 3 mois</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <div class="filter-title">Ville</div>
+        <select class="filter-select" id="f-ville" onchange="filtrer()">
+          <option value="">Toutes</option>
+          <option>Cotonou</option><option>Abomey-Calavi</option>
+          <option>Porto-Novo</option><option>Parakou</option>
+          <option>Bohicon</option><option>Natitingou</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <div class="filter-title">Certification</div>
+        <select class="filter-select" id="f-certif" onchange="filtrer()">
+          <option value="">Tous les profils</option>
+          <option value="certified">✓ Certifiés Talenco uniquement</option>
+        </select>
+      </div>
+
+      <button class="filter-btn btn-reset" onclick="resetFiltres()">Réinitialiser</button>
     </div>
 
-    <!-- ── Aperçu flou (utilisateur non-premium) ──────────────────── -->
-    <div id="cv-preview-section" style="display:none;">
-      <div class="alert alert-info" style="margin-bottom:20px;">
-        🔒 Aperçu — Connectez-vous en tant que recruteur pour accéder aux coordonnées et CVs complets.
-      </div>
-      <div class="lock-overlay">
-        <div class="cvth-grid" id="cv-preview-grid">
-          <!-- Cartes floues générées -->
+    <!-- Stats rapides -->
+    <div class="filter-card" style="margin-top:12px;">
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div style="display:flex;justify-content:space-between;font-size:12px;">
+          <span style="color:var(--text-muted);">Profils actifs</span>
+          <span id="stat-total" style="font-weight:700;">—</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;">
+          <span style="color:var(--text-muted);">✓ Certifiés</span>
+          <span id="stat-certif" style="font-weight:700;color:#15803d;">—</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;">
+          <span style="color:var(--text-muted);">Dispos immédiatement</span>
+          <span id="stat-dispo" style="font-weight:700;color:#854d0e;">—</span>
         </div>
       </div>
-      <div style="text-align:center;margin-top:32px;">
-        <a href="/connexion.html?mode=recruteur" class="btn btn-primary">Débloquer la CVthèque</a>
-      </div>
     </div>
+  </aside>
 
-    <!-- ── CVthèque complète (recruteur authentifié) ───────────────── -->
-    <div id="cv-full-section" style="display:none;">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
-        <span class="results-count" id="cv-count" style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);">Chargement…</span>
-      </div>
-      <div class="cvth-grid" id="cv-grid">
-        <!-- Injecté par JS -->
-      </div>
+  <!-- Grille profils -->
+  <main>
+    <div class="results-header">
+      <span class="results-count" id="results-count">Chargement…</span>
+      <select class="sort-select" id="sort" onchange="filtrer()">
+        <option value="certif">Certifiés en premier</option>
+        <option value="recent">Plus récents</option>
+        <option value="dispo">Disponibles immédiatement</option>
+      </select>
     </div>
+    <div id="cv-grid" class="cv-grid"></div>
+  </main>
+</div>
+
+<!-- Modal contact -->
+<div class="modal-overlay" id="modal-contact">
+  <div class="modal">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+      <h3 style="margin:0;">Contacter ce candidat</h3>
+      <button onclick="fermerModal()" style="border:none;background:none;font-size:20px;cursor:pointer;color:var(--text-muted);">×</button>
+    </div>
+    <p style="font-size:12px;color:var(--text-muted);margin-bottom:16px;">Votre message sera transmis au candidat. Il vous répondra directement.</p>
+    <div class="modal-field">
+      <label>Votre entreprise</label>
+      <input type="text" id="contact-company" placeholder="Nom de votre entreprise">
+    </div>
+    <div class="modal-field">
+      <label>Votre email</label>
+      <input type="email" id="contact-email" placeholder="votre@email.com">
+    </div>
+    <div class="modal-field">
+      <label>Message</label>
+      <textarea id="contact-msg" rows="3" placeholder="Bonjour, nous avons un poste qui correspond à votre profil…"></textarea>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:16px;">
+      <button onclick="fermerModal()" class="btn btn-outline btn-sm">Annuler</button>
+      <button onclick="envoyerContact()" class="btn btn-primary btn-sm">Envoyer le message</button>
+    </div>
+    <div id="contact-result" style="margin-top:10px;font-size:13px;display:none;"></div>
   </div>
-</main>
+</div>
 
-<footer class="footer">
-  <div class="footer-grid">
-    <a href="/index.html" class="talenco-logo" style="text-decoration:none;">
-      <div class="nav-logo">
-        <div class="nav-logo-text">
-          <span class="logo-primary">Talenco</span><span class="logo-dot">.</span><span class="logo-tld">bj</span>
-        </div>
-        <div class="logo-tagline">Recrutement au Bénin</div>
-      </div>
-    </a>
-    <ul class="footer-links">
-      <li><a href="/offres.html">Offres d'emploi</a></li>
-      <li><a href="/entreprises.html">Espace Recruteurs</a></li>
-      <li><a href="mailto:contact@talenco.bj">Contact</a></li>
-    </ul>
-    <div class="footer-bottom">© 2025 Talenco.bj</div>
+<footer style="background:#1a1a1a;color:#fff;padding:28px 24px;margin-top:40px;">
+  <div style="max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;">
+    <div class="nav-logo-text" style="font-size:16px;"><span class="logo-primary">Talenco</span><span class="logo-dot">.</span><span class="logo-tld">bj</span></div>
+    <div style="display:flex;gap:24px;font-size:12px;color:rgba(255,255,255,.5);">
+      <a href="/offres.html" style="color:inherit;text-decoration:none;">Offres</a>
+      <a href="/inscription.html" style="color:inherit;text-decoration:none;">Créer un compte</a>
+      <a href="mailto:contact@talenco.bj" style="color:inherit;text-decoration:none;">Contact</a>
+    </div>
+    <span style="font-size:11px;color:rgba(255,255,255,.3);">© 2025 Talenco.bj</span>
   </div>
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="/pwa.js"></script>
 <script>
-  var SUPABASE_URL     = 'https://ywteoxnkkdgdpbkrlkar.supabase.co';
-  var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl3dGVveG5ra2RnZHBia3Jsa2FyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1MjA1MjYsImV4cCI6MjA5MDA5NjUyNn0.jzgNVgYR6iCEV_GIpvBTs4aN3RzK3E3MJW9YtBmLI3c';
-  const { createClient } = supabase;
-  const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+var SUPABASE_URL = 'https://ywteoxnkkdgdpbkrlkar.supabase.co';
+var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl3dGVveG5ra2RnZHBia3Jsa2FyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1MjA1MjYsImV4cCI6MjA5MDA5NjUyNn0.jzgNVgYR6iCEV_GIpvBTs4aN3RzK3E3MJW9YtBmLI3c';
+const { createClient } = supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  // ── Drawer ─────────────────────────────────────────────────────────
-  const drawer = document.getElementById('nav-drawer');
-  document.getElementById('nav-toggle').addEventListener('click', () => drawer.classList.add('open'));
-  document.getElementById('nav-overlay').addEventListener('click', () => drawer.classList.remove('open'));
-  document.getElementById('nav-close').addEventListener('click', () => drawer.classList.remove('open'));
+let allProfiles = [];
+let isConnected = false;
+let contactCandidateId = null;
+let userEmail = '';
 
-  // ── Auth ────────────────────────────────────────────────────────────
-  sb.auth.getSession().then(async ({ data: { session } }) => {
-    if (!session) {
-      // Afficher l'aperçu flou + lock screen
-      document.getElementById('lock-screen').style.display = 'flex';
-      afficherApercu();
-      return;
-    }
+const dispoLabel = { immediate: '● Disponible immédiatement', '1mois': '◐ Disponible sous 1 mois', '3mois': '◑ Disponible sous 3 mois', non_disponible: '○ Non disponible' };
+const dispoClass = { immediate: 'dispo-immediate', '1mois': 'dispo-1mois', '3mois': 'dispo-3mois', non_disponible: 'dispo-non' };
+const niveauLabel = { junior: 'Junior', confirme: 'Confirmé', senior: 'Senior' };
 
+// ── Auth ────────────────────────────────────────────────
+sb.auth.getSession().then(async ({ data: { session } }) => {
+  if (session) {
+    isConnected = true;
+    userEmail = session.user.email || '';
     document.getElementById('nav-actions').innerHTML = `
-      <a href="/candidat.html" class="btn btn-outline btn-sm">Mon profil</a>
+      <a href="/entreprises.html" class="btn btn-outline btn-sm">Mon espace</a>
       <button class="btn btn-dark btn-sm" onclick="sb.auth.signOut().then(()=>location.reload())">Déconnexion</button>
     `;
+  } else {
+    document.getElementById('lock-banner').style.display = 'block';
+  }
+  chargerProfils();
+});
 
-    // Vérifier si recruteur
-    const { data: profile } = await sb.from('users').select('role').eq('id', session.user.id).maybeSingle();
-    if (profile?.role === 'recruteur' || profile?.role === 'admin') {
-      document.getElementById('cv-full-section').style.display = 'block';
-      chargerCVs();
-    } else {
-      document.getElementById('cv-preview-section').style.display = 'block';
-      afficherApercu();
-    }
+// ── Chargement profils ──────────────────────────────────
+async function chargerProfils() {
+  const { data, error } = await sb.from('users')
+    .select('id, full_name, job_title, sector, level, availability, city, skills, bio, is_certified, certified_at, created_at')
+    .eq('role', 'candidate')
+    .not('job_title', 'is', null)
+    .order('is_certified', { ascending: false })
+    .order('created_at', { ascending: false })
+    .limit(100);
+
+  if (error) { document.getElementById('cv-grid').innerHTML = '<div class="empty-state"><p>Erreur de chargement.</p></div>'; return; }
+
+  allProfiles = data || [];
+
+  // Stats
+  document.getElementById('stat-total').textContent = allProfiles.length;
+  document.getElementById('stat-certif').textContent = allProfiles.filter(p => p.is_certified).length;
+  document.getElementById('stat-dispo').textContent = allProfiles.filter(p => p.availability === 'immediate').length;
+
+  filtrer();
+}
+
+// ── Filtres ─────────────────────────────────────────────
+function filtrer() {
+  const q = document.getElementById('f-search').value.toLowerCase();
+  const secteur = document.getElementById('f-secteur').value;
+  const niveau = document.getElementById('f-niveau').value;
+  const dispo = document.getElementById('f-dispo').value;
+  const ville = document.getElementById('f-ville').value;
+  const certif = document.getElementById('f-certif').value;
+  const sort = document.getElementById('sort').value;
+
+  let filtered = allProfiles.filter(p => {
+    if (q && !( (p.job_title||'').toLowerCase().includes(q) || (p.skills||[]).join(' ').toLowerCase().includes(q) || (p.bio||'').toLowerCase().includes(q) )) return false;
+    if (secteur && p.sector !== secteur) return false;
+    if (niveau && p.level !== niveau) return false;
+    if (dispo && p.availability !== dispo) return false;
+    if (ville && p.city !== ville) return false;
+    if (certif === 'certified' && !p.is_certified) return false;
+    return true;
   });
 
-  function afficherApercu() {
-    document.getElementById('cv-preview-section').style.display = 'block';
-    const grid = document.getElementById('cv-preview-grid');
-    const initiales = ['AK', 'BS', 'CM', 'DO', 'EF', 'FG', 'GH', 'HI'];
-    const posts = ['Développeur', 'Comptable', 'Commercial', 'Designer', 'Manager', 'Ingénieur', 'Médecin', 'Enseignant'];
-    const villes = ['Cotonou', 'Porto-Novo', 'Parakou', 'Abomey-Calavi'];
-    grid.innerHTML = initiales.map((init, i) => `
-      <div class="cv-card">
-        <div style="display:flex;align-items:center;gap:10px;">
-          <div class="cv-card-avatar">${init}</div>
-          <div>
-            <div class="cv-card-name">••••••• •••••</div>
-            <div class="cv-card-meta">${posts[i]} — ${villes[i % villes.length]}</div>
-          </div>
+  // Tri
+  if (sort === 'certif') filtered.sort((a,b) => (b.is_certified ? 1 : 0) - (a.is_certified ? 1 : 0));
+  else if (sort === 'recent') filtered.sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
+  else if (sort === 'dispo') filtered.sort((a,b) => (a.availability === 'immediate' ? -1 : 1));
+
+  document.getElementById('results-count').textContent = `${filtered.length} profil${filtered.length > 1 ? 's' : ''} trouvé${filtered.length > 1 ? 's' : ''}`;
+  afficherProfils(filtered);
+}
+
+function resetFiltres() {
+  ['f-search','f-secteur','f-niveau','f-dispo','f-ville','f-certif'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el.tagName === 'INPUT') el.value = ''; else el.value = '';
+  });
+  filtrer();
+}
+
+// ── Affichage ────────────────────────────────────────────
+function afficherProfils(profils) {
+  const grid = document.getElementById('cv-grid');
+  if (!profils.length) {
+    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;"><div style="font-size:32px;">🔍</div><p>Aucun profil ne correspond à vos critères.</p></div>`;
+    return;
+  }
+
+  grid.innerHTML = profils.map((p, i) => {
+    const initials = (p.full_name || p.job_title || '?').split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase();
+    const skills = (p.skills || []).slice(0, 4);
+    const isBlurred = !isConnected && i >= 3;
+    const cardClass = isBlurred ? 'cv-card cv-card-blur' : 'cv-card';
+
+    return `<div class="${cardClass}">
+      <div class="cv-card-top">
+        <div class="cv-avatar">${initials}</div>
+        <div style="flex:1;min-width:0;">
+          <div class="cv-name">${isConnected ? (p.full_name || 'Profil anonyme') : 'Profil candidat'}</div>
+          <div class="cv-title">${p.job_title || '—'}</div>
         </div>
-        <div class="job-tags">
-          <span class="tag">••••••</span>
-          <span class="tag">••••</span>
-        </div>
+        ${p.is_certified ? `<span class="cv-certif">✓ Certifié</span>` : ''}
       </div>
-    `).join('');
-  }
 
-  async function chargerCVs() {
-    const q    = document.getElementById('cv-search').value.trim();
-    const ville   = document.getElementById('cv-filter-ville').value;
-    const secteur = document.getElementById('cv-filter-secteur').value;
+      ${p.bio ? `<div class="cv-bio">${p.bio}</div>` : ''}
 
-    let query = sb.from('users')
-      .select('id, prenom, nom, ville, secteur, cv_path, cv_uploaded_at', { count: 'exact' })
-      .not('cv_path', 'is', null)
-      .order('cv_uploaded_at', { ascending: false })
-      .limit(30);
+      <div class="cv-tags">
+        ${p.sector ? `<span class="cv-tag accent">${p.sector}</span>` : ''}
+        ${p.city ? `<span class="cv-tag">📍 ${p.city}</span>` : ''}
+        ${skills.map(s => `<span class="cv-tag">${s}</span>`).join('')}
+        ${(p.skills||[]).length > 4 ? `<span class="cv-tag">+${p.skills.length-4}</span>` : ''}
+      </div>
 
-    if (ville)   query = query.eq('ville', ville);
-    if (secteur) query = query.eq('secteur', secteur);
-    if (q)       query = query.or(`prenom.ilike.%${q}%,nom.ilike.%${q}%`);
-
-    const { data: profiles, count } = await query;
-    document.getElementById('cv-count').textContent = `${count ?? 0} profil${(count ?? 0) > 1 ? 's' : ''}`;
-
-    const grid = document.getElementById('cv-grid');
-    if (!profiles?.length) { grid.innerHTML = '<p class="text-muted">Aucun profil trouvé.</p>'; return; }
-
-    grid.innerHTML = profiles.map(p => {
-      const initials = ((p.prenom?.[0] ?? '') + (p.nom?.[0] ?? '')).toUpperCase() || '?';
-      const name     = [p.prenom, p.nom].filter(Boolean).join(' ') || 'Candidat';
-      return `
-        <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:18px;display:flex;flex-direction:column;gap:10px;">
-          <div style="display:flex;align-items:center;gap:10px;">
-            <div class="cv-card-avatar" style="filter:none;pointer-events:auto;">${initials}</div>
-            <div>
-              <div class="cv-card-name">${name}</div>
-              <div class="cv-card-meta">${p.ville ?? ''}</div>
-            </div>
-          </div>
-          <div class="job-tags">
-            ${p.secteur ? `<span class="tag tag-accent">${p.secteur}</span>` : ''}
-          </div>
-          ${p.cv_path ? `<a href="#" class="btn btn-outline btn-sm" onclick="voirCV('${p.cv_path}');return false;">📄 Voir le CV</a>` : '<span class="text-muted" style="font-size:11px;">Pas encore de CV</span>'}
+      <div class="cv-footer">
+        <div>
+          ${p.level ? `<div class="cv-level">${niveauLabel[p.level] || p.level}</div>` : ''}
+          ${p.availability ? `<div class="cv-dispo ${dispoClass[p.availability] || ''}">${dispoLabel[p.availability] || p.availability}</div>` : ''}
         </div>
-      `;
-    }).join('');
+        ${isConnected
+          ? `<button class="btn-contact" onclick="ouvrirModal('${p.id}','${(p.full_name||'').replace(/'/g,"\\'")}')">Contacter →</button>`
+          : `<a href="/connexion.html" class="btn-contact">Voir le profil →</a>`
+        }
+      </div>
+    </div>`;
+  }).join('');
+
+  // Message si profils floutés
+  if (!isConnected && profils.length > 3) {
+    grid.innerHTML += `<div style="grid-column:1/-1;text-align:center;padding:20px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);">
+      <p style="font-size:13px;font-weight:600;">🔒 ${profils.length - 3} profil(s) masqués</p>
+      <p style="font-size:12px;color:var(--text-muted);margin:6px 0 14px;">Connectez-vous pour voir tous les profils et contacter les candidats.</p>
+      <a href="/inscription.html?type=company" class="btn btn-dark btn-sm">Créer un compte recruteur</a>
+    </div>`;
+  }
+}
+
+// ── Modal contact ─────────────────────────────────────────
+function ouvrirModal(candidateId, name) {
+  contactCandidateId = candidateId;
+  document.getElementById('modal-contact').classList.add('open');
+  document.querySelector('#modal-contact h3').textContent = `Contacter ${name}`;
+  document.getElementById('contact-email').value = userEmail;
+  document.getElementById('contact-result').style.display = 'none';
+}
+
+function fermerModal() {
+  document.getElementById('modal-contact').classList.remove('open');
+  contactCandidateId = null;
+}
+
+async function envoyerContact() {
+  const company = document.getElementById('contact-company').value.trim();
+  const email   = document.getElementById('contact-email').value.trim();
+  const msg     = document.getElementById('contact-msg').value.trim();
+  const result  = document.getElementById('contact-result');
+  if (!company || !email || !msg) { result.style.display='block'; result.style.color='#b91c1c'; result.textContent='⚠️ Remplissez tous les champs.'; return; }
+
+  // Insérer la mise en relation en base
+  const { error } = await sb.from('contact_requests').insert({
+    candidate_id: contactCandidateId,
+    company_name: company,
+    recruiter_email: email,
+    message: msg,
+  }).select();
+
+  if (error && !error.message.includes('does not exist')) {
+    result.style.display='block'; result.style.color='#b91c1c'; result.textContent='❌ Erreur : ' + error.message; return;
   }
 
-  async function voirCV(path) {
-    const { data } = await sb.storage.from('cvs').createSignedUrl(path, 3600);
-    if (data?.signedUrl) window.open(data.signedUrl, '_blank');
-  }
+  result.style.display='block'; result.style.color='#15803d'; result.textContent='✅ Message envoyé ! Le candidat sera notifié.';
+  setTimeout(() => fermerModal(), 2000);
+}
 
-  document.getElementById('cv-search-btn').addEventListener('click', chargerCVs);
-  document.getElementById('cv-search').addEventListener('keydown', e => { if (e.key === 'Enter') chargerCVs(); });
-  document.getElementById('cv-filter-ville').addEventListener('change', chargerCVs);
-  document.getElementById('cv-filter-secteur').addEventListener('change', chargerCVs);
+// Fermer modal au clic extérieur
+document.getElementById('modal-contact').addEventListener('click', function(e) {
+  if (e.target === this) fermerModal();
+});
 </script>
 </body>
 </html>
