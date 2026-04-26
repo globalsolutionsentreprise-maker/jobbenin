@@ -254,7 +254,7 @@
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
     <div>
       <h2 style="font-family:var(--font-serif);font-style:italic;font-size:22px;margin:0 0 4px;">Actualités RH & Économie Afrique</h2>
-      <span style="font-family:var(--font-mono);font-size:9px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.1em;">Jeune Afrique · HR Dive · Mis à jour quotidiennement</span>
+      <span style="font-family:var(--font-mono);font-size:9px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.1em;">Jeune Afrique · HR Executive · Mis à jour quotidiennement</span>
     </div>
   </div>
   <div id="actus-rh-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;">
@@ -277,6 +277,8 @@
       <li><a href="/entreprises.html">Recruteurs</a></li>
       <li><a href="/cvtheque.html">CVthèque</a></li>
       <li><a href="/coach.html">Coach IA</a></li>
+      <li><a href="/a-propos.html">À propos</a></li>
+      <li><a href="/mentions-legales.html">Mentions légales</a></li>
     </ul>
     <div class="footer-bottom">© 2025 Talenco.bj</div>
   </div>
@@ -473,7 +475,20 @@
     const container = document.getElementById('actus-rh-grid');
     if (!container) return;
     if (!actus?.length) {
-      container.innerHTML = '<p class="text-muted">Chargement des actualités…</p>';
+      // Fallback : liens directs vers les 2 sources
+      container.innerHTML = `
+        <a href="https://www.jeuneafrique.com/economie-emploi/" target="_blank" rel="noopener" style="display:block;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:20px;text-decoration:none;color:inherit;transition:border-color .2s;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
+          <div style="font-family:var(--font-mono);font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);margin-bottom:10px;">🌍 Jeune Afrique</div>
+          <div style="font-family:var(--font-serif);font-style:italic;font-size:15px;margin-bottom:8px;">Économie & Emploi en Afrique</div>
+          <div style="font-size:12px;color:var(--text-muted);">Actualités économiques, business et marchés du travail africains.</div>
+          <div style="font-size:11px;color:var(--accent);margin-top:10px;">Voir les articles →</div>
+        </a>
+        <a href="https://hrexecutive.com/" target="_blank" rel="noopener" style="display:block;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:20px;text-decoration:none;color:inherit;transition:border-color .2s;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
+          <div style="font-family:var(--font-mono);font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);margin-bottom:10px;">🇺🇸 HR Executive</div>
+          <div style="font-family:var(--font-serif);font-style:italic;font-size:15px;margin-bottom:8px;">Leadership & Stratégie RH</div>
+          <div style="font-size:12px;color:var(--text-muted);">Tendances RH mondiales, leadership et gestion des talents — niveau senior.</div>
+          <div style="font-size:11px;color:var(--accent);margin-top:10px;">Voir les articles →</div>
+        </a>`;
       return;
     }
     container.innerHTML = actus.map(a => `
