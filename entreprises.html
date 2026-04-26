@@ -331,9 +331,9 @@
       sb.from('applications').select('*, jobs!inner(company_id)', { count: 'exact', head: true }).eq('jobs.company_id', userId),
       sb.from('applications').select('*, jobs!inner(company_id)', { count: 'exact', head: true }).eq('jobs.company_id', userId).eq('status', 'pending'),
     ]);
-    document.getElementById('stat-offres').textContent  = nbOffres ?? 0;
-    document.getElementById('stat-cands').textContent   = nbCandidatures ?? 0;
-    document.getElementById('stat-new').textContent     = nbNouveaux ?? 0;
+    document.getElementById('stat-offres-actives').textContent = nbOffres ?? 0;
+    document.getElementById('stat-candidatures').textContent   = nbCandidatures ?? 0;
+    document.getElementById('stat-nouveaux').textContent       = nbNouveaux ?? 0;
   }
 
   async function chargerMesOffres(userId) {
