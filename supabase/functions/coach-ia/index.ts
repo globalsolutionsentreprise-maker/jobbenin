@@ -1,187 +1,100 @@
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 
-const SUPA_URL      = Deno.env.get('SUPABASE_URL')!;
-const SUPA_KEY      = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-const ANTHROPIC_KEY = Deno.env.get('ANTHROPIC_API_KEY')!;
-const MODEL         = 'claude-sonnet-4-5';
-const MAX_MESSAGES  = 20; // limite quotidienne par user
-
-const sb = createClient(SUPA_URL, SUPA_KEY);
-
-const CORS = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const SYSTEM_PROMPT =
-  `Tu es TalBot, le coach emploi de Talenco.bj, la plateforme de recrutement N°1 au Bénin. \
-Tu aides les candidats à : préparer leurs entretiens, rédiger des lettres de motivation percutantes, \
-négocier leur salaire, améliorer leur CV, et naviguer le marché de l'emploi au Bénin \
-(ANPE, secteurs porteurs, salaires moyens par secteur). \
-Tu réponds en français, avec bienveillance et des conseils concrets et adaptés au contexte africain. \
-Tes réponses font 100-200 mots max.`;
+const ANTHROPIC_API_KEY = Deno.env.get("ANTHROPIC_API_KEY") ?? "";
 
-// ── Logger dans ai_logs (fire-and-forget) ─────────────────────────────────
+const SYSTEM_PROMPT = `Tu es TalBot, le Coach IA de Talenco.bj — la plateforme de recrutement dédiée au marché béninois.
 
-function logUsage(userId: string, tokens: number): void {
-  sb.from('ai_logs')
-    .insert({ user_id: userId, type: 'coach-ia', tokens_used: tokens })
-    .then(({ error }) => { if (error) console.warn('ai_logs insert:', error.message); });
-}
+Tu aides les candidats à :
+- Préparer leurs entretiens d'embauche (simulation de questions, feedback)
+- Améliorer leur CV et leur lettre de motivation
+- Rédiger un pitch professionnel convaincant
+- Comprendre le marché de l'emploi au Bénin (secteurs porteurs, salaires, attentes des recruteurs)
+- Développer leurs compétences de négociation salariale
 
-// ── Vérifier et incrémenter la limite quotidienne ─────────────────────────
+Ton style :
+- Chaleureux, direct, encourageant — comme un mentor bienveillant
+- Concret : tu donnes des exemples précis, pas des généralités
+- Tu connais le contexte béninois : secteurs comme la banque, l'IT, l'agriculture, le commerce, les ONG
+- Tes réponses sont structurées et actionables
+- Tu peux faire des simulations d'entretien en jouant le rôle du recruteur
 
-async function checkAndIncrementLimit(userId: string): Promise<{ allowed: boolean; remaining: number }> {
-  const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+Quand l'utilisateur demande une simulation d'entretien :
+1. Demande le poste et le secteur visé
+2. Lance la simulation avec des questions réalistes
+3. Donne un feedback constructif après chaque réponse
 
-  const { data: session } = await sb
-    .from('coach_sessions')
-    .select('message_count')
-    .eq('user_id', userId)
-    .eq('session_date', today)
-    .maybeSingle();
+Tu réponds toujours en français. Tu es positif mais honnête.`;
 
-  const current = session?.message_count ?? 0;
-
-  if (current >= MAX_MESSAGES) {
-    return { allowed: false, remaining: 0 };
+serve(async (req) => {
+  if (req.method === "OPTIONS") {
+    return new Response("ok", { headers: corsHeaders });
   }
 
-  // Upsert : créé si absent, incrémenté si existant
-  await sb.from('coach_sessions').upsert(
-    { user_id: userId, session_date: today, message_count: current + 1 },
-    { onConflict: 'user_id,session_date' },
-  );
-
-  return { allowed: true, remaining: MAX_MESSAGES - current - 1 };
-}
-
-// ── Handler principal ─────────────────────────────────────────────────────
-
-Deno.serve(async (req) => {
-  if (req.method === 'OPTIONS') return new Response('ok', { headers: CORS });
-  if (req.method !== 'POST') {
-    return new Response(JSON.stringify({ error: 'Méthode non autorisée' }), {
-      status: 405, headers: { ...CORS, 'Content-Type': 'application/json' },
-    });
-  }
-
-  // ── Authentification obligatoire ──────────────────────────────────────────
-  const authHeader = req.headers.get('Authorization') ?? '';
-  const token = authHeader.replace('Bearer ', '');
-  const { data: { user }, error: authErr } = await sb.auth.getUser(token);
-
-  if (authErr || !user) {
-    return new Response(JSON.stringify({ error: 'Non authentifié' }), {
-      status: 401, headers: { ...CORS, 'Content-Type': 'application/json' },
-    });
-  }
-
-  const userId = user.id;
-
-  // ── Limite quotidienne ────────────────────────────────────────────────────
-  const { allowed, remaining } = await checkAndIncrementLimit(userId);
-  if (!allowed) {
-    return new Response(
-      JSON.stringify({ error: 'LIMIT_REACHED', remaining: 0 }),
-      { status: 429, headers: { ...CORS, 'Content-Type': 'application/json' } },
-    );
-  }
-
-  let messages: Array<{ role: string; content: string }>;
   try {
-    const body = await req.json();
-    messages = body.messages ?? [];
-    if (!messages.length) throw new Error('messages vide');
-  } catch {
-    return new Response(JSON.stringify({ error: 'messages requis' }), {
-      status: 400, headers: { ...CORS, 'Content-Type': 'application/json' },
-    });
-  }
-
-  // ── Appel Anthropic en mode streaming ─────────────────────────────────────
-  const anthropicRes = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'anthropic-version': '2023-06-01',
-      'x-api-key':        ANTHROPIC_KEY,
-      'content-type':     'application/json',
-    },
-    body: JSON.stringify({
-      model:      MODEL,
-      max_tokens: 600,
-      system:     SYSTEM_PROMPT,
-      stream:     true,
-      messages,
-    }),
-  });
-
-  if (!anthropicRes.ok) {
-    const errBody = await anthropicRes.text();
-    console.error('Anthropic error:', anthropicRes.status, errBody);
-    return new Response(JSON.stringify({ error: `Anthropic API ${anthropicRes.status}` }), {
-      status: 502, headers: { ...CORS, 'Content-Type': 'application/json' },
-    });
-  }
-
-  // ── Transformer le stream SSE : extraire les tokens pour le log ───────────
-  // Pipe le stream Anthropic → client en temps réel,
-  // tout en interceptant les événements d'usage pour le log final.
-
-  let inputTokens  = 0;
-  let outputTokens = 0;
-
-  const { readable, writable } = new TransformStream<Uint8Array, Uint8Array>();
-  const writer  = writable.getWriter();
-  const encoder = new TextEncoder();
-  const decoder = new TextDecoder();
-
-  // Traitement async sans bloquer la réponse
-  (async () => {
-    const reader = anthropicRes.body!.getReader();
-    let buffer   = '';
-
-    try {
-      while (true) {
-        const { value, done } = await reader.read();
-        if (done) break;
-
-        const chunk = decoder.decode(value, { stream: true });
-        buffer += chunk;
-
-        // Forward le chunk brut au client immédiatement
-        await writer.write(encoder.encode(chunk));
-
-        // Parser les lignes pour extraire les token counts
-        const lines = buffer.split('\n');
-        buffer = lines.pop()!;
-
-        for (const line of lines) {
-          if (!line.startsWith('data: ')) continue;
-          try {
-            const event = JSON.parse(line.slice(6));
-            if (event.type === 'message_start') {
-              inputTokens = event.message?.usage?.input_tokens ?? 0;
-            }
-            if (event.type === 'message_delta') {
-              outputTokens = event.usage?.output_tokens ?? 0;
-            }
-          } catch { /* chunk incomplet ou non-JSON */ }
-        }
-      }
-    } finally {
-      await writer.close();
-      logUsage(userId, inputTokens + outputTokens);
-      console.log(`✅ coach-ia — tokens: ${inputTokens + outputTokens}, remaining: ${remaining}, user: ${userId}`);
+    // Vérifier l'auth
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader) {
+      return new Response(JSON.stringify({ error: "Non autorisé" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
-  })();
 
-  return new Response(readable, {
-    headers: {
-      ...CORS,
-      'Content-Type':  'text/event-stream',
-      'Cache-Control': 'no-cache',
-      'X-Remaining-Messages': String(remaining),
-    },
-  });
+    const { messages } = await req.json();
+    if (!messages || !Array.isArray(messages)) {
+      return new Response(JSON.stringify({ error: "Messages invalides" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Limiter l'historique à 20 messages pour éviter les abus
+    const limitedMessages = messages.slice(-20);
+
+    // Appel Anthropic en streaming
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": ANTHROPIC_API_KEY,
+        "anthropic-version": "2023-06-01",
+      },
+      body: JSON.stringify({
+        model: "claude-haiku-4-5-20251001",
+        max_tokens: 1024,
+        system: SYSTEM_PROMPT,
+        messages: limitedMessages,
+        stream: true,
+      }),
+    });
+
+    if (!response.ok) {
+      const err = await response.json();
+      return new Response(JSON.stringify({ error: err.error?.message ?? "Erreur Anthropic" }), {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Streamer la réponse directement au client
+    return new Response(response.body, {
+      headers: {
+        ...corsHeaders,
+        "Content-Type": "text/event-stream",
+        "Cache-Control": "no-cache",
+        "X-Remaining-Messages": "20",
+      },
+    });
+
+  } catch (err) {
+    return new Response(JSON.stringify({ error: err.message }), {
+      status: 500,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
 });
