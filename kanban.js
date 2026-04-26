@@ -12,7 +12,7 @@
  *   </script>
  */
 
-const SUPABASE_URL     = 'https://ywteoxnkkdgdpbkrlkar.supabase.co';
+const KANBAN_SUPABASE_URL = 'https://ywteoxnkkdgdpbkrlkar.supabase.co';
 const SITE_URL         = 'https://talenco.bj';
 const ANON_KEY         = window.SUPABASE_ANON_KEY ?? '';
 
