@@ -192,6 +192,30 @@
       </select>
     </div>
     <div id="cv-grid" class="cv-grid"></div>
+
+    <!-- Bannière premium pour utilisateurs connectés sans abonnement -->
+    <div id="premium-banner" style="display:none;margin-top:20px;background:#0d1f3a;border-radius:var(--radius-md);padding:28px 24px;text-align:center;color:#fff;">
+      <div style="font-size:28px;margin-bottom:8px;">⭐</div>
+      <h3 style="font-family:'Instrument Serif',serif;font-style:italic;font-size:20px;margin:0 0 8px;">Accédez à toute la CVthèque</h3>
+      <p style="font-size:13px;color:rgba(255,255,255,.6);margin:0 0 20px;max-width:360px;margin-left:auto;margin-right:auto;">Contactez directement les candidats et sourcez les meilleurs profils du Bénin.</p>
+      <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-bottom:24px;">
+        <div style="background:rgba(255,255,255,.08);border-radius:10px;padding:16px 20px;min-width:140px;">
+          <div style="font-size:22px;font-weight:900;color:#f0d080;">25 000</div>
+          <div style="font-size:10px;color:rgba(255,255,255,.5);margin-top:2px;">FCFA / mois</div>
+          <div style="font-size:11px;margin-top:8px;font-weight:600;">Standard</div>
+          <div style="font-size:10px;color:rgba(255,255,255,.5);">10 contacts/mois</div>
+        </div>
+        <div style="background:linear-gradient(135deg,rgba(201,168,76,.2),rgba(240,208,128,.1));border:1px solid rgba(201,168,76,.4);border-radius:10px;padding:16px 20px;min-width:140px;">
+          <div style="font-size:22px;font-weight:900;color:#f0d080;">60 000</div>
+          <div style="font-size:10px;color:rgba(255,255,255,.5);margin-top:2px;">FCFA / mois</div>
+          <div style="font-size:11px;margin-top:8px;font-weight:600;">Premium ⭐</div>
+          <div style="font-size:10px;color:rgba(255,255,255,.5);">Contacts illimités</div>
+        </div>
+      </div>
+      <button onclick="ouvrirPaiement('standard')" style="background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.3);border-radius:8px;padding:10px 22px;font-size:13px;font-weight:600;cursor:pointer;margin-right:10px;">Standard — 25 000 FCFA</button>
+      <button onclick="ouvrirPaiement('premium')" style="background:linear-gradient(135deg,#c9a84c,#f0d080);color:#7a5c00;border:none;border-radius:8px;padding:10px 22px;font-size:13px;font-weight:700;cursor:pointer;">Premium — 60 000 FCFA ⭐</button>
+    </div>
+
   </main>
 </div>
 
@@ -235,6 +259,7 @@
   </div>
 </footer>
 
+<script src="https://cdn.fedapay.com/checkout.js?v=1.1.7"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="/pwa.js"></script>
 <script src="/icons.js"></script>
@@ -436,6 +461,68 @@ async function envoyerContact() {
 document.getElementById('modal-contact').addEventListener('click', function(e) {
   if (e.target === this) fermerModal();
 });
+
+// ── FedaPay ─────────────────────────────────────────────
+const FEDAPAY_PUBLIC_KEY = 'pk_live_5V_GBzSSPmHe9OD47EXXTr_5';
+
+const PLANS = {
+  standard: { amount: 25000, label: 'Abonnement Standard CVthèque — 1 mois', mois: 1 },
+  premium:  { amount: 60000, label: 'Abonnement Premium CVthèque — 1 mois',  mois: 1 },
+};
+
+async function ouvrirPaiement(planId) {
+  const session = (await sb.auth.getSession()).data.session;
+  if (!session) { window.location.href = '/connexion.html'; return; }
+
+  const plan = PLANS[planId];
+  const email = session.user.email || '';
+
+  FedaPay.init({
+    public_key: FEDAPAY_PUBLIC_KEY,
+    transaction: {
+      amount:      plan.amount,
+      description: plan.label,
+      currency:    { iso: 'XOF' },
+    },
+    customer: { email },
+    onComplete: async function(resp) {
+      if (resp.reason === FedaPay.DIALOG_DISMISSED) return;
+
+      // Sauvegarde la transaction dans Supabase pour que le webhook la traite
+      const refId = resp?.transaction?.id || resp?.id || null;
+      await sb.from('payments').insert({
+        user_id:        session.user.id,
+        plan:           planId,
+        amount:         plan.amount,
+        fedapay_ref:    String(refId),
+        status:         'pending',
+      });
+
+      // Afficher confirmation immédiate (le webhook activera le plan)
+      document.getElementById('premium-banner').innerHTML = `
+        <div style="text-align:center;padding:20px;color:#fff;">
+          <div style="font-size:36px;margin-bottom:8px;">✅</div>
+          <h3 style="font-family:'Instrument Serif',serif;font-style:italic;font-size:20px;">Paiement reçu !</h3>
+          <p style="font-size:13px;color:rgba(255,255,255,.6);">Votre accès ${planId} sera activé dans quelques instants.<br>Rechargez la page dans 30 secondes.</p>
+          <button onclick="location.reload()" style="margin-top:16px;background:#f0d080;color:#7a5c00;border:none;border-radius:8px;padding:10px 22px;font-size:13px;font-weight:700;cursor:pointer;">Actualiser la page</button>
+        </div>`;
+    }
+  }).open();
+}
+
+// Vérifier si l'utilisateur connecté est premium
+async function verifierPremium(session) {
+  const { data } = await sb.from('users')
+    .select('premium_until, plan')
+    .eq('id', session.user.id)
+    .single();
+
+  const isPremium = data?.premium_until && new Date(data.premium_until) > new Date();
+  if (!isPremium) {
+    document.getElementById('premium-banner').style.display = 'block';
+  }
+  return isPremium;
+}
 </script>
 </body>
 </html>
