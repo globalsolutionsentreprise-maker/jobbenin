@@ -954,30 +954,28 @@
     const session = (await sb.auth.getSession()).data.session;
     if (!session) return;
 
-    const handler = FedaPay.init({
-      public_key: 'pk_sandbox_your_key_here',
+    FedaPay.init({
+      public_key: 'pk_live_5V_GBzSSPmHe9OD47EXXTr_5',
       transaction: {
         amount: 1000,
-        description: 'Abonnement Premium Talenco.bj — 30 jours',
+        description: 'Abonnement Premium Candidat Talenco.bj — 1 mois',
+        currency: { iso: 'XOF' },
       },
       customer: { email: session.user.email },
-      onComplete: async (transaction) => {
-        if (transaction.reason === FedaPay.TRANSACTION_APPROVED) {
-          await sb.from('payments').insert({
-            user_id: session.user.id,
-            amount: 1000,
-            status: 'approved',
-            metadata: { type: 'candidat_premium', user_id: session.user.id }
-          });
-          // Active directement côté client aussi
-          await sb.from('users').update({
-            premium_until: new Date(Date.now() + 30*24*60*60*1000).toISOString()
-          }).eq('id', session.user.id);
-          checkPremium(session.user.id);
-        }
+      onComplete: async function(resp) {
+        if (resp.reason === FedaPay.DIALOG_DISMISSED) return;
+        const refId = resp?.transaction?.id || resp?.id || null;
+        // Sauvegarde pour que le webhook active le premium
+        await sb.from('payments').insert({
+          user_id:     session.user.id,
+          plan:        'candidat_premium',
+          amount:      1000,
+          fedapay_ref: String(refId),
+          status:      'pending',
+        });
+        alert('✅ Paiement reçu ! Votre accès Premium sera activé dans quelques secondes. Rechargez la page.');
       }
-    });
-    handler.open();
+    }).open();
   }
 
 </script>

@@ -5,7 +5,7 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const ANTHROPIC_API_KEY = Deno.env.get("ANTHROPIC_API_KEY") ?? "";
+const GROQ_API_KEY = Deno.env.get("GROQ_API_KEY") ?? "";
 
 const SYSTEM_PROMPT = `Tu es TalBot, le Coach IA de Talenco.bj — la plateforme de recrutement dédiée au marché béninois.
 
@@ -25,7 +25,7 @@ Ton style :
 
 Quand l'utilisateur demande une simulation d'entretien :
 1. Demande le poste et le secteur visé
-2. Lance la simulation avec des questions réalistes
+2. Lance la simulation avec des questions réalistes du marché béninois
 3. Donne un feedback constructif après chaque réponse
 
 Tu réponds toujours en français. Tu es positif mais honnête.`;
@@ -36,7 +36,6 @@ serve(async (req) => {
   }
 
   try {
-    // Vérifier l'auth
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) {
       return new Response(JSON.stringify({ error: "Non autorisé" }), {
@@ -53,41 +52,82 @@ serve(async (req) => {
       });
     }
 
-    // Limiter l'historique à 20 messages pour éviter les abus
     const limitedMessages = messages.slice(-20);
 
-    // Appel Anthropic en streaming
-    const response = await fetch("https://api.anthropic.com/v1/messages", {
+    // Appel Groq API (compatible OpenAI, streaming)
+    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "x-api-key": ANTHROPIC_API_KEY,
-        "anthropic-version": "2023-06-01",
+        "Authorization": `Bearer ${GROQ_API_KEY}`,
       },
       body: JSON.stringify({
-        model: "claude-haiku-4-5-20251001",
+        model: "llama-3.1-8b-instant",
         max_tokens: 1024,
-        system: SYSTEM_PROMPT,
-        messages: limitedMessages,
+        messages: [
+          { role: "system", content: SYSTEM_PROMPT },
+          ...limitedMessages,
+        ],
         stream: true,
+        temperature: 0.7,
       }),
     });
 
     if (!response.ok) {
       const err = await response.json();
-      return new Response(JSON.stringify({ error: err.error?.message ?? "Erreur Anthropic" }), {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      return new Response(
+        JSON.stringify({ error: err.error?.message ?? "Erreur Groq" }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
 
-    // Streamer la réponse directement au client
-    return new Response(response.body, {
+    // Stream la réponse au format SSE (compatible avec le client existant)
+    const { readable, writable } = new TransformStream();
+    const writer = writable.getWriter();
+    const encoder = new TextEncoder();
+    const decoder = new TextDecoder();
+
+    // Transformer le format OpenAI SSE vers le format Anthropic SSE attendu par le client
+    (async () => {
+      const reader = response.body!.getReader();
+      try {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) {
+            await writer.write(encoder.encode("data: {\"type\":\"message_stop\"}\n\n"));
+            await writer.close();
+            break;
+          }
+          const chunk = decoder.decode(value);
+          const lines = chunk.split("\n").filter(l => l.startsWith("data: "));
+          for (const line of lines) {
+            const data = line.slice(6);
+            if (data === "[DONE]") continue;
+            try {
+              const parsed = JSON.parse(data);
+              const delta = parsed.choices?.[0]?.delta?.content;
+              if (delta) {
+                // Convertir au format Anthropic attendu par coach.html
+                const anthropicChunk = JSON.stringify({
+                  type: "content_block_delta",
+                  delta: { type: "text_delta", text: delta }
+                });
+                await writer.write(encoder.encode(`data: ${anthropicChunk}\n\n`));
+              }
+            } catch (_) { /* ignorer les lignes invalides */ }
+          }
+        }
+      } catch (e) {
+        await writer.abort(e);
+      }
+    })();
+
+    return new Response(readable, {
       headers: {
         ...corsHeaders,
         "Content-Type": "text/event-stream",
         "Cache-Control": "no-cache",
-        "X-Remaining-Messages": "20",
+        "X-Remaining-Messages": "50",
       },
     });
 

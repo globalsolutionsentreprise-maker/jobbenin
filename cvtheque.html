@@ -194,26 +194,34 @@
     <div id="cv-grid" class="cv-grid"></div>
 
     <!-- Bannière premium pour utilisateurs connectés sans abonnement -->
-    <div id="premium-banner" style="display:none;margin-top:20px;background:#0d1f3a;border-radius:var(--radius-md);padding:28px 24px;text-align:center;color:#fff;">
-      <div style="font-size:28px;margin-bottom:8px;">⭐</div>
-      <h3 style="font-family:'Instrument Serif',serif;font-style:italic;font-size:20px;margin:0 0 8px;">Accédez à toute la CVthèque</h3>
-      <p style="font-size:13px;color:rgba(255,255,255,.6);margin:0 0 20px;max-width:360px;margin-left:auto;margin-right:auto;">Contactez directement les candidats et sourcez les meilleurs profils du Bénin.</p>
-      <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-bottom:24px;">
-        <div style="background:rgba(255,255,255,.08);border-radius:10px;padding:16px 20px;min-width:140px;">
-          <div style="font-size:22px;font-weight:900;color:#f0d080;">25 000</div>
-          <div style="font-size:10px;color:rgba(255,255,255,.5);margin-top:2px;">FCFA / mois</div>
-          <div style="font-size:11px;margin-top:8px;font-weight:600;">Standard</div>
-          <div style="font-size:10px;color:rgba(255,255,255,.5);">10 contacts/mois</div>
+    <div id="premium-banner" style="display:none;margin-top:20px;background:#0d1f3a;border-radius:var(--radius-md);padding:32px 24px;text-align:center;color:#fff;">
+      <div style="font-size:28px;margin-bottom:8px;">🏢</div>
+      <h3 style="font-family:'Instrument Serif',serif;font-style:italic;font-size:22px;margin:0 0 8px;">Accédez à la CVthèque</h3>
+      <p style="font-size:13px;color:rgba(255,255,255,.6);margin:0 0 24px;max-width:400px;margin-left:auto;margin-right:auto;">Sourcez et contactez directement les meilleurs profils béninois.</p>
+
+      <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-bottom:28px;">
+
+        <!-- Plan Starter -->
+        <div style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:20px 24px;min-width:160px;text-align:center;">
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.4);margin-bottom:10px;">Starter</div>
+          <div style="font-size:28px;font-weight:900;color:#fff;">5 000</div>
+          <div style="font-size:10px;color:rgba(255,255,255,.4);margin-bottom:12px;">FCFA / mois</div>
+          <div style="font-size:11px;color:rgba(255,255,255,.6);line-height:1.7;">5 offres actives<br>10 contacts CVthèque/mois</div>
+          <button onclick="ouvrirPaiement('starter')" style="margin-top:16px;width:100%;background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.25);border-radius:8px;padding:9px 0;font-size:12px;font-weight:600;cursor:pointer;">Choisir Starter</button>
         </div>
-        <div style="background:linear-gradient(135deg,rgba(201,168,76,.2),rgba(240,208,128,.1));border:1px solid rgba(201,168,76,.4);border-radius:10px;padding:16px 20px;min-width:140px;">
-          <div style="font-size:22px;font-weight:900;color:#f0d080;">60 000</div>
-          <div style="font-size:10px;color:rgba(255,255,255,.5);margin-top:2px;">FCFA / mois</div>
-          <div style="font-size:11px;margin-top:8px;font-weight:600;">Premium ⭐</div>
-          <div style="font-size:10px;color:rgba(255,255,255,.5);">Contacts illimités</div>
+
+        <!-- Plan Pro -->
+        <div style="background:linear-gradient(135deg,rgba(201,168,76,.15),rgba(240,208,128,.08));border:1px solid rgba(201,168,76,.4);border-radius:12px;padding:20px 24px;min-width:160px;text-align:center;position:relative;">
+          <div style="position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#c9a84c,#f0d080);color:#7a5c00;font-size:9px;font-weight:800;padding:3px 12px;border-radius:20px;text-transform:uppercase;letter-spacing:.08em;white-space:nowrap;">Recommandé</div>
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#f0d080;margin-bottom:10px;">Pro ⭐</div>
+          <div style="font-size:28px;font-weight:900;color:#f0d080;">15 000</div>
+          <div style="font-size:10px;color:rgba(255,255,255,.4);margin-bottom:12px;">FCFA / mois</div>
+          <div style="font-size:11px;color:rgba(255,255,255,.6);line-height:1.7;">Offres illimitées<br>Contacts illimités<br>Badge recruteur vérifié ✓</div>
+          <button onclick="ouvrirPaiement('pro')" style="margin-top:16px;width:100%;background:linear-gradient(135deg,#c9a84c,#f0d080);color:#7a5c00;border:none;border-radius:8px;padding:9px 0;font-size:12px;font-weight:700;cursor:pointer;">Choisir Pro</button>
         </div>
+
       </div>
-      <button onclick="ouvrirPaiement('standard')" style="background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.3);border-radius:8px;padding:10px 22px;font-size:13px;font-weight:600;cursor:pointer;margin-right:10px;">Standard — 25 000 FCFA</button>
-      <button onclick="ouvrirPaiement('premium')" style="background:linear-gradient(135deg,#c9a84c,#f0d080);color:#7a5c00;border:none;border-radius:8px;padding:10px 22px;font-size:13px;font-weight:700;cursor:pointer;">Premium — 60 000 FCFA ⭐</button>
+      <p style="font-size:11px;color:rgba(255,255,255,.3);margin:0;">Paiement sécurisé via FedaPay · MoMo & carte · Sans engagement</p>
     </div>
 
   </main>
@@ -466,8 +474,8 @@ document.getElementById('modal-contact').addEventListener('click', function(e) {
 const FEDAPAY_PUBLIC_KEY = 'pk_live_5V_GBzSSPmHe9OD47EXXTr_5';
 
 const PLANS = {
-  standard: { amount: 25000, label: 'Abonnement Standard CVthèque — 1 mois', mois: 1 },
-  premium:  { amount: 60000, label: 'Abonnement Premium CVthèque — 1 mois',  mois: 1 },
+  starter: { amount: 5000,  label: 'Abonnement Starter CVthèque — 1 mois',  mois: 1 },
+  pro:     { amount: 15000, label: 'Abonnement Pro CVthèque — 1 mois',       mois: 1 },
 };
 
 async function ouvrirPaiement(planId) {
