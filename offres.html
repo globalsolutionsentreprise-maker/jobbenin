@@ -250,6 +250,18 @@
     <p class="text-muted">Chargement…</p>
   </div>
 </section>
+<section style="max-width:1140px;margin:40px auto;padding:0 24px;">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+    <div>
+      <h2 style="font-family:var(--font-serif);font-style:italic;font-size:22px;margin:0 0 4px;">Actualités RH & Économie Afrique</h2>
+      <span style="font-family:var(--font-mono);font-size:9px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.1em;">Jeune Afrique · HR Dive · Mis à jour quotidiennement</span>
+    </div>
+  </div>
+  <div id="actus-rh-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;">
+    <p class="text-muted">Chargement…</p>
+  </div>
+</section>
+
 <footer class="footer">
   <div class="footer-grid">
     <a href="/index.html" class="talenco-logo" style="text-decoration:none;">
@@ -449,6 +461,35 @@
   }
 
   chargerFilActualites();
+  chargerActusRH();
+
+  async function chargerActusRH() {
+    const { data: actus } = await sb.from('news')
+      .select('title, source_name, url, summary, published_at, image_url')
+      .eq('is_active', true)
+      .order('published_at', { ascending: false })
+      .limit(6);
+
+    const container = document.getElementById('actus-rh-grid');
+    if (!container) return;
+    if (!actus?.length) {
+      container.innerHTML = '<p class="text-muted">Chargement des actualités…</p>';
+      return;
+    }
+    container.innerHTML = actus.map(a => `
+      <a href="${a.url}" target="_blank" rel="noopener" style="display:block;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden;text-decoration:none;color:inherit;transition:border-color .2s;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
+        ${a.image_url ? `<img src="${a.image_url}" style="width:100%;height:130px;object-fit:cover;" onerror="this.style.display='none'">` : ''}
+        <div style="padding:14px;">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;">
+            <span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);font-family:var(--font-mono);">${a.source_name}</span>
+            <span style="font-size:9px;color:var(--text-muted);font-family:var(--font-mono);">· ${new Date(a.published_at).toLocaleDateString('fr-FR')}</span>
+          </div>
+          <div style="font-family:var(--font-serif);font-style:italic;font-size:14px;line-height:1.4;color:var(--text);">${a.title}</div>
+          <div style="font-size:11px;color:var(--text-muted);margin-top:6px;">Lire l'article →</div>
+        </div>
+      </a>
+    `).join('');
+  }
 
 
   async function filtrerOffresPartenaires() {
