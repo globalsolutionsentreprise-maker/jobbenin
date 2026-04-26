@@ -104,7 +104,10 @@
 
       <div class="filter-group">
         <div class="filter-title">Recherche</div>
-        <input class="filter-search" id="f-search" placeholder="Poste, compétence…" oninput="filtrer()">
+        <div style="position:relative;display:flex;align-items:center;">
+          <span data-icon="search" data-size="14" data-color="var(--text-muted)" style="position:absolute;left:10px;pointer-events:none;"></span>
+          <input class="filter-search" id="f-search" placeholder="Poste, compétence…" oninput="filtrer()" style="padding-left:34px;">
+        </div>
       </div>
 
       <div class="filter-group">
@@ -234,6 +237,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="/pwa.js"></script>
+<script src="/icons.js"></script>
 <script>
 var SUPABASE_URL = 'https://ywteoxnkkdgdpbkrlkar.supabase.co';
 var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl3dGVveG5ra2RnZHBia3Jsa2FyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1MjA1MjYsImV4cCI6MjA5MDA5NjUyNn0.jzgNVgYR6iCEV_GIpvBTs4aN3RzK3E3MJW9YtBmLI3c';
@@ -363,19 +367,19 @@ function afficherProfils(profils) {
 
       <div class="cv-tags">
         ${p.sector ? `<span class="cv-tag accent">${p.sector}</span>` : ''}
-        ${p.city ? `<span class="cv-tag">📍 ${p.city}</span>` : ''}
+        ${p.city ? `<span class="cv-tag"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> ${p.city}</span>` : ''}
         ${skills.map(s => `<span class="cv-tag">${s}</span>`).join('')}
         ${(p.skills||[]).length > 4 ? `<span class="cv-tag">+${p.skills.length-4}</span>` : ''}
       </div>
 
       <div class="cv-footer">
         <div>
-          ${p.level ? `<div class="cv-level">${niveauLabel[p.level] || p.level}</div>` : ''}
-          ${p.availability ? `<div class="cv-dispo ${dispoClass[p.availability] || ''}">${dispoLabel[p.availability] || p.availability}</div>` : ''}
+          ${p.level ? `<div class="cv-level"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg> ${niveauLabel[p.level] || p.level}</div>` : ''}
+          ${p.availability ? `<div class="cv-dispo ${dispoClass[p.availability] || ''}"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> ${dispoLabel[p.availability] || p.availability}</div>` : ''}
         </div>
         ${isConnected
-          ? `<button class="btn-contact" onclick="ouvrirModal('${p.id}','${(p.full_name||'').replace(/'/g,"\\'")}')">Contacter →</button>`
-          : `<a href="/connexion.html" class="btn-contact">Voir le profil →</a>`
+          ? `<button class="btn-contact" onclick="ouvrirModal('${p.id}','${(p.full_name||'').replace(/'/g,"\\'")}')">Contacter <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></button>`
+          : `<a href="/connexion.html" class="btn-contact">Voir le profil <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a>`
         }
       </div>
     </div>`;
@@ -384,7 +388,7 @@ function afficherProfils(profils) {
   // Message si profils floutés
   if (!isConnected && profils.length > 3) {
     grid.innerHTML += `<div style="grid-column:1/-1;text-align:center;padding:20px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);">
-      <p style="font-size:13px;font-weight:600;">🔒 ${profils.length - 3} profil(s) masqués</p>
+      <p style="font-size:13px;font-weight:600;display:flex;align-items:center;gap:6px;justify-content:center;"><span data-icon="lock" data-size="14"></span> ${profils.length - 3} profil(s) masqués</p>
       <p style="font-size:12px;color:var(--text-muted);margin:6px 0 14px;">Connectez-vous pour voir tous les profils et contacter les candidats.</p>
       <a href="/inscription.html?type=company" class="btn btn-dark btn-sm">Créer un compte recruteur</a>
     </div>`;
