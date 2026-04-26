@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Talenco.bj — Recrutement au Bénin</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Hanken+Grotesk:wght@300;400;500;700&display=swap">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -315,7 +316,7 @@
 
     <div class="cards">
       <a href="/offres.html" class="card card-candidat" onclick="sessionStorage.setItem('talenco_profil_choisi','candidat')">
-        <span class="card-icon">🎯</span>
+        <span class="card-icon" data-icon="target" data-size="36" data-color="#c9963a"></span>
         <div class="card-label">Je cherche un emploi</div>
         <div class="card-title">Je suis candidat</div>
         <div class="card-desc">Accédez à des centaines d'offres vérifiées, postulez en 1 clic et laissez le Coach IA vous préparer.</div>
@@ -329,7 +330,7 @@
       </div>
 
       <a href="/entreprises.html" class="card card-recruteur" onclick="sessionStorage.setItem('talenco_profil_choisi','recruteur')">
-        <span class="card-icon">🏢</span>
+        <span class="card-icon" data-icon="building" data-size="36" data-color="rgba(255,255,255,0.7)"></span>
         <div class="card-label">Je recrute</div>
         <div class="card-title">Je suis recruteur</div>
         <div class="card-desc">Publiez vos offres, accédez à la CVthèque et gérez vos candidatures avec le kanban intégré.</div>
@@ -346,6 +347,6 @@
       <a href="mailto:contact@talenco.bj">Contact</a>
     </div>
   </footer>
-
+<script src="/icons.js"></script>
 </body>
 </html>

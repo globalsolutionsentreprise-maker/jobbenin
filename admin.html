@@ -87,22 +87,22 @@
     <!-- Sidebar -->
     <aside class="admin-side">
       <div class="side-label">Tableau de bord</div>
-      <button class="side-link active" onclick="showTab('stats',this)">📊 Vue d'ensemble</button>
-      <button class="side-link" onclick="showTab('moderation',this)">⚠️ Modération <span class="badge-count" id="badge-mod">0</span></button>
+      <button class="side-link active" onclick="showTab('stats',this)"><span data-icon="chart" data-size="14"></span> Vue d'ensemble</button>
+      <button class="side-link" onclick="showTab('moderation',this)"><span data-icon="shield" data-size="14"></span> Modération <span class="badge-count" id="badge-mod">0</span></button>
 
       <div class="side-label">Contenu</div>
-      <button class="side-link" onclick="showTab('offres',this)">💼 Offres</button>
-      <button class="side-link" onclick="showTab('candidatures',this)">📋 Candidatures</button>
-      <button class="side-link" onclick="showTab('news',this)">📰 Actualités</button>
+      <button class="side-link" onclick="showTab('offres',this)"><span data-icon="briefcase" data-size="14"></span> Offres</button>
+      <button class="side-link" onclick="showTab('candidatures',this)"><span data-icon="file_text" data-size="14"></span> Candidatures</button>
+      <button class="side-link" onclick="showTab('news',this)"><span data-icon="newspaper" data-size="14"></span> Actualités</button>
 
       <div class="side-label">Utilisateurs</div>
-      <button class="side-link" onclick="showTab('users',this)">👥 Tous les comptes</button>
-      <button class="side-link" onclick="showTab('companies',this)">🏢 Entreprises</button>
-      <button class="side-link" onclick="showTab('certifications',this)">🏅 Certifications <span class="badge-count" id="badge-certif">0</span></button>
+      <button class="side-link" onclick="showTab('users',this)"><span data-icon="users" data-size="14"></span> Tous les comptes</button>
+      <button class="side-link" onclick="showTab('companies',this)"><span data-icon="building" data-size="14"></span> Entreprises</button>
+      <button class="side-link" onclick="showTab('certifications',this)"><span data-icon="award" data-size="14"></span> Certifications <span class="badge-count" id="badge-certif">0</span></button>
 
       <div class="side-label">Communication</div>
-      <button class="side-link" onclick="showTab('whatsapp',this)">📱 WhatsApp</button>
-      <button class="side-link" onclick="showTab('digest',this)">📧 Digest email</button>
+      <button class="side-link" onclick="showTab('whatsapp',this)"><span data-icon="whatsapp" data-size="14"></span> WhatsApp</button>
+      <button class="side-link" onclick="showTab('digest',this)"><span data-icon="mail" data-size="14"></span> Digest email</button>
     </aside>
 
     <!-- Main -->
@@ -228,6 +228,7 @@
 <div class="toast" id="toast"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="/icons.js"></script>
 <script>
 var SUPABASE_URL = 'https://ywteoxnkkdgdpbkrlkar.supabase.co';
 var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl3dGVveG5ra2RnZHBia3Jsa2FyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1MjA1MjYsImV4cCI6MjA5MDA5NjUyNn0.jzgNVgYR6iCEV_GIpvBTs4aN3RzK3E3MJW9YtBmLI3c';
