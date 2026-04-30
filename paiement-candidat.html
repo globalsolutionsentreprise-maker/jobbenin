@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Abonnement Candidat — Talenco.bj</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Outfit:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--navy:#040D1C;--navy2:#091628;--gold:#F0A500;--gold-light:#FFD166;--white:#fff;--muted:#7B90B0;--card-border:rgba(255,255,255,0.09)}
+body{background:var(--navy);color:var(--white);font-family:'Outfit',sans-serif;min-height:100vh;display:flex;flex-direction:column}
+nav{height:60px;background:rgba(4,13,28,0.9);border-bottom:1px solid var(--card-border);display:flex;align-items:center;padding:0 2rem}
+.logo{font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:800;color:var(--white);text-decoration:none}.logo span{color:var(--gold)}
+main{flex:1;display:flex;align-items:center;justify-content:center;padding:2rem}
+.card{background:var(--navy2);border:1px solid var(--card-border);border-radius:20px;padding:2.5rem;width:100%;max-width:480px}
+.card-header{text-align:center;margin-bottom:2rem}
+.price-display{font-family:'Syne',sans-serif;font-size:3.5rem;font-weight:800;color:var(--gold);line-height:1}
+.price-period{font-size:.9rem;color:var(--muted);margin-top:.3rem}
+h1{font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:700;margin-bottom:.4rem}
+.benefits{list-style:none;display:flex;flex-direction:column;gap:.5rem;margin:1.2rem 0 2rem;border-top:1px solid var(--card-border);border-bottom:1px solid var(--card-border);padding:1.2rem 0}
+.benefits li{display:flex;align-items:center;gap:.6rem;font-size:.88rem;color:#C8D8EE}
+.benefits li::before{content:'✓';color:var(--gold);font-weight:700;flex-shrink:0}
+.field{display:flex;flex-direction:column;gap:.35rem;margin-bottom:1rem}
+.field label{font-size:.78rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.07em}
+.field input{background:rgba(255,255,255,0.06);border:1px solid var(--card-border);border-radius:10px;padding:.75rem 1rem;color:var(--white);font-family:'Outfit',sans-serif;font-size:.95rem;outline:none;transition:border-color .2s;width:100%}
+.field input:focus{border-color:rgba(240,165,0,.5)}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:.8rem}
+.cgv-check{display:flex;align-items:flex-start;gap:.6rem;margin:1rem 0;font-size:.83rem;color:var(--muted)}
+.cgv-check input{margin-top:2px;flex-shrink:0;accent-color:var(--gold)}
+.cgv-check a{color:var(--gold);text-decoration:none}
+.submit-btn{width:100%;background:var(--gold);color:#000;border:none;border-radius:12px;padding:1rem;font-family:'Outfit',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;transition:all .25s;margin-top:.5rem}
+.submit-btn:hover{background:var(--gold-light)}
+.submit-btn:disabled{opacity:.5;cursor:not-allowed}
+.error-msg{background:rgba(232,64,64,.1);border:1px solid rgba(232,64,64,.3);border-radius:8px;padding:.75rem 1rem;font-size:.85rem;color:#F08080;margin-top:.8rem;display:none}
+.note{font-size:.78rem;color:var(--muted);text-align:center;margin-top:.8rem;line-height:1.5}
+.note strong{color:var(--gold)}
+</style>
+</head>
+<body>
+<nav><a href="bienvenue.html" class="logo">Talen<span>co</span>.bj</a></nav>
+<main>
+<div class="card">
+  <div class="card-header">
+    <h1>Abonnement Candidat</h1>
+    <div class="price-display">1 000</div>
+    <div class="price-period">FCFA / mois · Sans engagement</div>
+  </div>
+  <ul class="benefits">
+    <li>Accès à toutes les offres vérifiées</li>
+    <li>Postulations illimitées en 1 clic</li>
+    <li>Coach IA · préparation entretien</li>
+    <li>Optimisation automatique du CV</li>
+    <li>Alertes emploi personnalisées</li>
+  </ul>
+  <div class="field-row">
+    <div class="field"><label>Prénom</label><input type="text" id="prenom" placeholder="Adjoua" required></div>
+    <div class="field"><label>Nom</label><input type="text" id="nom" placeholder="Kolade" required></div>
+  </div>
+  <div class="field"><label>Adresse email</label><input type="email" id="email" placeholder="votre@email.com" required></div>
+  <div class="field"><label>Téléphone (Mobile Money)</label><input type="tel" id="telephone" placeholder="97000000" required></div>
+  <div class="cgv-check">
+    <input type="checkbox" id="cgv">
+    <label for="cgv">J'accepte les <a href="cgv.html" target="_blank">Conditions Générales de Vente</a>, notamment la suspension après 3 mois d'inactivité (réactivation 2 000 FCFA).</label>
+  </div>
+  <button class="submit-btn" id="pay-btn" onclick="submitPayment()">Payer 1 000 FCFA via Mobile Money →</button>
+  <div class="error-msg" id="error-msg"></div>
+  <p class="note">Paiement sécurisé via <strong>FedaPay</strong> · MTN Mobile Money, Moov Money, Visa/Mastercard</p>
+</div>
+</main>
+<script>
+async function submitPayment() {
+  const prenom=document.getElementById('prenom').value.trim();
+  const nom=document.getElementById('nom').value.trim();
+  const email=document.getElementById('email').value.trim();
+  const telephone=document.getElementById('telephone').value.trim();
+  const cgv=document.getElementById('cgv').checked;
+  document.getElementById('error-msg').style.display='none';
+  if(!prenom||!nom||!email||!telephone) return showError('Veuillez remplir tous les champs.');
+  if(!cgv) return showError('Veuillez accepter les conditions générales de vente.');
+  document.getElementById('pay-btn').disabled=true;
+  document.getElementById('pay-btn').textContent='Connexion au paiement...';
+  try {
+    const res=await fetch('/api/payment/candidat-subscribe',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({nom,prenom,email,telephone})});
+    const data=await res.json();
+    if(data.payment_url){window.location.href=data.payment_url;}
+    else showError(data.error||'Erreur lors du paiement. Réessayez.');
+  } catch(e){showError('Erreur réseau. Vérifiez votre connexion.');}
+  finally{document.getElementById('pay-btn').disabled=false;document.getElementById('pay-btn').textContent='Payer 1 000 FCFA via Mobile Money →';}
+}
+function showError(msg){const el=document.getElementById('error-msg');el.textContent=msg;el.style.display='block';}
+</script>
+</body>
+</html>

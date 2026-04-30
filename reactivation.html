@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="fr"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Réactivation — Talenco.bj</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Outfit:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--navy:#040D1C;--navy2:#091628;--gold:#F0A500;--gold-light:#FFD166;--white:#fff;--muted:#7B90B0;--card-border:rgba(255,255,255,0.09)}
+body{background:var(--navy);color:var(--white);font-family:'Outfit',sans-serif;min-height:100vh;display:flex;flex-direction:column}
+nav{height:60px;background:rgba(4,13,28,0.9);border-bottom:1px solid var(--card-border);display:flex;align-items:center;padding:0 2rem}
+.logo{font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:800;color:var(--white);text-decoration:none}.logo span{color:var(--gold)}
+main{flex:1;display:flex;align-items:center;justify-content:center;padding:2rem}
+.card{background:var(--navy2);border:1px solid var(--card-border);border-radius:20px;padding:2.5rem;width:100%;max-width:440px;text-align:center}
+.icon-circle{width:70px;height:70px;border-radius:50%;background:rgba(240,165,0,.12);border:1px solid rgba(240,165,0,.3);display:flex;align-items:center;justify-content:center;margin:0 auto 1.5rem}
+h1{font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:800;margin-bottom:.5rem}
+.sub{color:var(--muted);font-size:.9rem;line-height:1.6;margin-bottom:2rem}
+.price-row{background:rgba(240,165,0,.06);border:1px solid rgba(240,165,0,.2);border-radius:12px;padding:1.2rem;margin-bottom:1.5rem}
+.price-big{font-family:'Syne',sans-serif;font-size:2.5rem;font-weight:800;color:var(--gold)}
+.price-detail{font-size:.8rem;color:var(--muted);margin-top:.3rem}
+.submit-btn{width:100%;background:var(--gold);color:#000;border:none;border-radius:12px;padding:1rem;font-family:'Outfit',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;transition:all .25s}
+.submit-btn:hover{background:var(--gold-light)}
+.submit-btn:disabled{opacity:.5;cursor:not-allowed}
+.error-msg{background:rgba(232,64,64,.1);border:1px solid rgba(232,64,64,.3);border-radius:8px;padding:.75rem;font-size:.85rem;color:#F08080;margin-top:1rem;display:none;text-align:left}
+#invalid-content{display:none}
+.contact-box{background:rgba(255,255,255,.04);border:1px solid var(--card-border);border-radius:12px;padding:1.2rem;margin-top:1.5rem;text-align:left}
+.contact-box h3{font-size:.85rem;font-weight:600;margin-bottom:.5rem;color:var(--gold)}
+.contact-box p{font-size:.83rem;color:var(--muted);line-height:1.6}
+.contact-box strong{color:var(--white)}
+.note{font-size:.75rem;color:var(--muted);margin-top:1rem}
+</style>
+</head>
+<body>
+<nav><a href="bienvenue.html" class="logo">Talen<span>co</span>.bj</a></nav>
+<main><div class="card">
+  <div id="valid-content">
+    <div class="icon-circle">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#F0A500" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+    </div>
+    <h1>Réactiver mon compte</h1>
+    <p class="sub">Votre compte a été suspendu après 3 mois d'inactivité. Réglez les frais de réactivation pour retrouver un accès complet.</p>
+    <div class="price-row">
+      <div style="font-size:.8rem;color:var(--muted);margin-bottom:.3rem">Frais de réactivation</div>
+      <div class="price-big">2 000</div>
+      <div class="price-detail">FCFA · puis 1 000 FCFA/mois</div>
+    </div>
+    <button class="submit-btn" id="pay-btn" onclick="submitReactivation()">Réactiver mon compte →</button>
+    <div class="error-msg" id="error-msg"></div>
+    <p class="note">Ce lien est valable 48h. Accès restauré immédiatement après paiement.</p>
+  </div>
+  <div id="invalid-content">
+    <h2 style="font-family:'Syne',sans-serif;color:#E84040;margin-bottom:.5rem">Lien invalide ou expiré</h2>
+    <p style="color:var(--muted);font-size:.9rem">Contactez notre support pour recevoir un nouveau lien.</p>
+    <div class="contact-box">
+      <h3>Contacter le support</h3>
+      <p>Email : <strong>support@talenco.bj</strong><br>Lundi–Vendredi, 8h–18h</p>
+    </div>
+  </div>
+</div></main>
+<script>
+const token=new URLSearchParams(window.location.search).get('token');
+if(!token){document.getElementById('valid-content').style.display='none';document.getElementById('invalid-content').style.display='block';}
+async function submitReactivation(){
+  document.getElementById('pay-btn').disabled=true;
+  document.getElementById('pay-btn').textContent='Connexion au paiement...';
+  document.getElementById('error-msg').style.display='none';
+  try{
+    const res=await fetch('/api/payment/candidat-reactivate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token})});
+    const data=await res.json();
+    if(data.payment_url){window.location.href=data.payment_url;}
+    else{if(data.error&&data.error.includes('invalide')){document.getElementById('valid-content').style.display='none';document.getElementById('invalid-content').style.display='block';}else{const el=document.getElementById('error-msg');el.textContent=data.error||'Erreur.';el.style.display='block';}}
+  }catch(e){const el=document.getElementById('error-msg');el.textContent='Erreur réseau.';el.style.display='block';}
+  finally{document.getElementById('pay-btn').disabled=false;document.getElementById('pay-btn').textContent='Réactiver mon compte →';}
+}
+</script>
+</body></html>

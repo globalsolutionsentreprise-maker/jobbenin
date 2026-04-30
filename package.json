@@ -1,0 +1,19 @@
+{
+  "name": "talenco-bj",
+  "version": "1.0.0",
+  "description": "Plateforme de recrutement Talenco.bj",
+  "private": true,
+  "scripts": {
+    "dev": "vercel dev",
+    "deploy": "vercel --prod"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.43.0",
+    "fedapay": "^1.2.5",
+    "nodemailer": "^6.9.13",
+    "uuid": "^9.0.1"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
