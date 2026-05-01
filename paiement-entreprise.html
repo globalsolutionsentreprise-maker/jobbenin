@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Crédits Entreprise — Talenco.bj</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Outfit:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--navy:#040D1C;--navy2:#091628;--gold:#F0A500;--gold-light:#FFD166;--blue:#3A8FE8;--white:#fff;--muted:#7B90B0;--card-border:rgba(255,255,255,0.09)}
+body{background:var(--navy);color:var(--white);font-family:'Outfit',sans-serif;min-height:100vh}
+nav{height:60px;background:rgba(4,13,28,0.9);border-bottom:1px solid var(--card-border);display:flex;align-items:center;padding:0 2rem}
+.logo{font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:800;color:var(--white);text-decoration:none}.logo span{color:var(--gold)}
+main{max-width:860px;margin:0 auto;padding:3rem 2rem}
+h1{font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;margin-bottom:.5rem}
+.sub{color:var(--muted);margin-bottom:2.5rem;font-size:.95rem}
+.packs-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:2.5rem}
+.pack{background:var(--navy2);border:2px solid var(--card-border);border-radius:16px;padding:1.5rem;cursor:pointer;transition:all .2s;position:relative}
+.pack:hover,.pack.selected{border-color:rgba(240,165,0,.45);background:rgba(240,165,0,.04)}
+.pack-name{font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;margin-bottom:.3rem}
+.pack-credits{font-size:.8rem;color:var(--muted);margin-bottom:.8rem}
+.pack-amount{font-family:'Syne',sans-serif;font-size:1.9rem;font-weight:800;color:var(--gold)}
+.pack-unit{font-size:.78rem;color:var(--muted)}
+.pack-ppu{font-size:.75rem;color:var(--muted);margin-top:.3rem}
+.best{position:absolute;top:.8rem;right:.8rem;background:var(--gold);color:#000;font-size:.62rem;font-weight:800;padding:.2rem .5rem;border-radius:100px}
+.form-section{background:var(--navy2);border:1px solid var(--card-border);border-radius:16px;padding:2rem}
+.form-section h2{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700;margin-bottom:1.2rem}
+.field{display:flex;flex-direction:column;gap:.35rem;margin-bottom:1rem}
+.field label{font-size:.75rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.07em}
+.field input{background:rgba(255,255,255,0.06);border:1px solid var(--card-border);border-radius:10px;padding:.75rem 1rem;color:var(--white);font-family:'Outfit',sans-serif;font-size:.93rem;outline:none;transition:border-color .2s;width:100%}
+.field input:focus{border-color:rgba(240,165,0,.5)}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:.8rem}
+.cgv-check{display:flex;align-items:flex-start;gap:.6rem;margin:1rem 0;font-size:.82rem;color:var(--muted)}
+.cgv-check input{margin-top:2px;accent-color:var(--gold)}
+.cgv-check a{color:var(--gold);text-decoration:none}
+.summary{background:rgba(240,165,0,.06);border:1px solid rgba(240,165,0,.2);border-radius:10px;padding:1rem;margin-bottom:1.2rem;font-size:.9rem}
+.summary strong{color:var(--gold)}
+.submit-btn{width:100%;background:var(--gold);color:#000;border:none;border-radius:12px;padding:1rem;font-family:'Outfit',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;transition:all .25s;margin-top:.5rem}
+.submit-btn:hover{background:var(--gold-light)}.submit-btn:disabled{opacity:.5;cursor:not-allowed}
+.error-msg{background:rgba(232,64,64,.1);border:1px solid rgba(232,64,64,.3);border-radius:8px;padding:.75rem 1rem;font-size:.85rem;color:#F08080;margin-top:.8rem;display:none}
+.note{font-size:.78rem;color:var(--muted);text-align:center;margin-top:.8rem}
+.credit-table{width:100%;border-collapse:collapse;margin-bottom:2rem}
+.credit-table th{background:rgba(240,165,0,.08);color:var(--gold);font-size:.78rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;padding:.6rem 1rem;text-align:left;border:1px solid var(--card-border)}
+.credit-table td{padding:.65rem 1rem;border:1px solid var(--card-border);font-size:.88rem;color:#C8D8EE}
+@media(max-width:600px){.packs-grid,.field-row{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<nav><a href="bienvenue.html" class="logo">Talen<span>co</span>.bj</a></nav>
+<main>
+  <h1>Acheter des crédits</h1>
+  <p class="sub">Pay as you go · Sans abonnement · Crédits sans expiration</p>
+
+  <table class="credit-table">
+    <thead><tr><th>Action</th><th>Coût</th></tr></thead>
+    <tbody>
+      <tr><td>Publier une offre d'emploi (30 jours)</td><td>2 crédits</td></tr>
+      <tr><td>Consulter un profil CV</td><td>1 crédit</td></tr>
+      <tr><td>Contacter un candidat</td><td>1 crédit</td></tr>
+      <tr><td>Kanban de recrutement + rapports</td><td>Inclus</td></tr>
+    </tbody>
+  </table>
+
+  <div class="packs-grid">
+    <div class="pack" id="p-starter" onclick="selectPack('starter')">
+      <div class="pack-name">Starter</div>
+      <div class="pack-credits">10 crédits</div>
+      <div class="pack-amount">10 000</div>
+      <div class="pack-unit">FCFA</div>
+      <div class="pack-ppu">1 000 FCFA / crédit</div>
+    </div>
+    <div class="pack selected" id="p-growth" onclick="selectPack('growth')">
+      <span class="best">Meilleur rapport</span>
+      <div class="pack-name">Growth</div>
+      <div class="pack-credits">30 crédits</div>
+      <div class="pack-amount">25 000</div>
+      <div class="pack-unit">FCFA</div>
+      <div class="pack-ppu">833 FCFA / crédit · -17%</div>
+    </div>
+    <div class="pack" id="p-business" onclick="selectPack('business')">
+      <div class="pack-name">Business</div>
+      <div class="pack-credits">100 crédits</div>
+      <div class="pack-amount">75 000</div>
+      <div class="pack-unit">FCFA</div>
+      <div class="pack-ppu">750 FCFA / crédit · -25%</div>
+    </div>
+  </div>
+
+  <div class="form-section">
+    <h2>Vos informations</h2>
+    <div class="summary" id="summary"><strong>Pack Growth</strong> — 30 crédits · 25 000 FCFA</div>
+    <div class="field-row">
+      <div class="field"><label>Nom complet</label><input type="text" id="nom" placeholder="Koffi Adjoua" required></div>
+      <div class="field"><label>Société</label><input type="text" id="societe" placeholder="Mon Entreprise SARL"></div>
+    </div>
+    <div class="field"><label>Email</label><input type="email" id="email" placeholder="recrutement@societe.bj" required></div>
+    <div class="field"><label>Téléphone (Mobile Money)</label><input type="tel" id="telephone" placeholder="97000000" required></div>
+    <div class="cgv-check">
+      <input type="checkbox" id="cgv">
+      <label for="cgv">J'accepte les <a href="cgv.html" target="_blank">Conditions Générales de Vente</a> de Talenco.bj.</label>
+    </div>
+    <button class="submit-btn" id="pay-btn" onclick="submitPayment()">Payer via Mobile Money →</button>
+    <div class="error-msg" id="error-msg"></div>
+    <p class="note">Paiement sécurisé FedaPay · MTN Mobile Money, Moov Money, Visa/Mastercard<br>Crédits disponibles immédiatement, sans expiration.</p>
+  </div>
+</main>
+<script>
+const PACKS={starter:{name:'Starter',credits:10,amount:10000},growth:{name:'Growth',credits:30,amount:25000},business:{name:'Business',credits:100,amount:75000}};
+let selectedPack='growth';
+function selectPack(pack){
+  selectedPack=pack;
+  document.querySelectorAll('.pack').forEach(p=>p.classList.remove('selected'));
+  document.getElementById('p-'+pack).classList.add('selected');
+  const p=PACKS[pack];
+  document.getElementById('summary').innerHTML=`<strong>Pack ${p.name}</strong> — ${p.credits} crédits · ${p.amount.toLocaleString('fr-FR')} FCFA`;
+}
+async function submitPayment(){
+  const nom=document.getElementById('nom').value.trim();
+  const email=document.getElementById('email').value.trim();
+  const telephone=document.getElementById('telephone').value.trim();
+  const societe=document.getElementById('societe').value.trim();
+  const cgv=document.getElementById('cgv').checked;
+  document.getElementById('error-msg').style.display='none';
+  if(!nom||!email||!telephone) return showError('Veuillez remplir les champs obligatoires.');
+  if(!cgv) return showError('Veuillez accepter les CGV.');
+  document.getElementById('pay-btn').disabled=true;
+  document.getElementById('pay-btn').textContent='Connexion au paiement...';
+  try{
+    const res=await fetch('/api/payment/enterprise-purchase',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({pack:selectedPack,nom,email,telephone,societe})});
+    const data=await res.json();
+    if(data.payment_url){window.location.href=data.payment_url;}
+    else showError(data.error||'Erreur. Réessayez.');
+  }catch(e){showError('Erreur réseau.');}
+  finally{document.getElementById('pay-btn').disabled=false;document.getElementById('pay-btn').textContent='Payer via Mobile Money →';}
+}
+function showError(msg){const el=document.getElementById('error-msg');el.textContent=msg;el.style.display='block';}
+</script>
+</body>
+</html>
