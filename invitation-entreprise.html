@@ -62,6 +62,10 @@
       background: var(--border);
     }
     .form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    @media (max-width: 540px) {
+      .form-row-2 { grid-template-columns: 1fr; }
+      .invite-card { padding: 28px 18px; }
+    }
     .invite-loading {
       text-align: center;
       padding: 60px 24px;
@@ -334,5 +338,6 @@
   showState('loading');
   validateToken();
 </script>
+<script src="/nav-mobile.js"></script>
 </body>
 </html>

@@ -18,6 +18,7 @@
     .auth-footer { text-align: center; margin-top: 20px; font-size: 12px; color: var(--text-muted); }
     .auth-footer a { color: var(--accent); }
     .form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    @media (max-width: 480px) { .form-row-2 { grid-template-columns: 1fr; } .auth-card { padding: 24px 18px; } }
   </style>
 </head>
 <body class="auth-page">
@@ -190,5 +191,6 @@
     btn.textContent = 'Compte créé';
   });
 </script>
+<script src="/nav-mobile.js"></script>
 </body>
 </html>
