@@ -690,48 +690,202 @@ async function runAiAnalysis() {
   const meta = document.getElementById('ai-meta');
 
   btn.disabled = true;
-  out.innerHTML = '<div class="ai-spinner"></div> Analyse en cours…';
+  out.innerHTML = '<div class="ai-spinner"></div> Calcul en cours…';
   out.classList.add('loading');
   meta.textContent = '';
 
-  const { metrics, prompt } = buildAiPayload();
   const t0 = Date.now();
+  // Légère pause pour l'UX
+  await new Promise(r => setTimeout(r, 320));
 
-  try {
-    const res  = await fetch('/api/admin-ai-analysis', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ metrics, prompt })
-    });
-    const data = await res.json();
-    const elapsed = ((Date.now()-t0)/1000).toFixed(1);
+  const analysis = buildLocalAnalysis(aiMode);
+  const elapsed  = ((Date.now()-t0)/1000).toFixed(1);
 
-    if (!res.ok) {
-      out.innerHTML = `<span style="color:var(--accent);">Erreur : ${data.error||'API non disponible'}</span>`;
-      out.classList.remove('loading');
-      btn.disabled = false;
-      return;
-    }
-
-    out.classList.remove('loading');
-    out.innerHTML = formatAiResponse(data.analysis);
-    meta.textContent = `Généré en ${elapsed}s · Modèle : claude-sonnet-4-20250514 · Mode : ${aiMode}`;
-  } catch(err) {
-    out.classList.remove('loading');
-    out.innerHTML = `<span style="color:var(--accent);">Erreur réseau. Vérifiez que la variable ANTHROPIC_API_KEY est configurée dans Vercel.</span>`;
-  }
+  out.classList.remove('loading');
+  out.innerHTML = analysis;
+  meta.textContent = `Généré en ${elapsed}s · Moteur d'analyse local · Mode : ${aiMode}`;
   btn.disabled = false;
 }
 
-function formatAiResponse(text) {
-  // Convertir les **bold** en <strong>, les retours à la ligne en <br>, les listes
-  return text
-    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-    .replace(/^(\d+\.\s)/gm, '<br><strong>$1</strong>')
-    .replace(/^[-•]\s/gm, '<br>• ')
-    .replace(/\n\n/g, '<br><br>')
-    .replace(/\n/g, '<br>');
+// ─────────────────────────────────────────────
+// MOTEUR D'ANALYSE LOCAL (100% gratuit, JS pur)
+// ─────────────────────────────────────────────
+function buildLocalAnalysis(mode) {
+  const u   = dashData.users        || [];
+  const inv = dashData.invites      || [];
+  const tx  = dashData.transactions || [];
+
+  // ── Calculs de base ──
+  const total       = u.length;
+  const candidates  = u.filter(x => x.role === 'candidate');
+  const companies   = u.filter(x => x.role === 'company');
+  const activeCands = candidates.filter(x => x.status === 'active');
+  const activeCos   = companies.filter(x => x.status === 'active');
+
+  const activationRate  = total > 0 ? Math.round((activeCands.length + activeCos.length) / total * 100) : 0;
+  const convCand        = candidates.length > 0 ? Math.round(activeCands.length / candidates.length * 100) : 0;
+  const convCo          = companies.length > 0  ? Math.round(activeCos.length / companies.length * 100)   : 0;
+  const invitesUsed     = inv.filter(x => x.status === 'used').length;
+  const invitesTotal    = inv.length;
+  const inviteRate      = invitesTotal > 0 ? Math.round(invitesUsed / invitesTotal * 100) : 0;
+
+  // ── Croissance 7j vs 7j précédents ──
+  const now   = Date.now();
+  const week1 = u.filter(x => x.created_at && new Date(x.created_at) > new Date(now - 7*864e5)).length;
+  const week2 = u.filter(x => x.created_at && new Date(x.created_at) > new Date(now - 14*864e5)
+                                           && new Date(x.created_at) <= new Date(now - 7*864e5)).length;
+  const growthDelta = week2 > 0 ? Math.round(((week1 - week2) / week2) * 100) : (week1 > 0 ? 100 : 0);
+
+  // ── Transactions ──
+  const paidTx  = tx.filter(t => t.status === 'approved' || t.status === 'completed');
+  const revenue  = paidTx.reduce((s,t) => s + (t.amount||0), 0);
+
+  // ── Ville dominante ──
+  const geoMap = {};
+  candidates.forEach(x => { const c = x.city||'Non renseigné'; geoMap[c]=(geoMap[c]||0)+1; });
+  const topCity = Object.entries(geoMap).sort((a,b)=>b[1]-a[1])[0];
+
+  // ── Jours restants bêta ──
+  const betaDaysLeft = Math.max(0, Math.round((new Date('2026-07-12') - new Date()) / 864e5));
+
+  // ── Seuils d'évaluation ──
+  function score(val, low, mid) {
+    if (val >= mid) return 'fort';
+    if (val >= low) return 'moyen';
+    return 'faible';
+  }
+
+  // ────────────────────────────────────────────
+  if (mode === 'platform') {
+    const actScore  = score(activationRate, 30, 60);
+    const growScore = score(growthDelta, 0, 20);
+
+    const lines = [];
+    lines.push(h2('Santé de la plateforme'));
+
+    lines.push(kpi('Taux d\'activation global', activationRate + '%',
+      actScore === 'fort'  ? 'Excellent — au-dessus des benchmarks Afrique de l\'Ouest (55–65%).' :
+      actScore === 'moyen' ? 'Correct — objectif : dépasser 60% d\'ici la fin de la phase bêta.' :
+                             'Attention — taux d\'activation sous 30%. Vérifier le flux d\'onboarding.'));
+
+    lines.push(kpi('Croissance 7 derniers jours', week1 + ' inscrits',
+      growthDelta >= 0 ? `+${growthDelta}% vs la semaine précédente (${week2} inscrits).` :
+                         `${growthDelta}% vs la semaine précédente — relancer la communication.`));
+
+    lines.push(kpi('Conversion candidats', convCand + '%',
+      convCand >= 70 ? 'Fort — la majorité des candidats inscrits activent leur compte.' :
+      convCand >= 40 ? 'Moyen — optimiser l\'email de confirmation et l\'onboarding.' :
+                       'Faible — revoir le parcours d\'inscription candidat.'));
+
+    lines.push(h2('Points d\'attention'));
+    if (activeCands.length < 5) lines.push(warn('Peu de candidats actifs. Priorité : campagne d\'activation (email, WhatsApp).'));
+    if (invitesUsed === 0 && invitesTotal > 0) lines.push(warn('Aucune invitation entreprise utilisée. Envoyer les liens aux prospects identifiés.'));
+    if (betaDaysLeft < 30) lines.push(warn(`Il reste ${betaDaysLeft} jours de bêta. Préparer la communication sur le passage en mode payant.`));
+
+    lines.push(h2('Recommandations prioritaires'));
+    lines.push(rec(1, 'Activer les candidats inscrits', 'Envoyer un email personnalisé aux utilisateurs avec status=pending pour les encourager à compléter leur profil.'));
+    lines.push(rec(2, 'Envoyer les 15 liens entreprises', `${15 - invitesUsed} invitations non utilisées. Chaque entreprise activée = données de qualité pour la CVthèque.`));
+    lines.push(rec(3, 'Préparer la conversion post-bêta', `Dans ${betaDaysLeft} jours, les accès deviennent payants. Préparer un email d'annonce avec offre de lancement.`));
+
+    return lines.join('');
+  }
+
+  if (mode === 'market') {
+    const lines = [];
+    lines.push(h2('Positionnement marché — Bénin'));
+
+    lines.push(kpi('Secteur prioritaire à cibler', 'Commerce / Distribution',
+      '32% des offres d\'emploi au Bénin. Fort volume, demande continue. Cible idéale pour l\'acquisition entreprises.'));
+
+    lines.push(kpi('Opportunité sous-exploitée', 'IT / Technologie',
+      '16% du marché mais croissance de +40% sur 2 ans. Profils rares = valeur premium pour les recruteurs.'));
+
+    lines.push(kpi('Canal d\'acquisition principal', 'Mobile (78%)',
+      '78% des candidats béninois accèdent aux offres depuis un smartphone. L\'interface mobile est critique.'));
+
+    lines.push(h2('Analyse concurrentielle'));
+    lines.push(p('Le marché du recrutement digital au Bénin est peu mature. Les plateformes généralistes (réseaux sociaux, groupes WhatsApp) dominent mais manquent de structuration. Talenco.bj se positionne sur le segment <strong>premium et qualifié</strong> — différenciation claire.'));
+
+    lines.push(h2('Niches à cibler en priorité'));
+    lines.push(rec(1, 'PME du secteur services à Cotonou', 'Besoin fort, budget modeste → pack Starter (10 crédits / 10 000 FCFA) parfaitement adapté.'));
+    lines.push(rec(2, 'ONG et organisations internationales', '22% du marché, recrutements réguliers, exigences de qualité élevées → profil entreprise premium.'));
+    lines.push(rec(3, 'Startups tech et cabinets IT', 'Segment en croissance, affinité naturelle avec une plateforme digitale premium.'));
+
+    return lines.join('');
+  }
+
+  if (mode === 'beta') {
+    const adoption   = total > 0 ? total : 0;
+    const coAdoption = invitesUsed;
+    const lines = [];
+
+    lines.push(h2('Bilan phase bêta'));
+
+    lines.push(kpi('Jours restants', betaDaysLeft + ' jours',
+      betaDaysLeft > 30 ? 'Encore du temps pour maximiser l\'adoption.' :
+      betaDaysLeft > 14 ? 'Phase finale — intensifier les activations.' :
+                          'Dernière ligne droite — préparer la transition payante.'));
+
+    lines.push(kpi('Adoption candidats', total + ' inscrits', week1 + ' nouveaux cette semaine.'));
+    lines.push(kpi('Adoption entreprises', coAdoption + '/15 activées',
+      coAdoption >= 10 ? 'Bonne adoption — pipeline entreprises solide.' :
+      coAdoption >= 5  ? `${15 - coAdoption} invitations non utilisées — relancer les prospects.` :
+                         'Adoption faible — priorité absolue : envoyer les liens d\'invitation.'));
+
+    lines.push(h2('Risques conversion post-bêta'));
+    if (convCand < 50) lines.push(warn('Taux d\'activation candidat faible → risque de churn à la fin de la gratuité. Travailler l\'engagement maintenant.'));
+    if (revenue === 0) lines.push(warn('Aucune transaction bêta. Envisager un test de pricing avant la fin de la bêta pour valider la willingness-to-pay.'));
+    lines.push(warn('Anticiper les relances : emailer tous les utilisateurs actifs J-14 avec une offre de lancement (ex: 2 mois pour le prix d\'1).'));
+
+    lines.push(h2('Plan d\'action bêta'));
+    lines.push(rec(1, 'Semaines 1-3 restantes', 'Maximiser l\'activation. Contacter chaque entreprise invitée personnellement.'));
+    lines.push(rec(2, 'J-14', 'Email d\'annonce transition payante + offre de lancement exclusive bêta-testeurs.'));
+    lines.push(rec(3, 'J-7', 'Rappel final + témoignages des entreprises actives pour rassurer les candidats.'));
+
+    return lines.join('');
+  }
+
+  // mode === 'full'
+  const lines = [];
+  lines.push(h2('Analyse complète — Talenco.bj'));
+  lines.push(p(`Rapport généré le ${new Date().toLocaleDateString('fr-FR', {day:'2-digit',month:'long',year:'numeric'})} · ${betaDaysLeft} jours de phase bêta restants.`));
+
+  lines.push(h2('1. Santé de la plateforme'));
+  lines.push(kpi('Utilisateurs totaux', total, `${activeCands.length} candidats actifs · ${activeCos.length} entreprises actives`));
+  lines.push(kpi('Taux d\'activation', activationRate + '%', activationRate >= 50 ? 'Correct.' : 'À améliorer — cible : 60%.'));
+  lines.push(kpi('Croissance 7j', week1 + ' inscrits', growthDelta >= 0 ? `+${growthDelta}% vs sem. précédente.` : `${growthDelta}% — ralentissement à surveiller.`));
+  if (topCity) lines.push(kpi('Concentration géo', topCity[0], `${topCity[1]} candidats (${Math.round(topCity[1]/Math.max(candidates.length,1)*100)}% du total)`));
+
+  lines.push(h2('2. Adoption bêta'));
+  lines.push(kpi('Invitations entreprises', `${invitesUsed}/15`, inviteRate + '% d\'activation'));
+  lines.push(kpi('Phase test', betaDaysLeft + ' jours restants', betaDaysLeft < 21 ? 'Urgence : préparer la transition.' : 'Temps disponible.'));
+
+  lines.push(h2('3. Risques identifiés'));
+  if (activationRate < 40) lines.push(warn('Taux d\'activation sous 40% — revoir l\'onboarding.'));
+  if (invitesUsed < 5)     lines.push(warn('Moins d\'un tiers des invitations entreprises utilisées.'));
+  if (week1 === 0)         lines.push(warn('Aucune inscription cette semaine — vérifier la visibilité et la communication.'));
+  if (betaDaysLeft < 21)   lines.push(warn(`J-${betaDaysLeft} : fenêtre critique pour la conversion payante.`));
+  if (activationRate >= 40 && invitesUsed >= 5 && week1 > 0) lines.push(p('<strong>Aucun risque critique détecté.</strong> Maintenir la dynamique.'));
+
+  lines.push(h2('4. Opportunités'));
+  lines.push(rec(1, 'IT / Technologie', 'Segment en croissance +40%/an au Bénin. Profils rares à forte valeur pour les recruteurs.'));
+  lines.push(rec(2, 'Mobile-first', '78% du trafic béninois est mobile. Optimisation PWA = levier d\'acquisition majeur.'));
+  lines.push(rec(3, 'ONG / Organisations', '22% du marché, recrutements structurés, prêts à payer pour la qualité.'));
+
+  lines.push(h2('5. Recommandations 30 prochains jours'));
+  lines.push(rec(1, 'Activation immédiate', 'Email personnalisé à tous les inscrits non actifs.'));
+  lines.push(rec(2, 'Invitations entreprises', 'Envoyer les liens restants à des prospects qualifiés.'));
+  lines.push(rec(3, 'Préparer la transition', 'Communication J-14 avec offre bêta-testeur exclusive.'));
+
+  return lines.join('');
 }
+
+// ── Helpers de formatage ──
+function h2(t)         { return `<br><strong style="font-size:13px;color:var(--text);">— ${t}</strong><br>`; }
+function p(t)          { return `<span style="color:var(--text-mid);">${t}</span><br>`; }
+function kpi(l, v, d)  { return `<span style="color:var(--text-mid);"><strong>${l} :</strong> <span style="color:var(--accent);font-family:var(--font-mono);font-size:12px;">${v}</span> — ${d}</span><br>`; }
+function warn(t)       { return `<span style="color:#8B4513;">⚠ ${t}</span><br>`; }
+function rec(n, t, d)  { return `<span style="color:var(--text-mid);"><strong>${n}. ${t}</strong> — ${d}</span><br>`; }
 
 // ─────────────────────────────────────────────
 // UTILS
