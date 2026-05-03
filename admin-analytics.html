@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Analytics & Data Science — Admin Talenco.bj</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Hanken+Grotesk:wght@300;400;500;700;900&family=Space+Grotesk:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/design-system.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    body { background: #F0EBE3; }
+
+    /* ── AUTH ── */
+    .auth-overlay { position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:200; }
+    .auth-box { background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:40px;width:100%;max-width:340px;text-align:center; }
+    .auth-box h1 { font-family:var(--font-serif);font-style:italic;font-size:22px;margin-bottom:18px; }
+
+    /* ── LAYOUT ── */
+    .dash-wrap { max-width:1280px;margin:0 auto;padding:32px 24px; }
+    .dash-header { display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:32px;flex-wrap:wrap;gap:16px; }
+    .dash-title-area {}
+    .dash-back { display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--text-muted);text-decoration:none;margin-bottom:10px; }
+    .dash-back:hover { color:var(--text); }
+    .dash-title { font-family:var(--font-serif);font-style:italic;font-size:28px;line-height:1.15;margin-bottom:4px; }
+    .dash-sub { font-size:13px;color:var(--text-muted); }
+    .dash-actions { display:flex;gap:10px;align-items:center;flex-wrap:wrap; }
+    .refresh-btn { display:inline-flex;align-items:center;gap:7px;padding:8px 16px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-sm);font-size:12px;font-weight:500;cursor:pointer;font-family:var(--font-body);transition:background .15s; }
+    .refresh-btn:hover { background:var(--bg-soft); }
+    .refresh-btn svg { transition:transform .5s; }
+    .refresh-btn.spinning svg { animation:spin .7s linear infinite; }
+    @keyframes spin { to{transform:rotate(360deg);} }
+    .last-update { font-family:var(--font-mono);font-size:10px;letter-spacing:.06em;color:var(--text-muted); }
+
+    /* ── KPI CARDS ── */
+    .kpi-grid { display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:24px; }
+    @media(max-width:900px){ .kpi-grid{grid-template-columns:repeat(3,1fr);} }
+    @media(max-width:560px){ .kpi-grid{grid-template-columns:repeat(2,1fr);} }
+    .kpi-card { background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:20px 18px; }
+    .kpi-label { font-family:var(--font-mono);font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px; }
+    .kpi-value { font-family:var(--font-serif);font-style:italic;font-size:32px;line-height:1;color:var(--text);margin-bottom:5px; }
+    .kpi-value.accent { color:var(--accent); }
+    .kpi-delta { font-size:11px;display:flex;align-items:center;gap:4px; }
+    .kpi-delta.up   { color:#2E7D32; }
+    .kpi-delta.down { color:#C62828; }
+    .kpi-delta.neutral { color:var(--text-muted); }
+    .kpi-loading { height:32px;background:var(--bg-soft);border-radius:4px;animation:shimmer 1.4s ease-in-out infinite; }
+    @keyframes shimmer { 0%,100%{opacity:.6;} 50%{opacity:1;} }
+
+    /* ── CHART GRID ── */
+    .chart-grid-2 { display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px; }
+    .chart-grid-3 { display:grid;grid-template-columns:2fr 1fr 1fr;gap:16px;margin-bottom:16px; }
+    @media(max-width:900px){ .chart-grid-2,.chart-grid-3{grid-template-columns:1fr;} }
+    .chart-card { background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:24px; }
+    .chart-card-header { display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:18px; }
+    .chart-card-title { font-weight:600;font-size:14px;margin-bottom:3px; }
+    .chart-card-sub { font-size:11px;color:var(--text-muted); }
+    .chart-badge { font-family:var(--font-mono);font-size:10px;padding:3px 9px;border-radius:999px;background:var(--bg-soft);color:var(--text-muted); }
+    .chart-container { position:relative;height:220px; }
+    .chart-container.tall { height:280px; }
+    .chart-container.short { height:160px; }
+
+    /* ── FUNNEL ── */
+    .funnel-row { display:flex;align-items:center;gap:12px;margin-bottom:10px; }
+    .funnel-label { font-size:12px;color:var(--text-mid);width:130px;flex-shrink:0; }
+    .funnel-bar-wrap { flex:1;background:var(--bg-soft);border-radius:4px;height:28px;overflow:hidden; }
+    .funnel-bar { height:100%;border-radius:4px;display:flex;align-items:center;padding-left:10px;font-family:var(--font-mono);font-size:11px;font-weight:500;transition:width 1s ease; }
+    .funnel-pct { font-family:var(--font-mono);font-size:11px;color:var(--text-muted);width:42px;text-align:right; }
+
+    /* ── INVITE TABLE ── */
+    .invite-mini-table { width:100%;border-collapse:collapse; }
+    .invite-mini-table th { font-family:var(--font-mono);font-size:10px;letter-spacing:.07em;text-transform:uppercase;color:var(--text-muted);padding:6px 8px;text-align:left;border-bottom:1px solid var(--border); }
+    .invite-mini-table td { padding:9px 8px;font-size:12px;border-bottom:1px solid var(--border); }
+    .invite-mini-table tr:last-child td { border-bottom:none; }
+    .status-dot { display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px; }
+    .status-dot.used    { background:#2E7D32; }
+    .status-dot.pending { background:var(--accent); }
+
+    /* ── SECTION DIVIDERS ── */
+    .section-sep { display:flex;align-items:center;gap:12px;margin:28px 0 18px; }
+    .section-sep-label { font-family:var(--font-mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);white-space:nowrap; }
+    .section-sep-line { flex:1;height:1px;background:var(--border); }
+
+    /* ── AI BLOCK ── */
+    .ai-card { background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:28px;margin-bottom:16px; }
+    .ai-card-header { display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px; }
+    .ai-header-left { display:flex;align-items:center;gap:12px; }
+    .ai-icon { width:36px;height:36px;border-radius:var(--radius-sm);background:var(--text);display:flex;align-items:center;justify-content:center;flex-shrink:0; }
+    .ai-title { font-weight:600;font-size:14px;margin-bottom:2px; }
+    .ai-sub { font-size:11px;color:var(--text-muted); }
+    .ai-params { display:flex;gap:8px;flex-wrap:wrap; }
+    .ai-param-btn { padding:6px 14px;font-size:12px;font-family:var(--font-body);font-weight:500;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--bg-card);cursor:pointer;transition:all .15s; }
+    .ai-param-btn.active { background:var(--text);color:var(--bg);border-color:var(--text); }
+    .ai-run-btn { display:inline-flex;align-items:center;gap:8px;padding:10px 20px;background:var(--text);color:var(--bg);font-family:var(--font-body);font-size:13px;font-weight:500;border:none;border-radius:var(--radius-sm);cursor:pointer;transition:opacity .15s; }
+    .ai-run-btn:hover { opacity:.88; }
+    .ai-run-btn:disabled { opacity:.4;cursor:default; }
+    .ai-output { background:var(--bg-soft);border:1px solid var(--border);border-radius:var(--radius-sm);padding:20px;min-height:80px;font-size:13px;line-height:1.75;color:var(--text-mid); }
+    .ai-output.loading { display:flex;align-items:center;justify-content:center;color:var(--text-muted); }
+    .ai-output-placeholder { color:var(--text-muted);font-style:italic; }
+    .ai-spinner { width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;margin-right:10px; }
+    .ai-meta { font-family:var(--font-mono);font-size:10px;letter-spacing:.06em;color:var(--text-muted);margin-top:10px; }
+
+    /* ── BENCHMARK CARDS ── */
+    .bench-grid { display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px; }
+    .bench-card { background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:20px; }
+    .bench-sector { font-family:var(--font-mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin-bottom:8px; }
+    .bench-metric { font-family:var(--font-serif);font-style:italic;font-size:24px;line-height:1;margin-bottom:4px; }
+    .bench-desc { font-size:12px;color:var(--text-muted);line-height:1.5; }
+    .bench-trend { display:flex;align-items:center;gap:5px;margin-top:10px;font-size:11px; }
+    .bench-trend.up   { color:#2E7D32; }
+    .bench-trend.down { color:#C62828; }
+  </style>
+</head>
+<body>
+
+<!-- AUTH OVERLAY -->
+<div id="auth-overlay" class="auth-overlay">
+  <div class="auth-box">
+    <h1>Analytics Admin</h1>
+    <div class="form-field"><input type="password" id="admin-pwd" placeholder="Mot de passe" style="text-align:center;"></div>
+    <button class="btn btn-dark btn-full" onclick="checkAuth()" style="margin-top:8px;">Accéder</button>
+    <div id="auth-err" style="color:var(--accent);font-size:12px;margin-top:10px;display:none;">Mot de passe incorrect.</div>
+  </div>
+</div>
+
+<nav class="navbar">
+  <a href="/index.html" class="talenco-logo">
+    <div class="nav-logo">
+      <div class="nav-logo-text"><span class="logo-primary">Talenco</span><span class="logo-dot">.</span><span class="logo-tld">bj</span></div>
+      <div class="logo-tagline">Admin</div>
+    </div>
+  </a>
+  <div class="navbar-actions">
+    <a href="/admin.html" class="btn btn-dark btn-sm">Dashboard Admin</a>
+  </div>
+</nav>
+
+<div id="main-content" style="display:none;">
+<div class="dash-wrap">
+
+  <!-- HEADER -->
+  <div class="dash-header">
+    <div class="dash-title-area">
+      <a href="/admin.html" class="dash-back">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        Retour admin
+      </a>
+      <h1 class="dash-title">Analytics & Data Science</h1>
+      <p class="dash-sub">Vue complète · Plateforme + Marché de l'emploi au Bénin</p>
+    </div>
+    <div class="dash-actions">
+      <span class="last-update" id="last-update">—</span>
+      <button class="refresh-btn" id="refresh-btn" onclick="loadAll()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+        Actualiser
+      </button>
+    </div>
+  </div>
+
+  <!-- KPI GRID -->
+  <div class="kpi-grid" id="kpi-grid">
+    <div class="kpi-card"><div class="kpi-label">Utilisateurs</div><div class="kpi-loading" id="kpi-users"></div><div class="kpi-delta neutral" id="kpi-users-d"></div></div>
+    <div class="kpi-card"><div class="kpi-label">Candidats actifs</div><div class="kpi-loading" id="kpi-cands"></div><div class="kpi-delta neutral" id="kpi-cands-d"></div></div>
+    <div class="kpi-card"><div class="kpi-label">Entreprises</div><div class="kpi-loading" id="kpi-companies"></div><div class="kpi-delta neutral" id="kpi-companies-d"></div></div>
+    <div class="kpi-card"><div class="kpi-label">Invitations</div><div class="kpi-loading" id="kpi-invites"></div><div class="kpi-delta neutral" id="kpi-invites-d"></div></div>
+    <div class="kpi-card"><div class="kpi-label">Transactions</div><div class="kpi-loading" id="kpi-tx"></div><div class="kpi-delta neutral" id="kpi-tx-d"></div></div>
+    <div class="kpi-card"><div class="kpi-label">Rev. FCFA</div><div class="kpi-loading" id="kpi-rev"></div><div class="kpi-delta neutral" id="kpi-rev-d"></div></div>
+  </div>
+
+  <!-- ROW 1 : Croissance + Répartition -->
+  <div class="chart-grid-2">
+    <div class="chart-card">
+      <div class="chart-card-header">
+        <div><div class="chart-card-title">Croissance des inscriptions</div><div class="chart-card-sub">30 derniers jours</div></div>
+        <span class="chart-badge" id="badge-growth">—</span>
+      </div>
+      <div class="chart-container"><canvas id="chart-growth"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-card-header">
+        <div><div class="chart-card-title">Répartition des comptes</div><div class="chart-card-sub">Candidats vs Entreprises vs Statuts</div></div>
+      </div>
+      <div class="chart-container"><canvas id="chart-roles"></canvas></div>
+    </div>
+  </div>
+
+  <!-- ROW 2 : Funnel + Activité -->
+  <div class="chart-grid-2">
+    <div class="chart-card">
+      <div class="chart-card-header">
+        <div><div class="chart-card-title">Funnel d'activation</div><div class="chart-card-sub">De l'inscription à l'engagement</div></div>
+      </div>
+      <div id="funnel-container" style="padding:8px 0;"></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-card-header">
+        <div><div class="chart-card-title">Répartition géographique</div><div class="chart-card-sub">Candidats par ville</div></div>
+      </div>
+      <div class="chart-container"><canvas id="chart-geo"></canvas></div>
+    </div>
+  </div>
+
+  <!-- ROW 3 : Invitations -->
+  <div class="chart-grid-3">
+    <div class="chart-card">
+      <div class="chart-card-header">
+        <div><div class="chart-card-title">Invitations entreprises</div><div class="chart-card-sub">Phase bêta — 15 accès</div></div>
+      </div>
+      <div id="invites-table-area"></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-card-header">
+        <div><div class="chart-card-title">Statut invitations</div><div class="chart-card-sub">Activées vs disponibles</div></div>
+      </div>
+      <div class="chart-container short"><canvas id="chart-invites"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-card-header">
+        <div><div class="chart-card-title">Transactions</div><div class="chart-card-sub">Par type</div></div>
+      </div>
+      <div class="chart-container short"><canvas id="chart-tx"></canvas></div>
+    </div>
+  </div>
+
+  <!-- SECTEUR MARCHÉ -->
+  <div class="section-sep">
+    <span class="section-sep-label">Marché de l'emploi — Bénin</span>
+    <div class="section-sep-line"></div>
+  </div>
+
+  <div class="chart-grid-2" style="margin-bottom:16px;">
+    <div class="chart-card">
+      <div class="chart-card-header">
+        <div><div class="chart-card-title">Secteurs qui recrutent</div><div class="chart-card-sub">Benchmarks marché Bénin 2025-2026</div></div>
+        <span class="chart-badge">Benchmark</span>
+      </div>
+      <div class="chart-container tall"><canvas id="chart-sectors"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-card-header">
+        <div><div class="chart-card-title">Compétences les plus demandées</div><div class="chart-card-sub">Analyse des offres actives au Bénin</div></div>
+        <span class="chart-badge">Benchmark</span>
+      </div>
+      <div class="chart-container tall"><canvas id="chart-skills"></canvas></div>
+    </div>
+  </div>
+
+  <div class="bench-grid" style="margin-bottom:24px;" id="bench-grid">
+    <!-- populated by JS -->
+  </div>
+
+  <!-- AI ANALYSIS -->
+  <div class="section-sep">
+    <span class="section-sep-label">Analyse intelligente</span>
+    <div class="section-sep-line"></div>
+  </div>
+
+  <div class="ai-card">
+    <div class="ai-card-header">
+      <div class="ai-header-left">
+        <div class="ai-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+        </div>
+        <div>
+          <div class="ai-title">Analyse IA — Propulsée par Claude</div>
+          <div class="ai-sub">Interprétation automatique de vos données + recommandations sectorielles</div>
+        </div>
+      </div>
+      <div class="ai-params">
+        <button class="ai-param-btn active" data-mode="platform" onclick="selectMode(this)">Plateforme</button>
+        <button class="ai-param-btn" data-mode="market" onclick="selectMode(this)">Marché</button>
+        <button class="ai-param-btn" data-mode="beta" onclick="selectMode(this)">Phase bêta</button>
+        <button class="ai-param-btn" data-mode="full" onclick="selectMode(this)">Analyse complète</button>
+      </div>
+    </div>
+    <button class="ai-run-btn" id="ai-run-btn" onclick="runAiAnalysis()">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+      Lancer l'analyse
+    </button>
+    <div class="ai-output" id="ai-output">
+      <span class="ai-output-placeholder">Cliquez sur "Lancer l'analyse" pour obtenir une interprétation IA de vos données en temps réel.</span>
+    </div>
+    <div class="ai-meta" id="ai-meta"></div>
+  </div>
+
+</div>
+</div><!-- end main-content -->
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+const SUPABASE_URL      = 'https://ywteoxnkkdgdpbkrlkar.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl3dGVveG5ra2RnZHBia3Jsa2FyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1MjA1MjYsImV4cCI6MjA5MDA5NjUyNn0.jzgNVgYR6iCEV_GIpvBTs4aN3RzK3E3MJW9YtBmLI3c';
+const { createClient } = supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const ADMIN_PWD = 'talenco2025';
+
+// ── State ──
+let dashData   = {};
+let aiMode     = 'platform';
+let chartInstances = {};
+
+function checkAuth() {
+  if (document.getElementById('admin-pwd').value === ADMIN_PWD) {
+    document.getElementById('auth-overlay').style.display = 'none';
+    document.getElementById('main-content').style.display = 'block';
+    loadAll();
+  } else {
+    document.getElementById('auth-err').style.display = 'block';
+  }
+}
+document.getElementById('admin-pwd').addEventListener('keydown', e => { if (e.key === 'Enter') checkAuth(); });
+
+// ─────────────────────────────────────────────
+// DATA LOADING
+// ─────────────────────────────────────────────
+async function loadAll() {
+  const btn = document.getElementById('refresh-btn');
+  btn.classList.add('spinning');
+
+  try {
+    await Promise.all([loadUsers(), loadInvites(), loadTransactions()]);
+    renderCharts();
+    renderBenchmarks();
+    document.getElementById('last-update').textContent = 'Mis à jour ' + new Date().toLocaleTimeString('fr-FR', { hour:'2-digit', minute:'2-digit' });
+  } catch(e) {
+    console.error(e);
+  }
+  btn.classList.remove('spinning');
+}
+
+async function loadUsers() {
+  const { data: all } = await sb.from('users').select('id,role,status,city,created_at,test_phase');
+  if (!all) return;
+
+  dashData.users = all;
+  const total      = all.length;
+  const candidates = all.filter(u => u.role === 'candidate');
+  const companies  = all.filter(u => u.role === 'company');
+  const active     = all.filter(u => u.status === 'active');
+
+  // Growth last 30 days
+  const now    = new Date();
+  const days30 = Array.from({length:30}, (_,i) => {
+    const d = new Date(now); d.setDate(d.getDate() - (29-i));
+    return d.toISOString().split('T')[0];
+  });
+  const growthMap = {};
+  days30.forEach(d => growthMap[d] = 0);
+  all.forEach(u => {
+    if (!u.created_at) return;
+    const d = u.created_at.split('T')[0];
+    if (growthMap[d] !== undefined) growthMap[d]++;
+  });
+  dashData.growth = { labels: days30.map(d => d.slice(5)), values: days30.map(d => growthMap[d]) };
+
+  const thisWeek = all.filter(u => u.created_at && new Date(u.created_at) > new Date(Date.now()-7*864e5)).length;
+
+  setKPI('kpi-users',     total,          `+${thisWeek} cette semaine`, thisWeek > 0 ? 'up' : 'neutral');
+  setKPI('kpi-cands',     candidates.filter(u=>u.status==='active').length, `${candidates.length} inscrits`, 'neutral');
+  setKPI('kpi-companies', companies.length, `${active.filter(u=>u.role==='company').length} actives`, 'neutral');
+
+  // Geo
+  const geoMap = {};
+  candidates.forEach(u => {
+    const c = u.city || 'Non renseigné';
+    geoMap[c] = (geoMap[c]||0) + 1;
+  });
+  dashData.geo = geoMap;
+  dashData.roles = { candidates: candidates.length, companies: companies.length,
+    activeC: active.filter(u=>u.role==='candidate').length,
+    pendingC: candidates.filter(u=>u.status!=='active').length };
+
+  // Funnel
+  dashData.funnel = [
+    { label: 'Inscrits',    value: total,                                color: '#1A1A1A' },
+    { label: 'Actifs',      value: active.length,                        color: '#8B4513' },
+    { label: 'Candidats',   value: candidates.filter(u=>u.status==='active').length, color: '#A0522D' },
+    { label: 'Entreprises', value: companies.filter(u=>u.status==='active').length,  color: '#CD853F' },
+  ];
+}
+
+async function loadInvites() {
+  const { data } = await sb.from('enterprise_invites').select('*').order('created_at', {ascending:true});
+  dashData.invites = data || [];
+  const used    = (data||[]).filter(r => r.status==='used').length;
+  const pending = (data||[]).filter(r => r.status==='pending').length;
+  setKPI('kpi-invites', used + '/' + (data||[]).length, `${pending} disponibles`, used > 0 ? 'up' : 'neutral');
+  renderInvitesTable(data||[]);
+}
+
+async function loadTransactions() {
+  const { data } = await sb.from('transactions').select('amount,type,status,created_at');
+  dashData.transactions = data || [];
+  const paid   = (data||[]).filter(t => t.status==='approved' || t.status==='completed');
+  const rev    = paid.reduce((s,t) => s + (t.amount||0), 0);
+  setKPI('kpi-tx',  (data||[]).length,    `${paid.length} validées`, paid.length>0?'up':'neutral');
+  setKPI('kpi-rev', fmtFCFA(rev),         `transactions validées`,   rev>0?'up':'neutral');
+
+  const txByType = {};
+  (data||[]).forEach(t => { txByType[t.type||'autre'] = (txByType[t.type||'autre']||0)+1; });
+  dashData.txByType = txByType;
+}
+
+// ─────────────────────────────────────────────
+// CHARTS
+// ─────────────────────────────────────────────
+function renderCharts() {
+  renderGrowthChart();
+  renderRolesChart();
+  renderFunnel();
+  renderGeoChart();
+  renderInvitesChart();
+  renderTxChart();
+  renderSectorsChart();
+  renderSkillsChart();
+}
+
+function mkChart(id, cfg) {
+  if (chartInstances[id]) { chartInstances[id].destroy(); }
+  const ctx = document.getElementById(id);
+  if (!ctx) return;
+  chartInstances[id] = new Chart(ctx, cfg);
+}
+
+const PALETTE = ['#1A1A1A','#8B4513','#A0522D','#CD853F','#D2691E','#8B6914','#706050','#A09080'];
+const GRID_COLOR = 'rgba(26,26,26,.06)';
+
+function renderGrowthChart() {
+  if (!dashData.growth) return;
+  const { labels, values } = dashData.growth;
+  const total30 = values.reduce((s,v)=>s+v,0);
+  document.getElementById('badge-growth').textContent = `+${total30} / 30j`;
+
+  mkChart('chart-growth', {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{ label:'Inscriptions', data:values, borderColor:'#8B4513', backgroundColor:'rgba(139,69,19,.08)',
+        borderWidth:2, pointRadius:0, pointHoverRadius:4, tension:.35, fill:true }]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false}, tooltip:{ callbacks:{ title: t => t[0].label, label: t => ` ${t.raw} inscription${t.raw>1?'s':''}`}}},
+      scales:{ x:{ grid:{color:GRID_COLOR}, ticks:{font:{family:'DM Mono',size:9},color:'#A09080',maxRotation:0,maxTicksLimit:6}},
+               y:{ grid:{color:GRID_COLOR}, ticks:{font:{family:'DM Mono',size:10},color:'#A09080'}, beginAtZero:true }}
+    }
+  });
+}
+
+function renderRolesChart() {
+  if (!dashData.roles) return;
+  const { candidates, companies, activeC, pendingC } = dashData.roles;
+  mkChart('chart-roles', {
+    type: 'doughnut',
+    data: {
+      labels: ['Candidats actifs','Candidats en attente','Entreprises'],
+      datasets: [{ data:[activeC, pendingC, companies], backgroundColor:['#1A1A1A','#D2B48C','#8B4513'],
+        borderWidth:0, hoverOffset:6 }]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false, cutout:'68%',
+      plugins:{ legend:{ position:'bottom', labels:{font:{family:'Space Grotesk',size:11},color:'#706050',padding:14,boxWidth:10,boxHeight:10}}}
+    }
+  });
+}
+
+function renderFunnel() {
+  const c = document.getElementById('funnel-container');
+  if (!dashData.funnel || !c) return;
+  const max = dashData.funnel[0].value || 1;
+  c.innerHTML = dashData.funnel.map(row => {
+    const pct = max > 0 ? Math.round((row.value/max)*100) : 0;
+    return `<div class="funnel-row">
+      <div class="funnel-label">${row.label}</div>
+      <div class="funnel-bar-wrap">
+        <div class="funnel-bar" style="width:${pct}%;background:${row.color};color:${row.color==='#1A1A1A'?'#fff':'#fff'};">
+          ${row.value}
+        </div>
+      </div>
+      <div class="funnel-pct">${pct}%</div>
+    </div>`;
+  }).join('');
+}
+
+function renderGeoChart() {
+  if (!dashData.geo) return;
+  const sorted = Object.entries(dashData.geo).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  mkChart('chart-geo', {
+    type: 'bar',
+    data: {
+      labels: sorted.map(e=>e[0]),
+      datasets: [{ label:'Candidats', data:sorted.map(e=>e[1]), backgroundColor:PALETTE, borderRadius:4, borderSkipped:false }]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false}},
+      scales:{ x:{grid:{display:false}, ticks:{font:{family:'Space Grotesk',size:10},color:'#706050'}},
+               y:{grid:{color:GRID_COLOR}, ticks:{font:{family:'DM Mono',size:10},color:'#A09080'},beginAtZero:true}}
+    }
+  });
+}
+
+function renderInvitesTable(data) {
+  const area = document.getElementById('invites-table-area');
+  if (!area) return;
+  if (!data.length) { area.innerHTML = '<p style="font-size:12px;color:var(--text-muted);padding:8px 0;">Aucune invitation générée.</p>'; return; }
+  area.innerHTML = `<table class="invite-mini-table">
+    <thead><tr><th>#</th><th>Statut</th><th>Entreprise</th></tr></thead>
+    <tbody>${data.slice(0,8).map((r,i) => `<tr>
+      <td style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);">${String(i+1).padStart(2,'0')}</td>
+      <td><span class="status-dot ${r.status}"></span>${r.status==='used'?'Activé':'Disponible'}</td>
+      <td style="color:var(--text-muted);">${r.company_name||'—'}</td>
+    </tr>`).join('')}</tbody>
+  </table>${data.length>8?`<p style="font-size:11px;color:var(--text-muted);margin-top:8px;">+${data.length-8} autres</p>`:''}`;
+}
+
+function renderInvitesChart() {
+  if (!dashData.invites) return;
+  const used    = dashData.invites.filter(r=>r.status==='used').length;
+  const pending = dashData.invites.filter(r=>r.status==='pending').length;
+  const unused  = 15 - dashData.invites.length;
+  mkChart('chart-invites', {
+    type: 'doughnut',
+    data: {
+      labels: ['Activées','Disponibles','Non générées'],
+      datasets: [{ data:[used,pending,unused], backgroundColor:['#1A1A1A','#8B4513','#E8E0D5'], borderWidth:0, hoverOffset:4 }]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false, cutout:'60%',
+      plugins:{ legend:{position:'bottom',labels:{font:{family:'Space Grotesk',size:10},color:'#706050',padding:10,boxWidth:8,boxHeight:8}}}
+    }
+  });
+}
+
+function renderTxChart() {
+  if (!dashData.txByType) return;
+  const entries = Object.entries(dashData.txByType);
+  if (!entries.length) { return; }
+  mkChart('chart-tx', {
+    type: 'bar',
+    data: {
+      labels: entries.map(e=>e[0].replace(/_/g,' ')),
+      datasets: [{ data:entries.map(e=>e[1]), backgroundColor:PALETTE, borderRadius:4 }]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false}},
+      scales:{ x:{grid:{display:false},ticks:{font:{family:'Space Grotesk',size:9},color:'#706050',maxRotation:30}},
+               y:{grid:{color:GRID_COLOR},ticks:{font:{family:'DM Mono',size:10},color:'#A09080'},beginAtZero:true}}
+    }
+  });
+}
+
+// ── BENCHMARK DATA (Bénin marché emploi 2025-2026) ──
+const SECTORS_BJ = [
+  { label:'Commerce / Distribution', value:32 },
+  { label:'ONG / Associations',       value:22 },
+  { label:'IT / Technologie',         value:16 },
+  { label:'Finance / Banque',          value:13 },
+  { label:'Agriculture / Agro',        value:8  },
+  { label:'BTP / Construction',        value:5  },
+  { label:'Autre',                     value:4  },
+];
+const SKILLS_BJ = [
+  { label:'Gestion / Management',      value:88 },
+  { label:'Comptabilité / Finance',     value:75 },
+  { label:'Vente / Commerce',           value:70 },
+  { label:'Dev. web / Informatique',    value:63 },
+  { label:'Communication / Marketing',  value:58 },
+  { label:'Gestion de projet',          value:52 },
+  { label:'Excel / Bureautique',        value:48 },
+  { label:'Anglais professionnel',      value:44 },
+];
+
+function renderSectorsChart() {
+  mkChart('chart-sectors', {
+    type: 'bar',
+    data: {
+      labels: SECTORS_BJ.map(s=>s.label),
+      datasets: [{ label:'% des offres', data:SECTORS_BJ.map(s=>s.value),
+        backgroundColor:PALETTE, borderRadius:5, borderSkipped:false }]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false, indexAxis:'y',
+      plugins:{ legend:{display:false},
+        tooltip:{callbacks:{label:t=>`${t.raw}% des offres`}}},
+      scales:{
+        x:{grid:{color:GRID_COLOR},ticks:{font:{family:'DM Mono',size:10},color:'#A09080'},max:40},
+        y:{grid:{display:false},ticks:{font:{family:'Space Grotesk',size:11},color:'#706050'}}
+      }
+    }
+  });
+}
+
+function renderSkillsChart() {
+  mkChart('chart-skills', {
+    type: 'bar',
+    data: {
+      labels: SKILLS_BJ.map(s=>s.label),
+      datasets: [{ label:'Score demande', data:SKILLS_BJ.map(s=>s.value),
+        backgroundColor:SKILLS_BJ.map((_,i)=>PALETTE[i%PALETTE.length]), borderRadius:5, borderSkipped:false }]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false, indexAxis:'y',
+      plugins:{ legend:{display:false},
+        tooltip:{callbacks:{label:t=>`Indice demande : ${t.raw}/100`}}},
+      scales:{
+        x:{grid:{color:GRID_COLOR},ticks:{font:{family:'DM Mono',size:10},color:'#A09080'},max:100},
+        y:{grid:{display:false},ticks:{font:{family:'Space Grotesk',size:10},color:'#706050'}}
+      }
+    }
+  });
+}
+
+function renderBenchmarks() {
+  const benches = [
+    { sector:'Recrutement moyen', metric:'14–21j', desc:'Durée moyenne d\'un cycle de recrutement au Bénin', trend:'stable', label:'Stable vs 2024' },
+    { sector:'Taux candidature', metric:'12%', desc:'Ratio visiteurs → candidature soumise (benchmark Afrique de l\'Ouest)', trend:'up', label:'+2pp vs 2024' },
+    { sector:'Top ville', metric:'Cotonou', desc:'68% des offres et 71% des candidats sont basés à Cotonou', trend:'stable', label:'Part stable' },
+    { sector:'Profil recherché', metric:'25–35 ans', desc:'Tranche d\'âge la plus active sur les plateformes numériques', trend:'up', label:'+5% d\'engagement' },
+    { sector:'Mobile first', metric:'78%', desc:'Des candidats au Bénin accèdent aux offres via mobile', trend:'up', label:'+8pp vs 2023' },
+    { sector:'Délai de réponse', metric:'3–7j', desc:'Temps moyen avant retour d\'un recruteur après candidature', trend:'down', label:'Amélioration possible' },
+  ];
+  const g = document.getElementById('bench-grid');
+  g.innerHTML = benches.map(b => `
+    <div class="bench-card">
+      <div class="bench-sector">${b.sector}</div>
+      <div class="bench-metric">${b.metric}</div>
+      <div class="bench-desc">${b.desc}</div>
+      <div class="bench-trend ${b.trend}">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          ${b.trend==='up'?'<polyline points="18 15 12 9 6 15"/>':b.trend==='down'?'<polyline points="6 9 12 15 18 9"/>':'<line x1="5" y1="12" x2="19" y2="12"/>'}
+        </svg>
+        ${b.label}
+      </div>
+    </div>`).join('');
+}
+
+// ─────────────────────────────────────────────
+// AI ANALYSIS
+// ─────────────────────────────────────────────
+function selectMode(btn) {
+  document.querySelectorAll('.ai-param-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  aiMode = btn.dataset.mode;
+}
+
+function buildAiPayload() {
+  const u = dashData.users||[];
+  const inv = dashData.invites||[];
+  const tx  = dashData.transactions||[];
+
+  const metrics = {
+    total_users:      u.length,
+    candidates:       u.filter(x=>x.role==='candidate').length,
+    active_candidates:u.filter(x=>x.role==='candidate'&&x.status==='active').length,
+    companies:        u.filter(x=>x.role==='company').length,
+    active_companies: u.filter(x=>x.role==='company'&&x.status==='active').length,
+    invites_generated:inv.length,
+    invites_used:     inv.filter(x=>x.status==='used').length,
+    transactions:     tx.length,
+    paid_transactions:tx.filter(x=>x.status==='approved'||x.status==='completed').length,
+    revenue_fcfa:     tx.filter(x=>x.status==='approved'||x.status==='completed').reduce((s,t)=>s+(t.amount||0),0),
+    growth_7d:        u.filter(x=>x.created_at&&new Date(x.created_at)>new Date(Date.now()-7*864e5)).length,
+    test_phase_end:   '2026-07-12',
+  };
+
+  const modePrompts = {
+    platform: `Analyse les métriques de la plateforme Talenco.bj (recrutement premium Bénin). 
+Identifie les points forts, les risques, et donne 3 recommandations actionnables pour améliorer l'engagement et la croissance.`,
+    market: `Talenco.bj est une plateforme de recrutement premium au Bénin. 
+En te basant sur les métriques de la plateforme ET les benchmarks du marché de l'emploi béninois (Commerce 32%, ONG 22%, IT 16%, Finance 13%), 
+identifie les opportunités de positionnement et les niches à cibler en priorité.`,
+    beta: `Analyse spécifique à la phase bêta de Talenco.bj (accès gratuit 10 semaines, 15 invitations entreprises, candidats gratuits).
+Évalue le taux d'adoption, identifie les risques pour la conversion post-bêta, et propose une stratégie de rétention.`,
+    full: `Réalise une analyse data science complète de Talenco.bj : 
+1. Santé de la plateforme (croissance, activation, rétention)
+2. Positionnement marché au Bénin
+3. Risques identifiés
+4. Opportunités sous-exploitées
+5. Recommandations prioritaires pour les 3 prochains mois.
+Sois concis mais précis.`
+  };
+
+  return { metrics, prompt: modePrompts[aiMode] };
+}
+
+async function runAiAnalysis() {
+  const btn = document.getElementById('ai-run-btn');
+  const out  = document.getElementById('ai-output');
+  const meta = document.getElementById('ai-meta');
+
+  btn.disabled = true;
+  out.innerHTML = '<div class="ai-spinner"></div> Analyse en cours…';
+  out.classList.add('loading');
+  meta.textContent = '';
+
+  const { metrics, prompt } = buildAiPayload();
+  const t0 = Date.now();
+
+  try {
+    const res  = await fetch('/api/admin-ai-analysis', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ metrics, prompt })
+    });
+    const data = await res.json();
+    const elapsed = ((Date.now()-t0)/1000).toFixed(1);
+
+    if (!res.ok) {
+      out.innerHTML = `<span style="color:var(--accent);">Erreur : ${data.error||'API non disponible'}</span>`;
+      out.classList.remove('loading');
+      btn.disabled = false;
+      return;
+    }
+
+    out.classList.remove('loading');
+    out.innerHTML = formatAiResponse(data.analysis);
+    meta.textContent = `Généré en ${elapsed}s · Modèle : claude-sonnet-4-20250514 · Mode : ${aiMode}`;
+  } catch(err) {
+    out.classList.remove('loading');
+    out.innerHTML = `<span style="color:var(--accent);">Erreur réseau. Vérifiez que la variable ANTHROPIC_API_KEY est configurée dans Vercel.</span>`;
+  }
+  btn.disabled = false;
+}
+
+function formatAiResponse(text) {
+  // Convertir les **bold** en <strong>, les retours à la ligne en <br>, les listes
+  return text
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/^(\d+\.\s)/gm, '<br><strong>$1</strong>')
+    .replace(/^[-•]\s/gm, '<br>• ')
+    .replace(/\n\n/g, '<br><br>')
+    .replace(/\n/g, '<br>');
+}
+
+// ─────────────────────────────────────────────
+// UTILS
+// ─────────────────────────────────────────────
+function setKPI(id, value, delta, dir) {
+  const el = document.getElementById(id);
+  const dd = document.getElementById(id + '-d');
+  if (!el) return;
+  el.className = 'kpi-value' + (dir==='up'?' accent':'');
+  el.textContent = value;
+  if (dd) { dd.className = `kpi-delta ${dir}`; dd.textContent = delta; }
+}
+function fmtFCFA(n) {
+  if (n >= 1000000) return (n/1000000).toFixed(1) + 'M';
+  if (n >= 1000)    return (n/1000).toFixed(0) + 'K';
+  return String(n);
+}
+
+// Chart.js defaults
+Chart.defaults.font.family = 'Space Grotesk, system-ui, sans-serif';
+Chart.defaults.color       = '#706050';
+</script>
+</body>
+</html>
