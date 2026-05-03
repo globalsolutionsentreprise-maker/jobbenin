@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Accès recruteur — Talenco.bj</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Hanken+Grotesk:wght@300;400;500;700;900&family=Space+Grotesk:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/design-system.css">
+  <style>
+    .invite-page { min-height: 100vh; display: flex; flex-direction: column; }
+    .invite-center { flex:1; display:flex; align-items:center; justify-content:center; padding:60px 24px; }
+    .invite-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 40px;
+      width: 100%;
+      max-width: 500px;
+      box-shadow: var(--shadow-card);
+    }
+    .invite-header { text-align: center; margin-bottom: 32px; }
+    .invite-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      background: var(--accent-bg);
+      color: var(--accent);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: .07em;
+      padding: 5px 13px;
+      border-radius: 999px;
+      margin-bottom: 18px;
+    }
+    .invite-title {
+      font-family: var(--font-serif);
+      font-style: italic;
+      font-size: 26px;
+      line-height: 1.2;
+      margin-bottom: 8px;
+    }
+    .invite-sub {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+    .form-section-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin: 24px 0 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .form-section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+    .form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .invite-loading {
+      text-align: center;
+      padding: 60px 24px;
+    }
+    .invite-loading-spinner {
+      width: 32px; height: 32px;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin .8s linear infinite;
+      margin: 0 auto 16px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .invite-error {
+      text-align: center;
+      padding: 60px 24px;
+      display: none;
+    }
+    .invite-success {
+      text-align: center;
+      padding: 40px 24px;
+      display: none;
+    }
+    .success-icon {
+      width: 52px; height: 52px;
+      border-radius: 50%;
+      background: var(--accent-bg);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 20px;
+      color: var(--accent);
+    }
+    .invite-form { display: none; }
+  </style>
+</head>
+<body class="invite-page">
+
+<nav class="navbar">
+  <a href="/index.html" class="talenco-logo">
+    <div class="nav-logo">
+      <div class="nav-logo-text">
+        <span class="logo-primary">Talenco</span><span class="logo-dot">.</span><span class="logo-tld">bj</span>
+      </div>
+      <div class="logo-tagline">Recrutement au Bénin</div>
+    </div>
+  </a>
+</nav>
+
+<div class="invite-center">
+  <div class="invite-card">
+
+    <!-- État : chargement -->
+    <div id="state-loading" class="invite-loading">
+      <div class="invite-loading-spinner"></div>
+      <p style="font-size:13px;color:var(--text-muted);">Validation de votre invitation…</p>
+    </div>
+
+    <!-- État : lien invalide / expiré -->
+    <div id="state-error" class="invite-error">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text-muted);margin:0 auto 16px;display:block"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+      <h2 style="font-family:var(--font-serif);font-style:italic;font-size:20px;margin-bottom:10px;" id="error-title">Lien invalide</h2>
+      <p style="font-size:13px;color:var(--text-muted);line-height:1.6;" id="error-message">Ce lien d'invitation est invalide ou a déjà été utilisé. Contactez-nous pour obtenir un accès.</p>
+      <a href="mailto:yakoubou.kabir@gmail.com?subject=Demande accès recruteur Talenco.bj" class="btn btn-dark btn-sm" style="margin-top:20px;display:inline-block">Contacter l'équipe</a>
+    </div>
+
+    <!-- État : formulaire -->
+    <div id="state-form" class="invite-form">
+      <div class="invite-header">
+        <div class="invite-badge">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          Invitation valide — Phase bêta
+        </div>
+        <h1 class="invite-title">Configurez votre compte recruteur</h1>
+        <p class="invite-sub">Complétez ces informations pour accéder à toutes les fonctionnalités Talenco.bj gratuitement pendant 10 semaines.</p>
+      </div>
+
+      <div id="form-msg" class="alert" style="display:none;margin-bottom:16px;"></div>
+
+      <div class="form-section-label">Votre entreprise</div>
+
+      <div class="form-field">
+        <label class="form-label">Nom de l'entreprise <span style="color:var(--accent)">*</span></label>
+        <input type="text" id="f-company" placeholder="Ex : Bénin Tech Solutions" autocomplete="organization">
+      </div>
+      <div class="form-row-2">
+        <div class="form-field">
+          <label class="form-label">Secteur d'activité</label>
+          <select id="f-sector" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-card);color:var(--text);font-family:var(--font-body);font-size:13px;cursor:pointer;">
+            <option value="">Choisir…</option>
+            <option>Technologie / IT</option>
+            <option>Finance / Banque</option>
+            <option>Commerce / Distribution</option>
+            <option>Éducation / Formation</option>
+            <option>Santé</option>
+            <option>Agriculture / Agro-alimentaire</option>
+            <option>BTP / Construction</option>
+            <option>Transport / Logistique</option>
+            <option>Médias / Communication</option>
+            <option>ONG / Association</option>
+            <option>Autre</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label class="form-label">Taille</label>
+          <select id="f-size" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-card);color:var(--text);font-family:var(--font-body);font-size:13px;cursor:pointer;">
+            <option value="">Choisir…</option>
+            <option>1–10 employés</option>
+            <option>11–50 employés</option>
+            <option>51–200 employés</option>
+            <option>201–500 employés</option>
+            <option>500+ employés</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-field">
+        <label class="form-label">Ville</label>
+        <select id="f-city" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-card);color:var(--text);font-family:var(--font-body);font-size:13px;cursor:pointer;">
+          <option value="">Choisir…</option>
+          <option>Cotonou</option>
+          <option>Abomey-Calavi</option>
+          <option>Porto-Novo</option>
+          <option>Parakou</option>
+          <option>Natitingou</option>
+          <option>Bohicon</option>
+          <option>Autre</option>
+        </select>
+      </div>
+
+      <div class="form-section-label">Contact principal</div>
+
+      <div class="form-row-2">
+        <div class="form-field">
+          <label class="form-label">Prénom <span style="color:var(--accent)">*</span></label>
+          <input type="text" id="f-prenom" placeholder="Votre prénom" autocomplete="given-name">
+        </div>
+        <div class="form-field">
+          <label class="form-label">Nom <span style="color:var(--accent)">*</span></label>
+          <input type="text" id="f-nom" placeholder="Votre nom" autocomplete="family-name">
+        </div>
+      </div>
+      <div class="form-field">
+        <label class="form-label">Adresse email <span style="color:var(--accent)">*</span></label>
+        <input type="email" id="f-email" placeholder="contact@entreprise.bj" autocomplete="email">
+      </div>
+      <div class="form-field">
+        <label class="form-label">Téléphone</label>
+        <input type="tel" id="f-phone" placeholder="+229 …" autocomplete="tel">
+      </div>
+
+      <div class="form-section-label">Sécurité</div>
+
+      <div class="form-field">
+        <label class="form-label">Mot de passe <span style="color:var(--accent)">*</span></label>
+        <input type="password" id="f-password" placeholder="Minimum 8 caractères" autocomplete="new-password">
+      </div>
+      <div class="form-field">
+        <label class="form-label">Confirmer le mot de passe <span style="color:var(--accent)">*</span></label>
+        <input type="password" id="f-password2" placeholder="Répétez le mot de passe" autocomplete="new-password">
+      </div>
+
+      <button class="btn btn-dark btn-full" id="btn-submit" style="margin-top:24px;">
+        Activer mon compte recruteur
+      </button>
+      <p style="font-size:11px;color:var(--text-muted);text-align:center;margin-top:12px;line-height:1.6;">
+        Accès gratuit jusqu'au 12 juillet 2026. En activant votre compte, vous acceptez les
+        <a href="/cgv.html" style="color:var(--accent);">Conditions Générales</a>.
+      </p>
+    </div>
+
+    <!-- État : succès -->
+    <div id="state-success" class="invite-success">
+      <div class="success-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <h2 style="font-family:var(--font-serif);font-style:italic;font-size:22px;margin-bottom:10px;">Compte activé</h2>
+      <p style="font-size:13px;color:var(--text-muted);line-height:1.65;margin-bottom:24px;">
+        Bienvenue sur Talenco.bj. Votre accès recruteur est actif jusqu'au 12 juillet 2026. Vous allez être redirigé vers votre tableau de bord.
+      </p>
+      <a href="/connexion.html" class="btn btn-dark btn-sm">Accéder à mon espace</a>
+    </div>
+
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+  const SUPABASE_URL      = 'https://ywteoxnkkdgdpbkrlkar.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl3dGVveG5ra2RnZHBia3Jsa2FyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1MjA1MjYsImV4cCI6MjA5MDA5NjUyNn0.jzgNVgYR6iCEV_GIpvBTs4aN3RzK3E3MJW9YtBmLI3c';
+  const { createClient } = supabase;
+  const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  const params = new URLSearchParams(window.location.search);
+  const token  = params.get('token');
+
+  function showState(name) {
+    ['loading','error','form','success'].forEach(s => {
+      document.getElementById('state-' + s).style.display = s === name ? (s === 'form' ? 'block' : 'flex') : 'none';
+    });
+    if (name === 'form') document.getElementById('state-form').style.display = 'block';
+  }
+
+  function showMsg(type, text) {
+    const el = document.getElementById('form-msg');
+    el.className = 'alert alert-' + type;
+    el.textContent = text;
+    el.style.display = 'block';
+  }
+
+  async function validateToken() {
+    if (!token) { showError('Lien incomplet', 'Aucun token détecté dans le lien. Veuillez utiliser le lien exact qui vous a été communiqué.'); return; }
+    const { data, error } = await sb
+      .from('enterprise_invites')
+      .select('id, status')
+      .eq('token', token)
+      .single();
+    if (error || !data) { showError('Lien invalide', 'Ce lien d\'invitation n\'existe pas dans notre système.'); return; }
+    if (data.status === 'used') { showError('Invitation déjà utilisée', 'Ce lien d\'invitation a déjà été activé. Chaque lien est à usage unique.'); return; }
+    showState('form');
+  }
+
+  function showError(title, message) {
+    document.getElementById('error-title').textContent   = title;
+    document.getElementById('error-message').textContent = message;
+    showState('error');
+  }
+
+  document.getElementById('btn-submit').addEventListener('click', async () => {
+    const company   = document.getElementById('f-company').value.trim();
+    const sector    = document.getElementById('f-sector').value;
+    const size      = document.getElementById('f-size').value;
+    const city      = document.getElementById('f-city').value;
+    const prenom    = document.getElementById('f-prenom').value.trim();
+    const nom       = document.getElementById('f-nom').value.trim();
+    const email     = document.getElementById('f-email').value.trim();
+    const phone     = document.getElementById('f-phone').value.trim();
+    const password  = document.getElementById('f-password').value;
+    const password2 = document.getElementById('f-password2').value;
+
+    if (!company) { showMsg('error', 'Le nom de l\'entreprise est requis.'); return; }
+    if (!prenom || !nom) { showMsg('error', 'Prénom et nom du contact sont requis.'); return; }
+    if (!email) { showMsg('error', 'L\'adresse email est requise.'); return; }
+    if (!password || password.length < 8) { showMsg('error', 'Le mot de passe doit contenir au moins 8 caractères.'); return; }
+    if (password !== password2) { showMsg('error', 'Les mots de passe ne correspondent pas.'); return; }
+
+    const btn = document.getElementById('btn-submit');
+    btn.disabled = true;
+    btn.textContent = 'Activation en cours…';
+
+    try {
+      const res  = await fetch('/api/enterprise-invite-setup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token, company, sector, size, city, prenom, nom, email, phone, password })
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        showMsg('error', data.error || 'Une erreur est survenue.');
+        btn.disabled = false;
+        btn.textContent = 'Activer mon compte recruteur';
+        return;
+      }
+      showState('success');
+    } catch (err) {
+      showMsg('error', 'Erreur réseau. Veuillez réessayer.');
+      btn.disabled = false;
+      btn.textContent = 'Activer mon compte recruteur';
+    }
+  });
+
+  // Init
+  showState('loading');
+  validateToken();
+</script>
+</body>
+</html>

@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Talenco.bj — Phase bêta ouverte</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Hanken+Grotesk:wght@300;400;500;700;900&family=Space+Grotesk:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/design-system.css">
+  <style>
+    /* ── HERO ── */
+    .hero {
+      padding: 120px 24px 80px;
+      text-align: center;
+      max-width: 760px;
+      margin: 0 auto;
+    }
+    .beta-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: .08em;
+      padding: 5px 14px;
+      border-radius: 999px;
+      margin-bottom: 32px;
+    }
+    .beta-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--accent);
+      animation: pulse 1.6s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%,100% { opacity: 1; transform: scale(1); }
+      50%      { opacity: .4; transform: scale(.7); }
+    }
+    .hero-title {
+      font-family: var(--font-serif);
+      font-style: italic;
+      font-size: clamp(36px, 6vw, 58px);
+      line-height: 1.12;
+      letter-spacing: -.02em;
+      margin-bottom: 20px;
+    }
+    .hero-title em { color: var(--accent); font-style: italic; }
+    .hero-sub {
+      font-size: 16px;
+      color: var(--text-mid);
+      line-height: 1.7;
+      max-width: 560px;
+      margin: 0 auto 40px;
+    }
+    .hero-ctas {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .btn-hero-primary {
+      background: var(--text);
+      color: var(--bg);
+      font-family: var(--font-body);
+      font-size: 14px;
+      font-weight: 500;
+      padding: 13px 28px;
+      border-radius: var(--radius-sm);
+      border: none;
+      cursor: pointer;
+      text-decoration: none;
+      transition: var(--transition-btn);
+    }
+    .btn-hero-primary:hover { transform: translateY(-1px); }
+    .btn-hero-outline {
+      background: transparent;
+      color: var(--text);
+      font-family: var(--font-body);
+      font-size: 14px;
+      font-weight: 500;
+      padding: 12px 28px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-strong);
+      cursor: pointer;
+      text-decoration: none;
+      transition: var(--transition-btn);
+    }
+    .btn-hero-outline:hover { background: var(--bg-soft); }
+
+    /* ── COUNTDOWN ── */
+    .countdown-band {
+      background: var(--bg-soft);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 24px;
+      text-align: center;
+    }
+    .countdown-label {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: .1em;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+    .countdown-timers {
+      display: flex;
+      justify-content: center;
+      gap: 32px;
+    }
+    .countdown-unit { text-align: center; }
+    .countdown-number {
+      font-family: var(--font-serif);
+      font-size: 36px;
+      line-height: 1;
+      color: var(--accent);
+      display: block;
+      font-style: italic;
+    }
+    .countdown-name {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      margin-top: 4px;
+    }
+
+    /* ── SECTION ── */
+    .section { padding: 80px 24px; max-width: 1100px; margin: 0 auto; }
+    .section-label {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+    .section-title {
+      font-family: var(--font-serif);
+      font-style: italic;
+      font-size: clamp(24px, 4vw, 36px);
+      line-height: 1.18;
+      margin-bottom: 16px;
+    }
+    .section-sub {
+      font-size: 15px;
+      color: var(--text-mid);
+      max-width: 520px;
+      line-height: 1.7;
+      margin-bottom: 48px;
+    }
+
+    /* ── AUDIENCE GRID ── */
+    .audience-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+    }
+    @media (max-width: 640px) { .audience-grid { grid-template-columns: 1fr; } }
+    .audience-card {
+      background: var(--bg-card);
+      padding: 40px 36px;
+    }
+    .audience-card:first-child { border-right: 1px solid var(--border); }
+    .audience-icon {
+      width: 40px; height: 40px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 20px;
+    }
+    .audience-type {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+    .audience-name {
+      font-family: var(--font-serif);
+      font-style: italic;
+      font-size: 22px;
+      margin-bottom: 14px;
+    }
+    .audience-desc {
+      font-size: 14px;
+      color: var(--text-mid);
+      line-height: 1.7;
+      margin-bottom: 24px;
+    }
+    .feature-list {
+      list-style: none;
+      padding: 0; margin: 0 0 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .feature-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 13px;
+      color: var(--text-mid);
+    }
+    .feature-list li svg { flex-shrink: 0; margin-top: 1px; color: var(--accent); }
+
+    /* ── FREE BADGE ── */
+    .free-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--accent-bg);
+      color: var(--accent);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: .06em;
+      padding: 5px 12px;
+      border-radius: var(--radius-sm);
+      margin-bottom: 28px;
+    }
+
+    /* ── HOW IT WORKS ── */
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 32px;
+    }
+    .step { }
+    .step-num {
+      font-family: var(--font-serif);
+      font-style: italic;
+      font-size: 40px;
+      color: var(--border);
+      line-height: 1;
+      margin-bottom: 12px;
+    }
+    .step-title {
+      font-weight: 600;
+      font-size: 14px;
+      margin-bottom: 8px;
+    }
+    .step-desc { font-size: 13px; color: var(--text-mid); line-height: 1.65; }
+
+    /* ── SPLIT FEATURE ── */
+    .feature-split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 64px;
+      align-items: center;
+    }
+    @media (max-width: 700px) { .feature-split { grid-template-columns: 1fr; gap: 32px; } }
+    .feature-visual {
+      background: var(--bg-soft);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 32px;
+      min-height: 260px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .mini-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .mini-avatar {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: var(--bg-soft);
+      border: 1px solid var(--border);
+      flex-shrink: 0;
+      overflow: hidden;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .mini-info { flex: 1; }
+    .mini-name { font-size: 12px; font-weight: 600; line-height: 1.3; }
+    .mini-role { font-size: 11px; color: var(--text-muted); }
+    .mini-tag {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: var(--accent-bg);
+      color: var(--accent);
+    }
+
+    /* ── DIVIDER ── */
+    .section-divider { border: none; border-top: 1px solid var(--border); margin: 0; }
+
+    /* ── CTA FINAL ── */
+    .cta-section {
+      padding: 100px 24px;
+      text-align: center;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    .cta-title {
+      font-family: var(--font-serif);
+      font-style: italic;
+      font-size: clamp(28px, 5vw, 46px);
+      line-height: 1.14;
+      margin-bottom: 18px;
+    }
+    .cta-sub {
+      font-size: 15px;
+      color: var(--text-mid);
+      line-height: 1.7;
+      margin-bottom: 36px;
+    }
+    .cta-split {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .cta-box {
+      flex: 1;
+      min-width: 200px;
+      max-width: 260px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 28px 24px;
+      text-align: center;
+    }
+    .cta-box-icon {
+      margin-bottom: 12px;
+      color: var(--accent);
+    }
+    .cta-box-title { font-weight: 600; font-size: 14px; margin-bottom: 6px; }
+    .cta-box-sub { font-size: 12px; color: var(--text-muted); margin-bottom: 16px; }
+    .cta-box a {
+      display: block;
+      padding: 10px;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      font-weight: 500;
+      text-decoration: none;
+      transition: var(--transition-btn);
+    }
+    .cta-box.dark a { background: var(--text); color: var(--bg); }
+    .cta-box.dark a:hover { opacity: .88; }
+    .cta-box.light a { background: var(--bg-soft); color: var(--text); border: 1px solid var(--border); }
+    .cta-box.light a:hover { background: var(--border); }
+
+    /* ── FOOTER ── */
+    .pres-footer {
+      border-top: 1px solid var(--border);
+      padding: 32px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      max-width: 1100px;
+      margin: 0 auto;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .pres-footer-brand {
+      font-family: var(--font-serif);
+      font-style: italic;
+      font-size: 18px;
+    }
+    .pres-footer-brand span { color: var(--accent); }
+    .pres-footer-copy {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <a href="/index.html" class="talenco-logo">
+    <div class="nav-logo">
+      <div class="nav-logo-text">
+        <span class="logo-primary">Talenco</span><span class="logo-dot">.</span><span class="logo-tld">bj</span>
+      </div>
+      <div class="logo-tagline">Recrutement au Bénin</div>
+    </div>
+  </a>
+  <ul class="navbar-links">
+    <li><a href="/offres.html">Offres</a></li>
+    <li><a href="#candidats">Candidats</a></li>
+    <li><a href="#entreprises">Entreprises</a></li>
+  </ul>
+  <div class="navbar-actions">
+    <a href="/inscription.html" class="btn btn-dark btn-sm">Créer un compte</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="beta-badge">
+    <div class="beta-dot"></div>
+    Phase bêta ouverte — Accès gratuit
+  </div>
+  <h1 class="hero-title">
+    Le recrutement premium<br>
+    enfin pensé pour <em>le Bénin</em>
+  </h1>
+  <p class="hero-sub">
+    Talenco.bj ouvre ses portes en phase bêta. Pendant 10 semaines, candidats et entreprises accèdent gratuitement à toutes les fonctionnalités de la plateforme.
+  </p>
+  <div class="hero-ctas">
+    <a href="/inscription.html" class="btn-hero-primary">Je crée mon compte — Gratuit</a>
+    <a href="#entreprises" class="btn-hero-outline">Accès recruteur</a>
+  </div>
+</section>
+
+<!-- COUNTDOWN -->
+<div class="countdown-band">
+  <div class="countdown-label">Fin de la phase bêta dans</div>
+  <div class="countdown-timers">
+    <div class="countdown-unit">
+      <span class="countdown-number" id="cd-days">--</span>
+      <div class="countdown-name">Jours</div>
+    </div>
+    <div class="countdown-unit">
+      <span class="countdown-number" id="cd-hours">--</span>
+      <div class="countdown-name">Heures</div>
+    </div>
+    <div class="countdown-unit">
+      <span class="countdown-number" id="cd-minutes">--</span>
+      <div class="countdown-name">Minutes</div>
+    </div>
+  </div>
+</div>
+
+<hr class="section-divider">
+
+<!-- AUDIENCE -->
+<section class="section" id="candidats">
+  <div class="section-label">Qui peut rejoindre ?</div>
+  <h2 class="section-title">Conçu pour les deux côtés du recrutement</h2>
+  <p class="section-sub">Que vous cherchiez un emploi ou un talent, Talenco.bj offre les outils qu'il vous faut.</p>
+
+  <div class="audience-grid">
+    <!-- CANDIDAT -->
+    <div class="audience-card">
+      <div class="audience-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--accent)">
+          <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+        </svg>
+      </div>
+      <div class="audience-type">Pour vous</div>
+      <div class="audience-name">Candidats</div>
+      <p class="audience-desc">Créez un profil complet, postulez aux meilleures offres et soyez visible auprès des entreprises qui recrutent.</p>
+      <ul class="feature-list">
+        <li>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          Profil CV en ligne, visible par les recruteurs
+        </li>
+        <li>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          Postulation en un clic sur toutes les offres
+        </li>
+        <li>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          Suivi des candidatures en temps réel
+        </li>
+        <li>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          Notifications de mise en relation directe
+        </li>
+      </ul>
+      <div class="free-tag">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        Gratuit pendant la phase bêta
+      </div>
+      <a href="/inscription.html" class="btn btn-dark btn-sm">Créer mon profil</a>
+    </div>
+
+    <!-- ENTREPRISE -->
+    <div class="audience-card" id="entreprises">
+      <div class="audience-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--accent)">
+          <rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>
+        </svg>
+      </div>
+      <div class="audience-type">Pour votre structure</div>
+      <div class="audience-name">Entreprises</div>
+      <p class="audience-desc">Publiez vos offres, accédez à la CVthèque et gérez vos recrutements avec des outils professionnels.</p>
+      <ul class="feature-list">
+        <li>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          Publication d'offres d'emploi illimitées
+        </li>
+        <li>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          Accès à la CVthèque complète
+        </li>
+        <li>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          Tableau Kanban de suivi des candidatures
+        </li>
+        <li>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          Contact direct avec les candidats
+        </li>
+        <li>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          Rapports et statistiques de recrutement
+        </li>
+      </ul>
+      <div class="free-tag">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        15 accès entreprise — Sur invitation
+      </div>
+      <a href="mailto:yakoubou.kabir@gmail.com?subject=Demande accès recruteur Talenco.bj" class="btn btn-dark btn-sm">Demander l'accès recruteur</a>
+    </div>
+  </div>
+</section>
+
+<hr class="section-divider">
+
+<!-- HOW IT WORKS - CANDIDATS -->
+<section class="section">
+  <div class="section-label">Candidats — Parcours</div>
+  <h2 class="section-title">En quelques minutes, votre profil est en ligne</h2>
+  <div class="steps-grid">
+    <div class="step">
+      <div class="step-num">01</div>
+      <div class="step-title">Créez votre compte</div>
+      <p class="step-desc">Inscription rapide avec votre email ou Google. Aucun document requis pour démarrer.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">02</div>
+      <div class="step-title">Complétez votre profil</div>
+      <p class="step-desc">Expériences, compétences, diplômes, photo — votre CV en ligne est visible par les recruteurs partenaires.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">03</div>
+      <div class="step-title">Postulez aux offres</div>
+      <p class="step-desc">Parcourez les offres disponibles et postulez en un clic, directement depuis votre profil.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">04</div>
+      <div class="step-title">Suivez vos candidatures</div>
+      <p class="step-desc">Soyez notifié à chaque étape — réception, présélection, entretien, décision.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="section-divider">
+
+<!-- FEATURE KANBAN -->
+<section class="section">
+  <div class="feature-split">
+    <div>
+      <div class="section-label">Pour les recruteurs</div>
+      <h2 class="section-title">Un pipeline de recrutement clair, sans friction</h2>
+      <p class="section-sub">Le tableau Kanban Talenco vous permet de visualiser chaque candidat dans son étape de recrutement et d'agir en temps réel.</p>
+      <ul class="feature-list" style="margin-bottom:0">
+        <li>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--accent)"><polyline points="20 6 9 17 4 12"/></svg>
+          Glisser-déposer entre colonnes (Reçu · Présélectionné · Entretien · Retenu)
+        </li>
+        <li>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--accent)"><polyline points="20 6 9 17 4 12"/></svg>
+          Notes internes par candidature
+        </li>
+        <li>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--accent)"><polyline points="20 6 9 17 4 12"/></svg>
+          Contact direct intégré depuis la fiche candidat
+        </li>
+      </ul>
+    </div>
+    <div class="feature-visual">
+      <div style="font-family:var(--font-mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px;">Pipeline — Développeur Web</div>
+      <div class="mini-card">
+        <div class="mini-avatar">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+        </div>
+        <div class="mini-info">
+          <div class="mini-name">Adjoyi M.</div>
+          <div class="mini-role">3 ans exp. · Cotonou</div>
+        </div>
+        <div class="mini-tag">Entretien</div>
+      </div>
+      <div class="mini-card">
+        <div class="mini-avatar">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+        </div>
+        <div class="mini-info">
+          <div class="mini-name">Rachida K.</div>
+          <div class="mini-role">5 ans exp. · Porto-Novo</div>
+        </div>
+        <div class="mini-tag">Présélectionné</div>
+      </div>
+      <div class="mini-card">
+        <div class="mini-avatar">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+        </div>
+        <div class="mini-info">
+          <div class="mini-name">Ismaël D.</div>
+          <div class="mini-role">2 ans exp. · Parakou</div>
+        </div>
+        <div class="mini-tag">Reçu</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="section-divider">
+
+<!-- CTA FINAL -->
+<section>
+  <div class="cta-section">
+    <h2 class="cta-title">Rejoignez la bêta<br>avant l'ouverture officielle</h2>
+    <p class="cta-sub">
+      Accès entièrement gratuit jusqu'au 12 juillet 2026. Après la phase de test, les tarifs passeront en mode production.
+    </p>
+    <div class="cta-split">
+      <div class="cta-box dark">
+        <div class="cta-box-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+        </div>
+        <div class="cta-box-title">Je suis candidat</div>
+        <div class="cta-box-sub">Gratuit · Inscription immédiate</div>
+        <a href="/inscription.html">Créer mon compte</a>
+      </div>
+      <div class="cta-box light">
+        <div class="cta-box-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+        </div>
+        <div class="cta-box-title">Je suis recruteur</div>
+        <div class="cta-box-sub">Sur invitation · 15 places</div>
+        <a href="mailto:yakoubou.kabir@gmail.com?subject=Demande accès recruteur Talenco.bj">Demander l'accès</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="pres-footer">
+    <div class="pres-footer-brand">Talenco<span>.</span>bj</div>
+    <div class="pres-footer-copy">© 2026 GlobalSolutions Entreprise — Phase bêta</div>
+    <div style="display:flex;gap:16px;">
+      <a href="/cgv.html" style="font-size:12px;color:var(--text-muted);text-decoration:none;">CGV</a>
+      <a href="/mentions-legales.html" style="font-size:12px;color:var(--text-muted);text-decoration:none;">Mentions légales</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Countdown vers le 12 juillet 2026
+  const target = new Date('2026-07-12T00:00:00');
+  function updateCountdown() {
+    const now  = new Date();
+    const diff = target - now;
+    if (diff <= 0) {
+      document.getElementById('cd-days').textContent    = '0';
+      document.getElementById('cd-hours').textContent   = '0';
+      document.getElementById('cd-minutes').textContent = '0';
+      return;
+    }
+    const days    = Math.floor(diff / 86400000);
+    const hours   = Math.floor((diff % 86400000) / 3600000);
+    const minutes = Math.floor((diff % 3600000) / 60000);
+    document.getElementById('cd-days').textContent    = days;
+    document.getElementById('cd-hours').textContent   = String(hours).padStart(2,'0');
+    document.getElementById('cd-minutes').textContent = String(minutes).padStart(2,'0');
+  }
+  updateCountdown();
+  setInterval(updateCountdown, 30000);
+</script>
+</body>
+</html>

@@ -45,8 +45,8 @@
     <p class="auth-sub">Rejoignez Talenco.bj gratuitement</p>
 
     <div class="auth-role-tabs">
-      <button class="auth-role-btn active" id="role-candidat" data-role="candidat">👤 Candidat</button>
-      <button class="auth-role-btn" id="role-recruteur" data-role="recruteur">🏢 Recruteur</button>
+      <button class="auth-role-btn active" id="role-candidat" data-role="candidat">Candidat</button>
+      <button class="auth-role-btn" id="role-recruteur" data-role="recruteur">Recruteur</button>
     </div>
 
     <div id="auth-msg" class="alert" style="display:none;margin-bottom:16px;"></div>
@@ -102,12 +102,30 @@
 
   let selectedRole = 'candidat';
 
+  // ── Phase bêta : fin le 12 juillet 2026 ──
+  const TEST_PHASE_END = '2026-07-12T00:00:00.000Z';
+  const isTestPhase    = new Date() < new Date(TEST_PHASE_END);
+
+  // Bannière phase test
+  if (isTestPhase) {
+    const sub = document.querySelector('.auth-sub');
+    if (sub) sub.textContent = 'Phase bêta — Accès gratuit jusqu\'au 12 juillet 2026';
+  }
+
   document.querySelectorAll('.auth-role-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.auth-role-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       selectedRole = btn.dataset.role;
-      document.getElementById('reg-entreprise-field').style.display = selectedRole === 'recruteur' ? 'block' : 'none';
+      const entrepriseField = document.getElementById('reg-entreprise-field');
+      if (selectedRole === 'recruteur') {
+        // Durant la phase test : accès recruteur sur invitation uniquement
+        showMsg('info', 'L\'accès recruteur est sur invitation uniquement. Vous avez reçu un lien personnalisé ? Utilisez-le directement.');
+        entrepriseField.style.display = 'none';
+      } else {
+        document.getElementById('auth-msg').style.display = 'none';
+        entrepriseField.style.display = 'none';
+      }
     });
   });
 
@@ -124,7 +142,7 @@
       provider: 'google',
       options: { redirectTo: window.location.origin + '/index.html' }
     });
-    if (error) showMsg('error', '❌ ' + error.message);
+    if (error) showMsg('error', error.message);
   }
 
   document.getElementById('btn-register').addEventListener('click', async () => {
@@ -134,11 +152,11 @@
     const password = document.getElementById('reg-password').value;
     const entreprise = document.getElementById('reg-entreprise').value.trim();
 
-    if (!email || !password) { showMsg('error', '❌ Email et mot de passe requis.'); return; }
-    if (password.length < 8) { showMsg('error', '❌ Le mot de passe doit contenir au moins 8 caractères.'); return; }
+    if (!email || !password) { showMsg('error', 'Email et mot de passe requis.'); return; }
+    if (password.length < 8) { showMsg('error', 'Le mot de passe doit contenir au moins 8 caractères.'); return; }
 
     const btn = document.getElementById('btn-register');
-    btn.disabled = true; btn.textContent = '⏳ Création du compte…';
+    btn.disabled = true; btn.textContent = 'Création du compte…';
 
     const { data, error } = await sb.auth.signUp({
       email, password,
@@ -146,23 +164,30 @@
     });
 
     if (error) {
-      showMsg('error', '❌ ' + error.message);
+      showMsg('error', error.message);
       btn.disabled = false; btn.textContent = 'Créer mon compte';
       return;
     }
 
     if (data?.user) {
-      const { error: dbError } = await sb.from('users').upsert({
-        id: data.user.id,
+      const userPayload = {
+        id:        data.user.id,
         email,
         full_name: `${prenom} ${nom}`.trim(),
-        role: selectedRole === 'recruteur' ? 'company' : 'candidate',
-      });
-      if (dbError) { showMsg('error', '❌ Database error saving new user'); btn.disabled = false; btn.textContent = 'Créer mon compte'; return; }
+        role:      selectedRole === 'recruteur' ? 'company' : 'candidate',
+      };
+      // Phase test : activation automatique pour les candidats
+      if (isTestPhase && selectedRole === 'candidat') {
+        userPayload.status           = 'active';
+        userPayload.subscription_end = TEST_PHASE_END;
+        userPayload.test_phase       = true;
+      }
+      const { error: dbError } = await sb.from('users').upsert(userPayload);
+      if (dbError) { showMsg('error', 'Erreur lors de l\'enregistrement du compte.'); btn.disabled = false; btn.textContent = 'Créer mon compte'; return; }
     }
 
-    showMsg('success', '✅ Compte créé ! Vérifiez votre email pour activer votre compte.');
-    btn.textContent = 'Compte créé ✓';
+    showMsg('success', 'Compte créé avec succès. Vérifiez votre email pour activer votre compte.');
+    btn.textContent = 'Compte créé';
   });
 </script>
 </body>
