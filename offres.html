@@ -218,6 +218,14 @@
         </div>
       </div>
 
+      <div class="filter-group">
+        <span class="filter-group-label">Diaspora & Remote</span>
+        <div class="filter-tags" id="filter-special">
+          <span class="filter-tag" data-val="diaspora" style="border-color:rgba(139,69,19,.2);color:var(--accent);">Diaspora</span>
+          <span class="filter-tag" data-val="remote" style="border-color:rgba(46,125,50,.2);color:#2E7D32;">Télétravail</span>
+        </div>
+      </div>
+
       <button class="btn btn-ghost btn-sm" id="reset-filters" style="width:100%;margin-top:8px;">Réinitialiser</button>
     </aside>
 
@@ -321,6 +329,7 @@
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="/devises.js"></script>
 <script src="/badge-nouveau.js"></script>
 <script src="/candidature.js"></script>
 <script src="/pwa.js"></script>
@@ -337,7 +346,7 @@
   document.getElementById('nav-close').addEventListener('click', () => drawer.classList.remove('open'));
 
   // ── Filtres ─────────────────────────────────────────────────────────
-  let activeFilters = { contrat: null, ville: null, secteur: null, date: null };
+  let activeFilters = { contrat: null, ville: null, secteur: null, date: null, special: null };
   let searchQuery = '';
   let currentPage = 0;
   const PAGE_SIZE = 12;
@@ -369,7 +378,7 @@
   });
 
   document.getElementById('reset-filters').addEventListener('click', () => {
-    activeFilters = { contrat: null, ville: null, secteur: null, date: null };
+    activeFilters = { contrat: null, ville: null, secteur: null, date: null, special: null };
     document.querySelectorAll('.filter-tag').forEach(t => t.classList.remove('active'));
     searchQuery = '';
     document.getElementById('search-input').value = '';
@@ -423,7 +432,7 @@
     }
 
     let query = sb.from('jobs')
-      .select('id, title, company_id, city, sector, contract_type, created_at, score', { count: 'exact' })
+      .select('id, title, company_id, city, sector, contract_type, created_at, score, salary_min, salary_max, salary_currency, salary_period, is_diaspora_open, is_remote', { count: 'exact' })
       .eq('status', 'published')
       .range(currentPage * PAGE_SIZE, (currentPage + 1) * PAGE_SIZE - 1);
 
@@ -432,6 +441,8 @@
     if (activeFilters.ville)   query = query.eq('city', activeFilters.ville);
     if (activeFilters.secteur) query = query.eq('sector', activeFilters.secteur);
     if (activeFilters.contrat) query = query.eq('contract_type', activeFilters.contrat);
+    if (activeFilters.special === 'diaspora') query = query.eq('is_diaspora_open', true);
+    if (activeFilters.special === 'remote')   query = query.eq('is_remote', true);
     if (activeFilters.date === '24h') query = query.gte('created_at', new Date(Date.now() - 86400000).toISOString());
     if (activeFilters.date === '7j')  query = query.gte('created_at', new Date(Date.now() - 7*86400000).toISOString());
     if (activeFilters.date === '30j') query = query.gte('created_at', new Date(Date.now() - 30*86400000).toISOString());
@@ -450,10 +461,13 @@
         <div class="job-body">
           <p class="job-title">${j.title}</p>
           <p class="job-company">${j.company_id ?? 'Entreprise'}</p>
+          ${j.salary_min ? `<div style="font-family:var(--font-mono);font-size:11px;color:var(--accent);margin-bottom:6px;">${j.salary_min.toLocaleString('fr-FR')} ${j.salary_currency||'FCFA'}${j.salary_max ? ' – ' + j.salary_max.toLocaleString('fr-FR') : ''} / ${j.salary_period||'mois'}</div>` : ''}
           <div class="job-tags">
             <span class="tag">${j.city ?? ''}</span>
             <span class="tag">${j.contract_type ?? ''}</span>
             <span class="tag tag-accent">${j.sector ?? ''}</span>
+            ${j.is_diaspora_open ? `<span class="tag" style="background:rgba(139,69,19,.08);color:var(--accent);border:1px solid rgba(139,69,19,.2);">Diaspora</span>` : ''}
+            ${j.is_remote ? `<span class="tag" style="background:rgba(46,125,50,.08);color:#2E7D32;border:1px solid rgba(46,125,50,.2);">Remote</span>` : ''}
             ${j.score ? `<span class="badge badge-score">IA ${j.score}%</span>` : ''}
           </div>
         </div>
@@ -575,5 +589,6 @@
   filtrerOffresPartenaires();
 
 </script>
+<script src="/bug-report.js"></script>
 </body>
 </html>

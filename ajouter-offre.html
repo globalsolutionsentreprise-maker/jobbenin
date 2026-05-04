@@ -212,8 +212,50 @@
             <textarea id="champ-competences" rows="3" placeholder="Compétences techniques et comportementales…"></textarea>
           </div>
           <div class="form-field">
-            <label class="form-label" for="champ-avantages">Avantages &amp; conditions</label>
-            <textarea id="champ-avantages" rows="3" placeholder="Salaire, avantages, télétravail…"></textarea>
+            <label class="form-label">Salaire proposé <span style="color:var(--text-muted);font-weight:400;">(optionnel)</span></label>
+            <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:center;">
+              <input type="number" id="champ-salary-min" placeholder="Min" min="0" style="padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-card);color:var(--text);font-family:var(--font-body);font-size:13px;">
+              <input type="number" id="champ-salary-max" placeholder="Max (optionnel)" min="0" style="padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-card);color:var(--text);font-family:var(--font-body);font-size:13px;">
+              <select id="champ-salary-currency" style="padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-card);color:var(--text);font-family:var(--font-body);font-size:13px;cursor:pointer;">
+                <option value="FCFA">FCFA</option>
+                <option value="EUR">EUR €</option>
+                <option value="USD">USD $</option>
+              </select>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;margin-top:8px;">
+              <span style="font-size:12px;color:var(--text-muted);">Période :</span>
+              <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer;">
+                <input type="radio" name="salary-period" value="mois" checked> par mois
+              </label>
+              <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer;">
+                <input type="radio" name="salary-period" value="an"> par an
+              </label>
+            </div>
+            <div id="salary-preview" style="margin-top:10px;display:none;font-size:12px;color:var(--text-muted);padding:8px 12px;background:var(--bg-soft);border-radius:var(--radius-sm);"></div>
+          </div>
+
+          <div class="form-field">
+            <label class="form-label">Avantages &amp; conditions</label>
+            <textarea id="champ-avantages" rows="2" placeholder="Assurance, tickets repas, véhicule de fonction…"></textarea>
+          </div>
+
+          <div class="form-field">
+            <div style="display:flex;flex-direction:column;gap:10px;">
+              <label style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:12px;border:1px solid var(--border);border-radius:var(--radius-sm);">
+                <input type="checkbox" id="champ-diaspora" style="width:16px;height:16px;accent-color:var(--accent);cursor:pointer;">
+                <div>
+                  <div style="font-size:13px;font-weight:500;">Ouvert à la diaspora</div>
+                  <div style="font-size:11px;color:var(--text-muted);">Ce poste accepte des candidats basés à l'étranger</div>
+                </div>
+              </label>
+              <label style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:12px;border:1px solid var(--border);border-radius:var(--radius-sm);">
+                <input type="checkbox" id="champ-remote" style="width:16px;height:16px;accent-color:var(--accent);cursor:pointer;">
+                <div>
+                  <div style="font-size:13px;font-weight:500;">Télétravail possible</div>
+                  <div style="font-size:11px;color:var(--text-muted);">Remote partiel ou complet accepté</div>
+                </div>
+              </label>
+            </div>
           </div>
         </div>
       </div>
@@ -291,17 +333,23 @@
     msgEl.style.display = 'none';
 
     const payload = {
-      user_id:       currentSession.user.id,
-      titre:         document.getElementById('champ-titre').value.trim()       || document.getElementById('champ-poste').value.trim(),
-      entreprise:    document.getElementById('champ-entreprise').value.trim(),
-      ville:         document.getElementById('champ-ville').value,
-      secteur:       document.getElementById('champ-secteur').value,
-      type_contrat:  document.getElementById('champ-type-contrat').value,
-      description:   document.getElementById('champ-description').value.trim(),
-      profil:        document.getElementById('champ-profil').value.trim(),
-      competences:   document.getElementById('champ-competences').value.trim(),
-      avantages:     document.getElementById('champ-avantages').value.trim(),
-      statut:        'publie',
+      user_id:          currentSession.user.id,
+      titre:            document.getElementById('champ-titre').value.trim()       || document.getElementById('champ-poste').value.trim(),
+      entreprise:       document.getElementById('champ-entreprise').value.trim(),
+      ville:            document.getElementById('champ-ville').value,
+      secteur:          document.getElementById('champ-secteur').value,
+      type_contrat:     document.getElementById('champ-type-contrat').value,
+      description:      document.getElementById('champ-description').value.trim(),
+      profil:           document.getElementById('champ-profil').value.trim(),
+      competences:      document.getElementById('champ-competences').value.trim(),
+      avantages:        document.getElementById('champ-avantages').value.trim(),
+      salary_min:       parseInt(document.getElementById('champ-salary-min').value) || null,
+      salary_max:       parseInt(document.getElementById('champ-salary-max').value) || null,
+      salary_currency:  document.getElementById('champ-salary-currency').value || 'FCFA',
+      salary_period:    document.querySelector('input[name="salary-period"]:checked')?.value || 'mois',
+      is_diaspora_open: document.getElementById('champ-diaspora').checked,
+      is_remote:        document.getElementById('champ-remote').checked,
+      statut:           'publie',
     };
 
     const { data: newJob, error } = await sb.from('jobs').insert(payload).select().single();
@@ -425,5 +473,26 @@
   btnRegenerer.addEventListener('click', () => { if (dernierParams) generer(dernierParams); });
 })();
 </script>
+<script src="/devises.js"></script>
+<script>
+// Preview salaire live
+function updateSalaryPreview() {
+  const min = parseInt(document.getElementById('champ-salary-min').value);
+  const max = parseInt(document.getElementById('champ-salary-max').value) || null;
+  const cur = document.getElementById('champ-salary-currency').value;
+  const per = document.querySelector('input[name="salary-period"]:checked')?.value || 'mois';
+  const el  = document.getElementById('salary-preview');
+  if (!min || isNaN(min)) { el.style.display='none'; return; }
+  el.innerHTML = Devises.renderTriple(min, max, cur, per);
+  el.style.display = 'block';
+}
+['champ-salary-min','champ-salary-max','champ-salary-currency'].forEach(id =>
+  document.getElementById(id)?.addEventListener('input', updateSalaryPreview)
+);
+document.querySelectorAll('input[name="salary-period"]').forEach(r =>
+  r.addEventListener('change', updateSalaryPreview)
+);
+</script>
+<script src="/bug-report.js"></script>
 </body>
 </html>
