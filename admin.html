@@ -43,10 +43,39 @@
     .btn-reject:hover { background:#b91c1c;color:#fff; }
     .btn-delete { border-color:#b91c1c;color:#b91c1c; }
     .btn-delete:hover { background:#b91c1c;color:#fff; }
-    .btn-activate { border-color:#15803d;color:#15803d; }
-    .btn-activate:hover { background:#15803d;color:#fff; }
-    .btn-deactivate { border-color:#b91c1c;color:#b91c1c; }
-    .btn-deactivate:hover { background:#b91c1c;color:#fff; }
+    .btn-view { border-color:var(--accent);color:var(--accent); }
+    .btn-view:hover { background:var(--accent);color:#fff; }
+    /* ── MODAL PROFIL ── */
+    .modal-overlay { position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:500;display:flex;align-items:flex-start;justify-content:flex-end; }
+    .modal-panel {
+      width:min(520px,100vw);height:100vh;background:var(--bg);overflow-y:auto;
+      box-shadow:-8px 0 32px rgba(0,0,0,.15);
+      animation:slideIn .22s ease;
+    }
+    @keyframes slideIn { from{transform:translateX(100%)} to{transform:translateX(0)} }
+    .modal-header { padding:20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--bg);z-index:1; }
+    .modal-title { font-family:'Instrument Serif',serif;font-style:italic;font-size:18px; }
+    .modal-close { background:none;border:none;cursor:pointer;color:var(--text-muted);padding:4px;display:flex;align-items:center;border-radius:6px;transition:background .15s; }
+    .modal-close:hover { background:var(--bg-soft);color:var(--text); }
+    .modal-body { padding:24px; }
+    .profile-hero { display:flex;align-items:center;gap:16px;margin-bottom:24px;padding:20px;background:var(--bg-card);border:1px solid var(--border);border-radius:12px; }
+    .profile-avatar-lg { width:56px;height:56px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;flex-shrink:0; }
+    .profile-name { font-weight:700;font-size:16px;margin-bottom:3px; }
+    .profile-email { font-size:12px;color:var(--text-muted); }
+    .profile-section { margin-bottom:20px; }
+    .profile-section-title { font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--text-muted);margin-bottom:10px;display:flex;align-items:center;gap:8px; }
+    .profile-section-title::after { content:'';flex:1;height:1px;background:var(--border); }
+    .profile-grid { display:grid;grid-template-columns:1fr 1fr;gap:10px; }
+    .profile-field { background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:10px 12px; }
+    .profile-field-label { font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);margin-bottom:3px; }
+    .profile-field-value { font-size:13px;font-weight:500;color:var(--text); }
+    .profile-field-value.empty { color:var(--text-muted);font-style:italic;font-weight:400; }
+    .profile-tags { display:flex;flex-wrap:wrap;gap:6px;margin-top:4px; }
+    .profile-tag { font-size:11px;padding:3px 10px;border-radius:20px;background:var(--bg-soft);color:var(--text-muted);border:1px solid var(--border); }
+    .profile-tag.highlight { background:rgba(139,69,19,.08);color:var(--accent);border-color:rgba(139,69,19,.2); }
+    .profile-bio { font-size:13px;line-height:1.65;color:var(--text-mid);background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:12px; }
+    .profile-loading { text-align:center;padding:48px;color:var(--text-muted);font-size:13px; }
+    .profile-actions { display:flex;gap:8px;margin-top:24px;padding-top:20px;border-top:1px solid var(--border); }
     .avatar { width:32px;height:32px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0; }
     .search-bar { padding:8px 14px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;width:260px;margin-bottom:14px; }
     .notif-box { background:#f0f9ff;border:1px solid #bae6fd;border-radius:10px;padding:14px 16px;margin-bottom:16px;font-size:13px;color:#0369a1; }
@@ -221,6 +250,21 @@
       </div>
 
     </main>
+  </div>
+</div>
+
+<!-- Modal profil candidat -->
+<div id="modal-profil" style="display:none;" class="modal-overlay" onclick="fermerModal(event)">
+  <div class="modal-panel" id="modal-inner">
+    <div class="modal-header">
+      <span class="modal-title">Profil candidat</span>
+      <button class="modal-close" onclick="document.getElementById('modal-profil').style.display='none'">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body" id="modal-content">
+      <div class="profile-loading">Chargement du profil…</div>
+    </div>
   </div>
 </div>
 
@@ -421,7 +465,9 @@ async function supprimerNews(id) {
 
 // ── USERS ─────────────────────────────────────────────────
 async function chargerUsers() {
-  const { data } = await sb.from('users').select('id,email,full_name,role,is_active,created_at,phone').order('created_at',{ascending:false});
+  const { data } = await sb.from('users')
+    .select('id,email,full_name,role,status,is_active,created_at,phone,city,is_diaspora,bio,job_title,level,skills,secteurs,salary_currency_pref,subscription_end,test_phase')
+    .order('created_at',{ascending:false});
   allUsers = data || [];
   afficherUsers(allUsers);
 }
@@ -429,12 +475,13 @@ async function chargerUsers() {
 function afficherUsers(users) {
   const el = document.getElementById('users-list');
   if (!users?.length) { el.innerHTML = '<div style="padding:16px;color:var(--text-muted);font-size:13px;">Aucun utilisateur.</div>'; return; }
-  el.innerHTML = `<div class="table-head" style="grid-template-columns:auto 1fr auto auto auto;display:grid;"><span></span><span>Utilisateur</span><span>Rôle</span><span>Statut</span><span>Actions</span></div>` +
-    users.map(u => `<div class="table-row" style="grid-template-columns:auto 1fr auto auto auto;" id="row-user-${u.id}">
+  el.innerHTML = `<div class="table-head" style="grid-template-columns:auto 1fr auto auto auto auto;display:grid;"><span></span><span>Utilisateur</span><span>Rôle</span><span>Statut</span><span></span><span>Actions</span></div>` +
+    users.map(u => `<div class="table-row" style="grid-template-columns:auto 1fr auto auto auto auto;" id="row-user-${u.id}">
       <div class="avatar">${(u.full_name||u.email||'?')[0].toUpperCase()}</div>
       <div>
-        <div style="font-weight:500;font-size:13px;">${u.full_name||'—'}</div>
-        <div style="font-size:11px;color:var(--text-muted);">${u.email}${u.phone?` · 📱 ${u.phone}`:''}</div>
+        <div style="font-weight:500;font-size:13px;">${u.full_name||'—'}${u.is_diaspora?'<span style="margin-left:6px;font-size:10px;background:rgba(139,69,19,.1);color:var(--accent);padding:1px 6px;border-radius:10px;">Diaspora</span>':''}</div>
+        <div style="font-size:11px;color:var(--text-muted);">${u.email}${u.city?` · ${u.city}`:''}${u.phone?` · 📱 ${u.phone}`:''}</div>
+        ${u.job_title?`<div style="font-size:11px;color:var(--text-muted);font-style:italic;">${u.job_title}${u.level?` · ${u.level}`:''}</div>`:''}
       </div>
       <select onchange="changerRole('${u.id}',this.value)" style="font-size:11px;padding:3px 6px;border:1px solid var(--border);border-radius:6px;">
         <option ${u.role==='candidate'?'selected':''} value="candidate">Candidat</option>
@@ -442,6 +489,7 @@ function afficherUsers(users) {
         <option ${u.role==='admin'?'selected':''} value="admin">Admin</option>
       </select>
       <span class="badge ${u.is_active===false?'b-inactive':'b-active'}">${u.is_active===false?'Inactif':'Actif'}</span>
+      ${u.role==='candidate'?`<button class="btn-action btn-view" onclick="voirProfil('${u.id}')">Voir profil</button>`:'<span></span>'}
       <div style="display:flex;gap:5px;">
         ${u.is_active===false
           ?`<button class="btn-action btn-activate" onclick="toggleUser('${u.id}',true)">Activer</button>`
@@ -473,6 +521,109 @@ async function toggleUser(id, active) {
   toast(active ? '✅ Compte activé' : '🚫 Compte désactivé');
   allUsers = allUsers.map(u => u.id === id ? {...u, is_active: active} : u);
   filtrerUsers();
+}
+
+function fermerModal(e) {
+  if (e.target === document.getElementById('modal-profil')) {
+    document.getElementById('modal-profil').style.display = 'none';
+  }
+}
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') document.getElementById('modal-profil').style.display = 'none';
+});
+
+async function voirProfil(userId) {
+  document.getElementById('modal-profil').style.display = 'flex';
+  document.getElementById('modal-content').innerHTML = '<div class="profile-loading">Chargement du profil…</div>';
+
+  // Charger user + candidatures
+  const [{ data: u }, { data: apps, count: nbApps }] = await Promise.all([
+    sb.from('users').select('*').eq('id', userId).single(),
+    sb.from('applications').select('id,status,created_at,jobs(title,city)', { count:'exact' }).eq('candidate_id', userId).order('created_at', { ascending:false }).limit(10),
+  ]);
+
+  if (!u) { document.getElementById('modal-content').innerHTML = '<div class="profile-loading">Profil introuvable.</div>'; return; }
+
+  const val  = (v, fallback = 'Non renseigné') => v || `<span class="empty">${fallback}</span>`;
+  const tags  = (arr) => Array.isArray(arr) && arr.length ? arr.map(t => `<span class="profile-tag">${t}</span>`).join('') : '<span class="empty">—</span>';
+  const date  = (d) => d ? new Date(d).toLocaleDateString('fr-FR', { day:'2-digit', month:'long', year:'numeric' }) : '—';
+  const betaEnd = u.subscription_end ? new Date(u.subscription_end) : null;
+  const daysLeft = betaEnd ? Math.max(0, Math.round((betaEnd - new Date()) / 864e5)) : null;
+
+  const appRows = (apps||[]).map(a => `
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px;">
+      <div>
+        <div style="font-weight:500;">${a.jobs?.title || '—'}</div>
+        <div style="color:var(--text-muted);font-size:11px;">${a.jobs?.city||''} · ${date(a.created_at)}</div>
+      </div>
+      <span class="badge b-${a.status==='accepted'?'active':a.status==='rejected'?'rejected':'pending'}">${a.status||'pending'}</span>
+    </div>`).join('');
+
+  document.getElementById('modal-content').innerHTML = `
+    <!-- Hero -->
+    <div class="profile-hero">
+      <div class="profile-avatar-lg">${(u.full_name||u.email||'?')[0].toUpperCase()}</div>
+      <div style="flex:1;">
+        <div class="profile-name">${u.full_name||'Nom non renseigné'}</div>
+        <div class="profile-email">${u.email}</div>
+        ${u.job_title?`<div style="font-size:12px;color:var(--text-muted);margin-top:3px;">${u.job_title}${u.level?' · '+u.level:''}</div>`:''}
+        <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;">
+          <span class="badge ${u.is_active===false?'b-inactive':'b-active'}">${u.is_active===false?'Inactif':'Actif'}</span>
+          ${u.is_diaspora?'<span class="profile-tag highlight">Diaspora</span>':''}
+          ${u.is_certified?'<span class="profile-tag highlight">✓ Certifié</span>':''}
+          ${u.test_phase&&daysLeft!==null?`<span class="profile-tag">Bêta · J-${daysLeft}</span>`:''}
+        </div>
+      </div>
+    </div>
+
+    <!-- Infos personnelles -->
+    <div class="profile-section">
+      <div class="profile-section-title">Informations</div>
+      <div class="profile-grid">
+        <div class="profile-field"><div class="profile-field-label">Email</div><div class="profile-field-value">${u.email}</div></div>
+        <div class="profile-field"><div class="profile-field-label">Téléphone</div><div class="profile-field-value">${val(u.phone)}</div></div>
+        <div class="profile-field"><div class="profile-field-label">Ville</div><div class="profile-field-value">${val(u.city)}</div></div>
+        <div class="profile-field"><div class="profile-field-label">Devise préférée</div><div class="profile-field-value">${u.salary_currency_pref||'FCFA'}</div></div>
+        <div class="profile-field"><div class="profile-field-label">Inscrit le</div><div class="profile-field-value">${date(u.created_at)}</div></div>
+        <div class="profile-field"><div class="profile-field-label">Accès bêta jusqu'au</div><div class="profile-field-value">${betaEnd?date(betaEnd):'—'}</div></div>
+      </div>
+    </div>
+
+    <!-- Bio -->
+    ${u.bio?`<div class="profile-section">
+      <div class="profile-section-title">Présentation</div>
+      <div class="profile-bio">${u.bio}</div>
+    </div>`:''}
+
+    <!-- Compétences & secteurs -->
+    <div class="profile-section">
+      <div class="profile-section-title">Compétences & Secteurs</div>
+      <div style="margin-bottom:10px;">
+        <div class="profile-field-label" style="margin-bottom:6px;">Compétences</div>
+        <div class="profile-tags">${tags(u.skills)}</div>
+      </div>
+      <div>
+        <div class="profile-field-label" style="margin-bottom:6px;">Secteurs d'intérêt</div>
+        <div class="profile-tags">${tags(u.secteurs)}</div>
+      </div>
+    </div>
+
+    <!-- Candidatures -->
+    <div class="profile-section">
+      <div class="profile-section-title">Candidatures (${nbApps||0})</div>
+      ${apps?.length ? appRows : '<div style="font-size:13px;color:var(--text-muted);">Aucune candidature.</div>'}
+    </div>
+
+    <!-- Actions -->
+    <div class="profile-actions">
+      ${u.is_active===false
+        ?`<button class="btn btn-primary btn-sm" onclick="toggleUser('${u.id}',true);document.getElementById('modal-profil').style.display='none'">Activer le compte</button>`
+        :`<button class="btn btn-sm" style="border:1px solid #b91c1c;color:#b91c1c;" onclick="toggleUser('${u.id}',false);document.getElementById('modal-profil').style.display='none'">Désactiver</button>`
+      }
+      ${u.email?`<a href="mailto:${u.email}" class="btn btn-sm" style="border:1px solid var(--border);">Envoyer un email</a>`:''}
+      <button class="btn btn-sm" style="border:1px solid var(--border);" onclick="document.getElementById('modal-profil').style.display='none'">Fermer</button>
+    </div>
+  `;
 }
 
 // ── ENTREPRISES ───────────────────────────────────────────
