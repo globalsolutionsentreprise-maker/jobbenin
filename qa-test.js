@@ -233,6 +233,26 @@ async function testPageContent() {
     ].forEach(([n, l]) => r.body.includes(n) ? ok(l) : ko(l));
   } catch(e) { ko('admin.html candidats tab', e.message); }
 
+  // admin.html : onglet Entreprises
+  try {
+    const r = await get(BASE + '/admin.html');
+    [
+      ['tab-companies',          'admin — section tab-companies présente'],
+      ['companies-list',         'admin — conteneur liste entreprises'],
+      ['search-companies',       'admin — barre de recherche entreprises'],
+      ['companies-count-label',  'admin — compteur entreprises'],
+      ['chargerCompanies',       'admin — fonction chargerCompanies'],
+      ['filtrerCompanies',       'admin — fonction filtrerCompanies'],
+      ['afficherCompanies',      'admin — fonction afficherCompanies'],
+      ['allCompanies',           'admin — variable allCompanies'],
+      ["showTab('companies",     'admin — lien sidebar vers onglet entreprises'],
+      ['u.entreprise',           'admin — champ entreprise (nom correct)'],
+      ['u.ville',                'admin — champ ville entreprise'],
+      ['u.secteur',              'admin — champ secteur entreprise'],
+      ['entreprise-profil.html?id=', 'admin — lien voir profil entreprise'],
+    ].forEach(([n, l]) => r.body.includes(n) ? ok(l) : ko(l));
+  } catch(e) { ko('admin.html entreprises tab', e.message); }
+
   // presentation.html : countdown + bêta
   try {
     const r = await get(BASE + '/presentation.html');
