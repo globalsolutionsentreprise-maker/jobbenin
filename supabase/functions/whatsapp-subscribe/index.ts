@@ -2,11 +2,14 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const SUPA_URL    = Deno.env.get('SUPABASE_URL')!;
 const SUPA_KEY    = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-const WA_TOKEN    = Deno.env.get('WHATSAPP_TOKEN')!;
-const WA_PHONE_ID = Deno.env.get('WHATSAPP_PHONE_ID')!;
 
-const sb     = createClient(SUPA_URL, SUPA_KEY);
-const WA_API = `https://graph.facebook.com/v19.0/${WA_PHONE_ID}/messages`;
+// ── Twilio (secrets déjà configurés dans Supabase) ──
+const TWILIO_SID   = Deno.env.get('TWILIO_ACCOUNT_SID')!;
+const TWILIO_TOKEN = Deno.env.get('TWILIO_AUTH_TOKEN')!;
+const TWILIO_FROM  = Deno.env.get('TWILIO_WHATSAPP_FROM')!;
+
+const sb = createClient(SUPA_URL, SUPA_KEY);
+const TWILIO_API = `https://api.twilio.com/2010-04-01/Accounts/${TWILIO_SID}/Messages.json`;
 
 const CORS = {
   'Access-Control-Allow-Origin': '*',
@@ -19,35 +22,37 @@ function isValidPhone(phone: string): boolean {
   return /^\+\d{10,15}$/.test(phone.replace(/\s/g, ''));
 }
 
-// ── Générer un OTP à 6 chiffres ───────────────────────────────────────
+// ── Générer un OTP à 6 chiffres ──────────────────────────────────────
 
 function generateOTP(): string {
   return String(Math.floor(100000 + Math.random() * 900000));
 }
 
-// ── Envoyer un message texte libre (hors template) ───────────────────
+// ── Envoyer un message WhatsApp via Twilio ────────────────────────────
 
 async function sendTextMessage(phone: string, text: string): Promise<boolean> {
   try {
-    const res = await fetch(WA_API, {
+    const body = new URLSearchParams();
+    body.append('From', TWILIO_FROM);           // ex: whatsapp:+14155238886
+    body.append('To',   `whatsapp:${phone}`);   // ex: whatsapp:+22961234567
+    body.append('Body', text);
+
+    const res = await fetch(TWILIO_API, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${WA_TOKEN}`,
-        'Content-Type': 'application/json',
+        'Authorization': 'Basic ' + btoa(`${TWILIO_SID}:${TWILIO_TOKEN}`),
+        'Content-Type':  'application/x-www-form-urlencoded',
       },
-      body: JSON.stringify({
-        messaging_product: 'whatsapp',
-        to: phone,
-        type: 'text',
-        text: { body: text },
-      }),
+      body,
     });
+
     if (!res.ok) {
-      console.error('WA sendText error:', res.status, await res.text());
+      const err = await res.text();
+      console.error('Twilio WA error:', res.status, err);
     }
     return res.ok;
   } catch (err) {
-    console.error('WA sendText exception:', err);
+    console.error('Twilio WA exception:', err);
     return false;
   }
 }
@@ -213,7 +218,7 @@ Deno.serve(async (req) => {
     { onConflict: 'phone' },
   );
 
-  // Envoyer le code via WhatsApp
+  // Envoyer le code via WhatsApp (Twilio)
   const sent = await sendTextMessage(
     cleanPhone,
     `Votre code de vérification Talenco.bj : *${otp}*\n\nCe code expire dans 10 minutes.\nNe le partagez avec personne.\n\nSi vous n'avez pas demandé ce code, ignorez ce message.`,
@@ -226,7 +231,7 @@ Deno.serve(async (req) => {
     );
   }
 
-  console.log(`✅ OTP envoyé à ${cleanPhone} (user: ${user.id})`);
+  console.log(`✅ OTP envoyé via Twilio à ${cleanPhone} (user: ${user.id})`);
 
   return new Response(
     JSON.stringify({ success: true, message: 'Code envoyé sur WhatsApp' }),
