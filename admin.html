@@ -125,6 +125,7 @@
       <button class="side-link" onclick="showTab('news',this)"><span data-icon="newspaper" data-size="14"></span> Actualités</button>
 
       <div class="side-label">Utilisateurs</div>
+      <button class="side-link" onclick="showTab('candidats',this)"><span data-icon="user" data-size="14"></span> Candidats <span class="badge-count" id="badge-cands">0</span></button>
       <button class="side-link" onclick="showTab('users',this)"><span data-icon="users" data-size="14"></span> Tous les comptes</button>
       <button class="side-link" onclick="showTab('companies',this)"><span data-icon="building" data-size="14"></span> Entreprises</button>
       <button class="side-link" onclick="showTab('certifications',this)"><span data-icon="award" data-size="14"></span> Certifications <span class="badge-count" id="badge-certif">0</span></button>
@@ -197,6 +198,16 @@
         </div>
         <input class="search-bar" id="search-users" placeholder="Rechercher un utilisateur…" oninput="filtrerUsers()">
         <div id="users-list" class="table-wrap"></div>
+      </div>
+
+      <!-- ── CANDIDATS ── -->
+      <div id="tab-candidats" class="tab-section">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+          <h2 class="section-title" style="margin:0;">Candidats inscrits</h2>
+          <span id="cands-count-label" style="font-size:12px;color:var(--text-muted);"></span>
+        </div>
+        <input class="search-bar" id="search-candidats" placeholder="Rechercher un candidat…" oninput="filtrerCandidats()">
+        <div id="candidats-list" class="table-wrap"></div>
       </div>
 
       <!-- ── ENTREPRISES ── -->
@@ -279,7 +290,7 @@ var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYm
 const { createClient } = supabase;
 const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-let allOffres = [], allUsers = [], currentSession = null;
+let allOffres = [], allUsers = [], allCandidats = [], currentSession = null;
 
 // ── Toast ──────────────────────────────────────────────
 function toast(msg, ok=true) {
@@ -299,11 +310,13 @@ function showTab(id, btn) {
   // Lazy load
   if (id === 'offres' && !allOffres.length) chargerOffres();
   if (id === 'users' && !allUsers.length) chargerUsers();
+  if (id === 'candidats' && !allCandidats.length) chargerCandidats();
   if (id === 'candidatures') chargerCandidatures();
   if (id === 'moderation') chargerModeration();
   if (id === 'companies') chargerCompanies();
   if (id === 'news') chargerNews();
   if (id === 'certifications') chargerCertifications();
+  if (id === 'whatsapp') chargerWAUsers();
 }
 
 // ── Auth ────────────────────────────────────────────────
@@ -320,7 +333,7 @@ sb.auth.getSession().then(async ({ data: { session } }) => {
 async function chargerStats() {
   const [
     { count: nbOffres }, { count: nbUsers }, { count: nbApps },
-    { count: nbWa }, { count: nbCompanies }, { count: nbPending }, { count: nbNews }, { count: nbCertif }
+    { count: nbWa }, { count: nbCompanies }, { count: nbPending }, { count: nbNews }, { count: nbCertif }, { count: nbCandidats }
   ] = await Promise.all([
     sb.from('jobs').select('*',{count:'exact',head:true}).eq('status','published'),
     sb.from('users').select('*',{count:'exact',head:true}),
@@ -330,6 +343,7 @@ async function chargerStats() {
     sb.from('jobs').select('*',{count:'exact',head:true}).eq('status','pending'),
     sb.from('company_news').select('*',{count:'exact',head:true}).eq('status','published'),
     sb.from('certification_requests').select('*',{count:'exact',head:true}).eq('status','pending'),
+    sb.from('users').select('*',{count:'exact',head:true}).eq('role','candidate'),
   ]);
   document.getElementById('s-offres').textContent = nbOffres ?? 0;
   document.getElementById('s-users').textContent = nbUsers ?? 0;
@@ -340,6 +354,7 @@ async function chargerStats() {
   document.getElementById('s-news').textContent = nbNews ?? 0;
   document.getElementById('badge-mod').textContent = nbPending ?? 0;
   document.getElementById('badge-certif').textContent = nbCertif ?? 0;
+  document.getElementById('badge-cands').textContent = nbCandidats ?? 0;
 
   // Dernières inscriptions
   const { data: recentUsers } = await sb.from('users').select('id,email,full_name,role,created_at').order('created_at',{ascending:false}).limit(5);
@@ -624,6 +639,65 @@ async function voirProfil(userId) {
       <button class="btn btn-sm" style="border:1px solid var(--border);" onclick="document.getElementById('modal-profil').style.display='none'">Fermer</button>
     </div>
   `;
+}
+
+// ── CANDIDATS ─────────────────────────────────────────────
+async function chargerCandidats() {
+  const { data } = await sb.from('users')
+    .select('id,email,full_name,is_active,created_at,city,is_diaspora,job_title,level,skills,is_certified,bio,phone')
+    .eq('role', 'candidate')
+    .order('created_at', { ascending: false });
+  allCandidats = data || [];
+  const label = document.getElementById('cands-count-label');
+  if (label) label.textContent = `${allCandidats.length} candidat${allCandidats.length !== 1 ? 's' : ''}`;
+  afficherCandidats(allCandidats);
+}
+
+function afficherCandidats(candidats) {
+  const el = document.getElementById('candidats-list');
+  if (!candidats?.length) {
+    el.innerHTML = '<div style="padding:32px;text-align:center;color:var(--text-muted);font-size:13px;">Aucun candidat inscrit.</div>';
+    return;
+  }
+  el.innerHTML = `<div class="table-head" style="grid-template-columns:auto 1fr auto auto auto;display:grid;">
+    <span></span><span>Candidat</span><span>Statut</span><span>Inscrit le</span><span>Actions</span>
+  </div>` + candidats.map(u => {
+    const skills = Array.isArray(u.skills) ? u.skills.slice(0, 3) : [];
+    const skillsHtml = skills.length
+      ? `<div style="margin-top:4px;display:flex;flex-wrap:wrap;gap:4px;">${skills.map(s => `<span class="profile-tag">${s}</span>`).join('')}${u.skills.length > 3 ? `<span class="profile-tag">+${u.skills.length - 3}</span>` : ''}</div>`
+      : '';
+    return `<div class="table-row" style="grid-template-columns:auto 1fr auto auto auto;" id="row-cand-${u.id}">
+      <div class="avatar">${(u.full_name || u.email || '?')[0].toUpperCase()}</div>
+      <div>
+        <div style="font-weight:500;font-size:13px;">
+          ${u.full_name || '—'}
+          ${u.is_diaspora ? '<span style="margin-left:6px;font-size:10px;background:rgba(139,69,19,.1);color:var(--accent);padding:1px 6px;border-radius:10px;">Diaspora</span>' : ''}
+          ${u.is_certified ? '<span style="margin-left:4px;font-size:10px;background:#dcfce7;color:#15803d;padding:1px 6px;border-radius:10px;">✓ Certifié</span>' : ''}
+        </div>
+        <div style="font-size:11px;color:var(--text-muted);">${u.email}${u.city ? ' · ' + u.city : ''}</div>
+        ${u.job_title ? `<div style="font-size:11px;color:var(--text-muted);font-style:italic;">${u.job_title}${u.level ? ' · ' + u.level : ''}</div>` : ''}
+        ${skillsHtml}
+      </div>
+      <span class="badge ${u.is_active === false ? 'b-inactive' : 'b-active'}">${u.is_active === false ? 'Inactif' : 'Actif'}</span>
+      <span style="font-size:11px;color:var(--text-muted);">${new Date(u.created_at).toLocaleDateString('fr-FR')}</span>
+      <div style="display:flex;gap:5px;">
+        <button class="btn-action btn-view" onclick="voirProfil('${u.id}')">Voir profil</button>
+        ${u.is_active === false
+          ? `<button class="btn-action" style="border-color:#15803d;color:#15803d;" onclick="toggleUser('${u.id}',true)">Activer</button>`
+          : `<button class="btn-action" style="border-color:#b91c1c;color:#b91c1c;" onclick="toggleUser('${u.id}',false)">Désactiver</button>`
+        }
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function filtrerCandidats() {
+  const q = document.getElementById('search-candidats').value.toLowerCase();
+  afficherCandidats(allCandidats.filter(u =>
+    !q || u.email?.toLowerCase().includes(q) || u.full_name?.toLowerCase().includes(q) ||
+    u.city?.toLowerCase().includes(q) || u.job_title?.toLowerCase().includes(q) ||
+    u.skills?.some(s => s.toLowerCase().includes(q))
+  ));
 }
 
 // ── ENTREPRISES ───────────────────────────────────────────
