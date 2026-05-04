@@ -212,7 +212,11 @@
 
       <!-- ── ENTREPRISES ── -->
       <div id="tab-companies" class="tab-section">
-        <h2 class="section-title">Entreprises inscrites</h2>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+          <h2 class="section-title" style="margin:0;">Entreprises inscrites</h2>
+          <span id="companies-count-label" style="font-size:12px;color:var(--text-muted);"></span>
+        </div>
+        <input class="search-bar" id="search-companies" placeholder="Rechercher une entreprise…" oninput="filtrerCompanies()">
         <div id="companies-list" class="table-wrap"></div>
       </div>
 
@@ -290,7 +294,7 @@ var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYm
 const { createClient } = supabase;
 const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-let allOffres = [], allUsers = [], allCandidats = [], currentSession = null;
+let allOffres = [], allUsers = [], allCandidats = [], allCompanies = [], currentSession = null;
 
 // ── Toast ──────────────────────────────────────────────
 function toast(msg, ok=true) {
@@ -313,7 +317,7 @@ function showTab(id, btn) {
   if (id === 'candidats' && !allCandidats.length) chargerCandidats();
   if (id === 'candidatures') chargerCandidatures();
   if (id === 'moderation') chargerModeration();
-  if (id === 'companies') chargerCompanies();
+  if (id === 'companies' && !allCompanies.length) chargerCompanies();
   if (id === 'news') chargerNews();
   if (id === 'certifications') chargerCertifications();
   if (id === 'whatsapp') chargerWAUsers();
@@ -702,19 +706,53 @@ function filtrerCandidats() {
 
 // ── ENTREPRISES ───────────────────────────────────────────
 async function chargerCompanies() {
-  const { data } = await sb.from('users').select('id,email,full_name,is_active,created_at').eq('role','company').order('created_at',{ascending:false});
+  const { data } = await sb.from('users')
+    .select('id,email,full_name,entreprise,ville,secteur,phone,bio,is_active,created_at')
+    .eq('role', 'company')
+    .order('created_at', { ascending: false });
+  allCompanies = data || [];
+  const label = document.getElementById('companies-count-label');
+  if (label) label.textContent = `${allCompanies.length} entreprise${allCompanies.length !== 1 ? 's' : ''}`;
+  afficherCompanies(allCompanies);
+}
+
+function afficherCompanies(companies) {
   const el = document.getElementById('companies-list');
-  if (!data?.length) { el.innerHTML = '<div style="padding:16px;color:var(--text-muted);font-size:13px;">Aucune entreprise.</div>'; return; }
-  el.innerHTML = `<div class="table-head" style="grid-template-columns:auto 1fr auto auto;display:grid;"><span></span><span>Entreprise</span><span>Statut</span><span>Inscription</span></div>` +
-    data.map(u => `<div class="table-row" style="grid-template-columns:auto 1fr auto auto;">
-      <div class="avatar" style="background:#1e40af;">${(u.full_name||u.email||'?')[0].toUpperCase()}</div>
+  if (!companies?.length) {
+    el.innerHTML = '<div style="padding:32px;text-align:center;color:var(--text-muted);font-size:13px;">Aucune entreprise inscrite.</div>';
+    return;
+  }
+  el.innerHTML = `<div class="table-head" style="grid-template-columns:auto 1fr auto auto auto;display:grid;">
+    <span></span><span>Entreprise</span><span>Statut</span><span>Inscrite le</span><span>Actions</span>
+  </div>` + companies.map(u => {
+    const nom = u.entreprise || u.full_name || '—';
+    return `<div class="table-row" style="grid-template-columns:auto 1fr auto auto auto;" id="row-co-${u.id}">
+      <div class="avatar" style="background:#1e40af;">${nom[0].toUpperCase()}</div>
       <div>
-        <div style="font-weight:500;font-size:13px;">${u.full_name||'—'}</div>
-        <div style="font-size:11px;color:var(--text-muted);">${u.email}</div>
+        <div style="font-weight:500;font-size:13px;">${nom}</div>
+        <div style="font-size:11px;color:var(--text-muted);">${u.email}${u.ville ? ' · ' + u.ville : ''}${u.phone ? ' · 📱 ' + u.phone : ''}</div>
+        ${u.secteur ? `<div style="font-size:11px;color:var(--text-muted);font-style:italic;">${u.secteur}</div>` : ''}
       </div>
-      <span class="badge ${u.is_active===false?'b-inactive':'b-active'}">${u.is_active===false?'Inactif':'Actif'}</span>
+      <span class="badge ${u.is_active === false ? 'b-inactive' : 'b-active'}">${u.is_active === false ? 'Inactif' : 'Actif'}</span>
       <span style="font-size:11px;color:var(--text-muted);">${new Date(u.created_at).toLocaleDateString('fr-FR')}</span>
-    </div>`).join('');
+      <div style="display:flex;gap:5px;">
+        <a href="/entreprise-profil.html?id=${u.id}" target="_blank" class="btn-action btn-view">Voir profil</a>
+        ${u.is_active === false
+          ? `<button class="btn-action" style="border-color:#15803d;color:#15803d;" onclick="toggleUser('${u.id}',true)">Activer</button>`
+          : `<button class="btn-action" style="border-color:#b91c1c;color:#b91c1c;" onclick="toggleUser('${u.id}',false)">Désactiver</button>`
+        }
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function filtrerCompanies() {
+  const q = document.getElementById('search-companies').value.toLowerCase();
+  afficherCompanies(allCompanies.filter(u =>
+    !q || u.email?.toLowerCase().includes(q) || u.full_name?.toLowerCase().includes(q) ||
+    u.entreprise?.toLowerCase().includes(q) || u.ville?.toLowerCase().includes(q) ||
+    u.secteur?.toLowerCase().includes(q)
+  ));
 }
 
 // ── CERTIFICATIONS ────────────────────────────────────────
