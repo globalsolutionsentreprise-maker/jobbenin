@@ -6,6 +6,13 @@
       "maxDuration": 30
     }
   },
+  "redirects": [
+    {
+      "source": "/",
+      "destination": "/presentation.html",
+      "permanent": false
+    }
+  ],
   "crons": [
     {
       "path": "/api/payment/check-inactivity",
