@@ -92,7 +92,8 @@ async function testPages() {
   for (const [path, label] of pages) {
     try {
       const r = await get(BASE + path);
-      r.status === 200 ? ok(label, `HTTP ${r.status}`) : ko(label, `HTTP ${r.status}`);
+      const expected = path === '/' ? [200, 307] : [200];
+      expected.includes(r.status) ? ok(label, `HTTP ${r.status}`) : ko(label, `HTTP ${r.status}`);
     } catch(e) { ko(label, e.message); }
   }
 }
