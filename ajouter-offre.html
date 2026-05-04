@@ -317,8 +317,8 @@
       <button class="btn btn-dark btn-sm" onclick="sb.auth.signOut().then(()=>location.href='/index.html')">Déconnexion</button>
     `;
     // Pré-remplir entreprise depuis le profil
-    sb.from('users').select('entreprise').eq('id', session.user.id).maybeSingle()
-      .then(({ data }) => { if (data?.entreprise) document.getElementById('champ-entreprise').value = data.entreprise; });
+    sb.from('users').select('company_name').eq('id', session.user.id).maybeSingle()
+      .then(({ data }) => { if (data?.company_name) document.getElementById('champ-entreprise').value = data.company_name; });
   });
 
   // ── Soumission du formulaire ─────────────────────────────────────
@@ -333,23 +333,21 @@
     msgEl.style.display = 'none';
 
     const payload = {
-      user_id:          currentSession.user.id,
-      titre:            document.getElementById('champ-titre').value.trim()       || document.getElementById('champ-poste').value.trim(),
-      entreprise:       document.getElementById('champ-entreprise').value.trim(),
-      ville:            document.getElementById('champ-ville').value,
-      secteur:          document.getElementById('champ-secteur').value,
-      type_contrat:     document.getElementById('champ-type-contrat').value,
+      company_id:       currentSession.user.id,
+      title:            document.getElementById('champ-titre').value.trim()    || document.getElementById('champ-poste').value.trim(),
+      city:             document.getElementById('champ-ville').value,
+      sector:           document.getElementById('champ-secteur').value,
+      contract_type:    document.getElementById('champ-type-contrat').value,
       description:      document.getElementById('champ-description').value.trim(),
-      profil:           document.getElementById('champ-profil').value.trim(),
-      competences:      document.getElementById('champ-competences').value.trim(),
-      avantages:        document.getElementById('champ-avantages').value.trim(),
+      requirements:     document.getElementById('champ-profil').value.trim(),
+      benefits:         document.getElementById('champ-avantages').value.trim(),
       salary_min:       parseInt(document.getElementById('champ-salary-min').value) || null,
       salary_max:       parseInt(document.getElementById('champ-salary-max').value) || null,
       salary_currency:  document.getElementById('champ-salary-currency').value || 'FCFA',
       salary_period:    document.querySelector('input[name="salary-period"]:checked')?.value || 'mois',
       is_diaspora_open: document.getElementById('champ-diaspora').checked,
       is_remote:        document.getElementById('champ-remote').checked,
-      statut:           'publie',
+      status:           'pending',
     };
 
     const { data: newJob, error } = await sb.from('jobs').insert(payload).select().single();

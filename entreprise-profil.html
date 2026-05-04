@@ -138,20 +138,20 @@
     const { data: company } = await query;
     if (!company) { document.getElementById('profil-main').innerHTML = '<div style="text-align:center;padding:80px;"><p class="text-muted">Profil introuvable.</p></div>'; return; }
 
-    document.title = `${company.entreprise ?? 'Entreprise'} — Talenco.bj`;
+    document.title = `${company.company_name ?? 'Entreprise'} — Talenco.bj`;
 
-    const { data: offres } = await sb.from('jobs').select('id, titre, ville, type_contrat, created_at')
-      .eq('user_id', company.id).eq('statut', 'publie').order('created_at', { ascending: false }).limit(6);
+    const { data: offres } = await sb.from('jobs').select('id, title, city, contract_type, created_at')
+      .eq('company_id', company.id).eq('status', 'published').order('created_at', { ascending: false }).limit(6);
 
     document.getElementById('profil-main').innerHTML = `
       <div class="profil-hero">
         <div class="profil-hero-inner">
           <div class="company-logo">🏢</div>
           <div class="company-info">
-            <h1 class="company-name">${company.entreprise ?? company.prenom ?? 'Entreprise'}</h1>
+            <h1 class="company-name">${company.company_name ?? company.full_name ?? 'Entreprise'}</h1>
             <div class="company-meta">
-              ${company.ville ? `<span>📍 ${company.ville}</span>` : ''}
-              ${company.secteur ? `<span>🏷 ${company.secteur}</span>` : ''}
+              ${company.city ? `<span>📍 ${company.city}</span>` : ''}
+              ${company.sector ? `<span>🏷 ${company.sector}</span>` : ''}
               ${company.email ? `<span>✉️ ${company.email}</span>` : ''}
             </div>
           </div>
@@ -176,10 +176,10 @@
                   <a href="/offre-detail.html?id=${j.id}" class="job-card badge-nouveau-host">
                     ${badgeNouveau.badge(j.created_at)}
                     <div class="job-body">
-                      <p class="job-title">${j.titre}</p>
+                      <p class="job-title">${j.title}</p>
                       <div class="job-tags">
-                        <span class="tag">${j.ville ?? ''}</span>
-                        <span class="tag">${j.type_contrat ?? ''}</span>
+                        <span class="tag">${j.city ?? ''}</span>
+                        <span class="tag">${j.contract_type ?? ''}</span>
                       </div>
                     </div>
                     <span class="job-time">${badgeNouveau.tempsRelatif(j.created_at)}</span>
@@ -193,8 +193,8 @@
         <div>
           <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:18px;">
             <div class="profil-section-label" style="margin-bottom:12px;">Informations</div>
-            ${company.ville ? `<div style="margin-bottom:8px;font-size:13px;"><strong>Ville</strong><br><span class="text-muted">${company.ville}</span></div>` : ''}
-            ${company.secteur ? `<div style="margin-bottom:8px;font-size:13px;"><strong>Secteur</strong><br><span class="text-muted">${company.secteur}</span></div>` : ''}
+            ${company.city ? `<div style="margin-bottom:8px;font-size:13px;"><strong>Ville</strong><br><span class="text-muted">${company.city}</span></div>` : ''}
+            ${company.sector ? `<div style="margin-bottom:8px;font-size:13px;"><strong>Secteur</strong><br><span class="text-muted">${company.sector}</span></div>` : ''}
             <div style="font-size:13px;"><strong>Offres publiées</strong><br><span class="text-muted">${offres?.length ?? 0}</span></div>
           </div>
         </div>

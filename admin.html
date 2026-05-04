@@ -485,7 +485,7 @@ async function supprimerNews(id) {
 // ── USERS ─────────────────────────────────────────────────
 async function chargerUsers() {
   const { data } = await sb.from('users')
-    .select('id,email,full_name,role,status,is_active,created_at,phone,city,is_diaspora,bio,job_title,level,skills,secteurs,salary_currency_pref,subscription_end,test_phase')
+    .select('id,email,full_name,role,status,is_active,created_at,phone,city,is_diaspora,bio,job_title,level,skills,sector,salary_currency_pref,subscription_end,test_phase')
     .order('created_at',{ascending:false});
   allUsers = data || [];
   afficherUsers(allUsers);
@@ -622,8 +622,8 @@ async function voirProfil(userId) {
         <div class="profile-tags">${tags(u.skills)}</div>
       </div>
       <div>
-        <div class="profile-field-label" style="margin-bottom:6px;">Secteurs d'intérêt</div>
-        <div class="profile-tags">${tags(u.secteurs)}</div>
+        <div class="profile-field-label" style="margin-bottom:6px;">Secteur d'intérêt</div>
+        <div class="profile-tags">${u.sector ? `<span class="profile-tag">${u.sector}</span>` : '<span class="empty">—</span>'}</div>
       </div>
     </div>
 
@@ -707,7 +707,7 @@ function filtrerCandidats() {
 // ── ENTREPRISES ───────────────────────────────────────────
 async function chargerCompanies() {
   const { data } = await sb.from('users')
-    .select('id,email,full_name,entreprise,ville,secteur,phone,bio,is_active,created_at')
+    .select('id,email,full_name,company_name,city,sector,phone,bio,is_active,created_at')
     .eq('role', 'company')
     .order('created_at', { ascending: false });
   allCompanies = data || [];
@@ -725,13 +725,13 @@ function afficherCompanies(companies) {
   el.innerHTML = `<div class="table-head" style="grid-template-columns:auto 1fr auto auto auto;display:grid;">
     <span></span><span>Entreprise</span><span>Statut</span><span>Inscrite le</span><span>Actions</span>
   </div>` + companies.map(u => {
-    const nom = u.entreprise || u.full_name || '—';
+    const nom = u.company_name || u.full_name || '—';
     return `<div class="table-row" style="grid-template-columns:auto 1fr auto auto auto;" id="row-co-${u.id}">
       <div class="avatar" style="background:#1e40af;">${nom[0].toUpperCase()}</div>
       <div>
         <div style="font-weight:500;font-size:13px;">${nom}</div>
-        <div style="font-size:11px;color:var(--text-muted);">${u.email}${u.ville ? ' · ' + u.ville : ''}${u.phone ? ' · 📱 ' + u.phone : ''}</div>
-        ${u.secteur ? `<div style="font-size:11px;color:var(--text-muted);font-style:italic;">${u.secteur}</div>` : ''}
+        <div style="font-size:11px;color:var(--text-muted);">${u.email}${u.city ? ' · ' + u.city : ''}${u.phone ? ' · 📱 ' + u.phone : ''}</div>
+        ${u.sector ? `<div style="font-size:11px;color:var(--text-muted);font-style:italic;">${u.sector}</div>` : ''}
       </div>
       <span class="badge ${u.is_active === false ? 'b-inactive' : 'b-active'}">${u.is_active === false ? 'Inactif' : 'Actif'}</span>
       <span style="font-size:11px;color:var(--text-muted);">${new Date(u.created_at).toLocaleDateString('fr-FR')}</span>
@@ -750,8 +750,8 @@ function filtrerCompanies() {
   const q = document.getElementById('search-companies').value.toLowerCase();
   afficherCompanies(allCompanies.filter(u =>
     !q || u.email?.toLowerCase().includes(q) || u.full_name?.toLowerCase().includes(q) ||
-    u.entreprise?.toLowerCase().includes(q) || u.ville?.toLowerCase().includes(q) ||
-    u.secteur?.toLowerCase().includes(q)
+    u.company_name?.toLowerCase().includes(q) || u.city?.toLowerCase().includes(q) ||
+    u.sector?.toLowerCase().includes(q)
   ));
 }
 
