@@ -215,6 +215,24 @@ async function testPageContent() {
     ].forEach(([n, l]) => r.body.includes(n) ? ok(l) : ko(l));
   } catch(e) { ko('admin-analytics.html content', e.message); }
 
+  // admin.html : onglet Candidats
+  try {
+    const r = await get(BASE + '/admin.html');
+    [
+      ['tab-candidats',      'admin — section tab-candidats présente'],
+      ['candidats-list',     'admin — conteneur liste candidats'],
+      ['search-candidats',   'admin — barre de recherche candidats'],
+      ['badge-cands',        'admin — badge count candidats sidebar'],
+      ['chargerCandidats',   'admin — fonction chargerCandidats'],
+      ['filtrerCandidats',   'admin — fonction filtrerCandidats'],
+      ['afficherCandidats',  'admin — fonction afficherCandidats'],
+      ['allCandidats',       'admin — variable allCandidats'],
+      ["showTab('candidats", 'admin — lien sidebar vers onglet candidats'],
+      ['voirProfil',         'admin — bouton voir profil candidat'],
+      ['chargerWAUsers',     'admin — fix WhatsApp lazy load'],
+    ].forEach(([n, l]) => r.body.includes(n) ? ok(l) : ko(l));
+  } catch(e) { ko('admin.html candidats tab', e.message); }
+
   // presentation.html : countdown + bêta
   try {
     const r = await get(BASE + '/presentation.html');
@@ -225,6 +243,33 @@ async function testPageContent() {
       ['nav-mobile.js','presentation — nav-mobile injecté'],
     ].forEach(([n, l]) => r.body.includes(n) ? ok(l) : ko(l));
   } catch(e) { ko('presentation.html content', e.message); }
+
+  // candidat.html : profil, compétences, candidatures
+  try {
+    const r = await get(BASE + '/candidat.html');
+    [
+      ['nav-drawer',        'candidat — drawer mobile natif'],
+      ['candidature.js',    'candidat — script candidatures chargé'],
+      ['pro-bio',           'candidat — champ bio'],
+      ['pro-competences',   'candidat — champ compétences'],
+      ['pro-salaire',       'candidat — champ salaire attendu'],
+      ['candidatures-list', 'candidat — section mes candidatures'],
+      ['badge-verifie',     'candidat — badge certifié'],
+      ['is_certified',      'candidat — colonne is_certified dans select'],
+    ].forEach(([n, l]) => r.body.includes(n) ? ok(l) : ko(l));
+  } catch(e) { ko('candidat.html content', e.message); }
+
+  // entreprise-profil.html : nom entreprise, offres, drawer
+  try {
+    const r = await get(BASE + '/entreprise-profil.html');
+    [
+      ['nav-drawer',        'entreprise-profil — drawer mobile natif'],
+      ['badge-nouveau.js',  'entreprise-profil — badge-nouveau.js chargé'],
+      ['company-name',      'entreprise-profil — affichage nom entreprise'],
+      ['company.entreprise','entreprise-profil — logique nom entreprise'],
+      ['offre-detail.html', 'entreprise-profil — lien vers offres publiées'],
+    ].forEach(([n, l]) => r.body.includes(n) ? ok(l) : ko(l));
+  } catch(e) { ko('entreprise-profil.html content', e.message); }
 }
 
 async function testSupabaseTables() {
@@ -340,13 +385,16 @@ async function testMobileNav() {
         : ko(path.replace('/', ''), 'nav-mobile.js ABSENT');
     } catch(e) { ko(path, e.message); }
   }
-  // offres.html : drawer natif inline
-  try {
-    const r = await get(BASE + '/offres.html');
-    r.body.includes('nav-drawer')
-      ? ok('offres.html', 'drawer mobile natif intégré')
-      : ko('offres.html', 'aucun drawer mobile');
-  } catch(e) { ko('offres.html mobile', e.message); }
+  // pages avec drawer natif inline
+  const nativeDrawerPages = ['/offres.html', '/candidat.html', '/entreprise-profil.html'];
+  for (const path of nativeDrawerPages) {
+    try {
+      const r = await get(BASE + path);
+      r.body.includes('nav-drawer')
+        ? ok(path.replace('/', ''), 'drawer mobile natif intégré')
+        : ko(path.replace('/', ''), 'aucun drawer mobile');
+    } catch(e) { ko(path + ' mobile', e.message); }
+  }
 }
 
 async function testBugReportInject() {
