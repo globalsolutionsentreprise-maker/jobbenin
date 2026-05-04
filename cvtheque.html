@@ -67,14 +67,37 @@
     </div>
   </a>
   <ul class="navbar-links">
+    <li><a href="/index.html">Accueil</a></li>
     <li><a href="/offres.html">Offres</a></li>
     <li><a href="/entreprises.html">Recruteurs</a></li>
     <li><a href="/cvtheque.html" class="active">CVthèque</a></li>
+    <li><a href="/coach.html">✨ Coach IA</a></li>
   </ul>
   <div class="navbar-actions" id="nav-actions">
     <a href="/connexion.html" class="btn btn-outline btn-sm">Connexion</a>
   </div>
+  <button class="navbar-toggle" id="nav-toggle" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
 </nav>
+
+<div class="nav-drawer" id="nav-drawer">
+  <div class="nav-drawer-overlay" id="nav-overlay"></div>
+  <div class="nav-drawer-panel">
+    <button class="nav-drawer-close" id="nav-close">✕</button>
+    <div class="nav-logo">
+      <div class="nav-logo-text"><span class="logo-primary">Talenco</span><span class="logo-dot">.</span><span class="logo-tld">bj</span></div>
+    </div>
+    <ul class="nav-drawer-links">
+      <li><a href="/index.html">Accueil</a></li>
+      <li><a href="/offres.html">Offres d'emploi</a></li>
+      <li><a href="/entreprises.html">Recruteurs</a></li>
+      <li><a href="/cvtheque.html">CVthèque</a></li>
+      <li><a href="/coach.html">✨ Coach IA</a></li>
+      <li><a href="/connexion.html">Connexion</a></li>
+    </ul>
+  </div>
+</div>
 
 <!-- Header -->
 <div style="background:var(--bg-card);border-bottom:1px solid var(--border);padding:20px 24px;">
@@ -299,6 +322,7 @@ sb.auth.getSession().then(async ({ data: { session } }) => {
     document.getElementById('lock-banner').style.display = 'block';
   }
   chargerProfils();
+  if (session) verifierPremium(session);
 });
 
 // ── Chargement profils ──────────────────────────────────

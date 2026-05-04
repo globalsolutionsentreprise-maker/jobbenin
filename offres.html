@@ -432,7 +432,7 @@
     }
 
     let query = sb.from('jobs')
-      .select('id, title, company_id, city, sector, contract_type, created_at, score, salary_min, salary_max, salary_currency, salary_period, is_diaspora_open, is_remote', { count: 'exact' })
+      .select('id, title, entreprise, company_id, city, sector, contract_type, created_at, score, salary_min, salary_max, salary_currency, salary_period, is_diaspora_open, is_remote', { count: 'exact' })
       .eq('status', 'published')
       .range(currentPage * PAGE_SIZE, (currentPage + 1) * PAGE_SIZE - 1);
 
@@ -460,7 +460,7 @@
         ${badgeNouveau.badge(j.created_at)}
         <div class="job-body">
           <p class="job-title">${j.title}</p>
-          <p class="job-company">${j.company_id ?? 'Entreprise'}</p>
+          <p class="job-company">${j.entreprise || 'Entreprise'}</p>
           ${j.salary_min ? `<div style="font-family:var(--font-mono);font-size:11px;color:var(--accent);margin-bottom:6px;">${j.salary_min.toLocaleString('fr-FR')} ${j.salary_currency||'FCFA'}${j.salary_max ? ' – ' + j.salary_max.toLocaleString('fr-FR') : ''} / ${j.salary_period||'mois'}</div>` : ''}
           <div class="job-tags">
             <span class="tag">${j.city ?? ''}</span>
