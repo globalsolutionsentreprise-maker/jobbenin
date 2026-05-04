@@ -309,6 +309,8 @@
 
   // ── Auth ────────────────────────────────────────────────────────────
   let currentSession = null;
+  let currentCompanyId = null;
+
   sb.auth.getSession().then(({ data: { session } }) => {
     if (!session) { window.location.href = '/connexion.html?next=/ajouter-offre.html'; return; }
     currentSession = session;
@@ -316,9 +318,14 @@
       <a href="/entreprises.html" class="btn btn-outline btn-sm">← Tableau de bord</a>
       <button class="btn btn-dark btn-sm" onclick="sb.auth.signOut().then(()=>location.href='/index.html')">Déconnexion</button>
     `;
-    // Pré-remplir entreprise depuis le profil
-    sb.from('users').select('company_name').eq('id', session.user.id).maybeSingle()
-      .then(({ data }) => { if (data?.company_name) document.getElementById('champ-entreprise').value = data.company_name; });
+    // Pré-remplir depuis la table companies (owner_id = user.id)
+    sb.from('companies').select('id, name').eq('owner_id', session.user.id).maybeSingle()
+      .then(({ data }) => {
+        if (data) {
+          currentCompanyId = data.id;
+          if (data.name) document.getElementById('champ-entreprise').value = data.name;
+        }
+      });
   });
 
   // ── Soumission du formulaire ─────────────────────────────────────
@@ -332,8 +339,17 @@
     btnSubmit.textContent = '⏳ Publication…';
     msgEl.style.display = 'none';
 
+    if (!currentCompanyId) {
+      msgEl.className = 'alert alert-error';
+      msgEl.textContent = '❌ Profil entreprise introuvable. Complétez votre profil avant de publier.';
+      msgEl.style.display = 'block';
+      btnSubmit.disabled = false;
+      btnSubmit.textContent = 'Publier l\'offre';
+      return;
+    }
+
     const payload = {
-      company_id:       currentSession.user.id,
+      company_id:       currentCompanyId,
       title:            document.getElementById('champ-titre').value.trim()    || document.getElementById('champ-poste').value.trim(),
       city:             document.getElementById('champ-ville').value,
       sector:           document.getElementById('champ-secteur').value,

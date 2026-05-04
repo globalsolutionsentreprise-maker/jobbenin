@@ -124,21 +124,28 @@
   const companyId = new URLSearchParams(location.search).get('id');
 
   async function chargerProfil() {
-    let query;
+    let company = null;
 
-    // Mode "mon profil" (recruteur connecté)
     if (!companyId) {
+      // Mode "mon profil" (recruteur connecté)
       const { data: { session } } = await sb.auth.getSession();
       if (!session) { window.location.href = '/connexion.html'; return; }
-      query = sb.from('users').select('*').eq('id', session.user.id).single();
+      const { data } = await sb.from('companies').select('*').eq('owner_id', session.user.id).maybeSingle();
+      company = data;
     } else {
-      query = sb.from('users').select('*').eq('id', companyId).single();
+      // Vue publique — companyId peut être l'ID owner (user) ou l'ID company directement
+      const { data: byOwner } = await sb.from('companies').select('*').eq('owner_id', companyId).maybeSingle();
+      if (byOwner) {
+        company = byOwner;
+      } else {
+        const { data: byId } = await sb.from('companies').select('*').eq('id', companyId).maybeSingle();
+        company = byId;
+      }
     }
 
-    const { data: company } = await query;
     if (!company) { document.getElementById('profil-main').innerHTML = '<div style="text-align:center;padding:80px;"><p class="text-muted">Profil introuvable.</p></div>'; return; }
 
-    document.title = `${company.company_name ?? 'Entreprise'} — Talenco.bj`;
+    document.title = `${company.name ?? 'Entreprise'} — Talenco.bj`;
 
     const { data: offres } = await sb.from('jobs').select('id, title, city, contract_type, created_at')
       .eq('company_id', company.id).eq('status', 'published').order('created_at', { ascending: false }).limit(6);
@@ -148,7 +155,7 @@
         <div class="profil-hero-inner">
           <div class="company-logo">🏢</div>
           <div class="company-info">
-            <h1 class="company-name">${company.company_name ?? company.full_name ?? 'Entreprise'}</h1>
+            <h1 class="company-name">${company.name ?? 'Entreprise'}</h1>
             <div class="company-meta">
               ${company.city ? `<span>📍 ${company.city}</span>` : ''}
               ${company.sector ? `<span>🏷 ${company.sector}</span>` : ''}
@@ -161,10 +168,10 @@
 
       <div class="profil-body">
         <div>
-          ${company.bio ? `
+          ${company.description ? `
             <div class="profil-section">
               <div class="profil-section-label">À propos</div>
-              <p class="profil-text">${company.bio}</p>
+              <p class="profil-text">${company.description}</p>
             </div>
           ` : ''}
 
@@ -195,6 +202,7 @@
             <div class="profil-section-label" style="margin-bottom:12px;">Informations</div>
             ${company.city ? `<div style="margin-bottom:8px;font-size:13px;"><strong>Ville</strong><br><span class="text-muted">${company.city}</span></div>` : ''}
             ${company.sector ? `<div style="margin-bottom:8px;font-size:13px;"><strong>Secteur</strong><br><span class="text-muted">${company.sector}</span></div>` : ''}
+            ${company.website ? `<div style="margin-bottom:8px;font-size:13px;"><strong>Site web</strong><br><a href="${company.website}" target="_blank" class="text-muted">${company.website}</a></div>` : ''}
             <div style="font-size:13px;"><strong>Offres publiées</strong><br><span class="text-muted">${offres?.length ?? 0}</span></div>
           </div>
         </div>
