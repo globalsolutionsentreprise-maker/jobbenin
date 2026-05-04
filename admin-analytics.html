@@ -108,6 +108,50 @@
     .bench-trend { display:flex;align-items:center;gap:5px;margin-top:10px;font-size:11px; }
     .bench-trend.up   { color:#2E7D32; }
     .bench-trend.down { color:#C62828; }
+
+    /* ── BUGS ── */
+    .bugs-kpi-row { display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px; }
+    @media(max-width:700px){ .bugs-kpi-row{grid-template-columns:repeat(2,1fr);} }
+    .bug-kpi { background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px;text-align:center; }
+    .bug-kpi-num { font-family:var(--font-serif);font-style:italic;font-size:28px;line-height:1;margin-bottom:4px; }
+    .bug-kpi-num.red    { color:#C62828; }
+    .bug-kpi-num.orange { color:#E65100; }
+    .bug-kpi-num.green  { color:#2E7D32; }
+    .bug-kpi-num.muted  { color:var(--text-muted); }
+    .bug-kpi-label { font-family:var(--font-mono);font-size:9px;letter-spacing:.09em;text-transform:uppercase;color:var(--text-muted); }
+
+    .bugs-filters { display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;align-items:center; }
+    .bug-filter-btn { padding:5px 12px;font-size:11px;font-family:var(--font-body);font-weight:500;border-radius:999px;border:1px solid var(--border);background:var(--bg-card);color:var(--text-muted);cursor:pointer;transition:all .15s; }
+    .bug-filter-btn.active { background:var(--text);color:var(--bg);border-color:var(--text); }
+    .bug-filter-btn:hover:not(.active) { background:var(--bg-soft); }
+
+    .bugs-table { width:100%;border-collapse:collapse; }
+    .bugs-table th { font-family:var(--font-mono);font-size:9px;letter-spacing:.09em;text-transform:uppercase;color:var(--text-muted);padding:8px 12px;text-align:left;border-bottom:1px solid var(--border);white-space:nowrap; }
+    .bugs-table td { padding:11px 12px;font-size:12px;border-bottom:1px solid var(--border);vertical-align:top; }
+    .bugs-table tr:last-child td { border-bottom:none; }
+    .bugs-table tr:hover td { background:var(--bg-soft); }
+
+    .sev-badge { display:inline-flex;align-items:center;gap:4px;font-family:var(--font-mono);font-size:9px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;border-radius:999px; }
+    .sev-badge.bloquant  { background:#FFEBEE;color:#C62828; }
+    .sev-badge.importante{ background:#FFF3E0;color:#E65100; }
+    .sev-badge.normale   { background:#E8F5E9;color:#2E7D32; }
+    .sev-badge.mineure   { background:var(--bg-soft);color:var(--text-muted); }
+
+    .bug-type-tag { font-family:var(--font-mono);font-size:9px;padding:2px 7px;border-radius:4px;background:var(--bg-soft);color:var(--text-muted); }
+
+    .bug-status-sel { font-family:var(--font-body);font-size:11px;border:1px solid var(--border);border-radius:var(--radius-sm);padding:4px 8px;background:var(--bg-card);color:var(--text);cursor:pointer;transition:border-color .15s; }
+    .bug-status-sel:focus { outline:none;border-color:var(--accent); }
+    .bug-status-sel.ouvert     { border-color:#C62828;color:#C62828; }
+    .bug-status-sel.en_cours   { border-color:#E65100;color:#E65100; }
+    .bug-status-sel.resolu     { border-color:#2E7D32;color:#2E7D32; }
+    .bug-status-sel.ignore     { border-color:var(--border);color:var(--text-muted); }
+
+    .bugs-empty { text-align:center;padding:48px 24px;color:var(--text-muted);font-size:13px; }
+    .bugs-loading { text-align:center;padding:32px;color:var(--text-muted);font-size:12px;font-family:var(--font-mono); }
+    .bug-desc-cell { max-width:280px;line-height:1.55;color:var(--text-mid); }
+    .bug-page-cell { font-family:var(--font-mono);font-size:10px;color:var(--text-muted);max-width:140px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+    .bug-email-cell { font-size:11px;color:var(--text-muted); }
+    .bug-date-cell { font-family:var(--font-mono);font-size:10px;color:var(--text-muted);white-space:nowrap; }
   </style>
 </head>
 <body>
@@ -282,6 +326,59 @@
     <div class="ai-meta" id="ai-meta"></div>
   </div>
 
+  <!-- ══════════════════════════════════════════
+       SECTION BUGS REMONTÉS
+  ══════════════════════════════════════════ -->
+  <div class="section-sep" style="margin-top:32px;">
+    <span class="section-sep-label">Bugs remontés — Phase bêta</span>
+    <div class="section-sep-line"></div>
+    <button class="refresh-btn" onclick="loadBugs()" id="bugs-refresh-btn" style="white-space:nowrap;">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+      Actualiser
+    </button>
+  </div>
+
+  <!-- KPIs bugs -->
+  <div class="bugs-kpi-row">
+    <div class="bug-kpi">
+      <div class="bug-kpi-num red"   id="bkpi-bloquants">—</div>
+      <div class="bug-kpi-label">Bloquants</div>
+    </div>
+    <div class="bug-kpi">
+      <div class="bug-kpi-num orange" id="bkpi-ouverts">—</div>
+      <div class="bug-kpi-label">Ouverts</div>
+    </div>
+    <div class="bug-kpi">
+      <div class="bug-kpi-num green"  id="bkpi-resolus">—</div>
+      <div class="bug-kpi-label">Résolus</div>
+    </div>
+    <div class="bug-kpi">
+      <div class="bug-kpi-num muted"  id="bkpi-total">—</div>
+      <div class="bug-kpi-label">Total</div>
+    </div>
+  </div>
+
+  <!-- Filtres -->
+  <div class="bugs-filters" id="bugs-filters">
+    <span style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.07em;">Statut :</span>
+    <button class="bug-filter-btn active" data-filter="statut" data-val="">Tous</button>
+    <button class="bug-filter-btn" data-filter="statut" data-val="ouvert">Ouvert</button>
+    <button class="bug-filter-btn" data-filter="statut" data-val="en_cours">En cours</button>
+    <button class="bug-filter-btn" data-filter="statut" data-val="resolu">Résolu</button>
+    <span style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.07em;margin-left:8px;">Sévérité :</span>
+    <button class="bug-filter-btn" data-filter="severity" data-val="">Toutes</button>
+    <button class="bug-filter-btn" data-filter="severity" data-val="bloquant" style="color:#C62828;border-color:#FFCDD2;">Bloquant</button>
+    <button class="bug-filter-btn" data-filter="severity" data-val="importante" style="color:#E65100;border-color:#FFE0B2;">Importante</button>
+    <button class="bug-filter-btn" data-filter="severity" data-val="normale">Normale</button>
+  </div>
+
+  <!-- Table -->
+  <div class="chart-card" style="overflow-x:auto;">
+    <div id="bugs-table-container">
+      <div class="bugs-loading">Chargement des rapports…</div>
+    </div>
+  </div>
+
 </div>
 </div><!-- end main-content -->
 
@@ -303,6 +400,7 @@ function checkAuth() {
     document.getElementById('auth-overlay').style.display = 'none';
     document.getElementById('main-content').style.display = 'block';
     loadAll();
+    loadBugs();
   } else {
     document.getElementById('auth-err').style.display = 'block';
   }
@@ -907,6 +1005,157 @@ function fmtFCFA(n) {
 // Chart.js defaults
 Chart.defaults.font.family = 'Space Grotesk, system-ui, sans-serif';
 Chart.defaults.color       = '#706050';
+
+// ─────────────────────────────────────────────
+// BUGS
+// ─────────────────────────────────────────────
+let allBugs      = [];
+let bugFilters   = { statut: '', severity: '' };
+
+async function loadBugs() {
+  const btn = document.getElementById('bugs-refresh-btn');
+  if (btn) btn.classList.add('spinning');
+
+  try {
+    const res  = await fetch('/api/admin-bugs', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ secret: ADMIN_PWD })
+    });
+    const data = await res.json();
+    if (!res.ok) { console.error('Bugs error:', data.error); return; }
+    allBugs = data.bugs || [];
+    renderBugsKPIs();
+    renderBugsTable();
+  } catch(e) {
+    document.getElementById('bugs-table-container').innerHTML =
+      '<div class="bugs-empty">Erreur de chargement. Vérifiez que SUPABASE_SERVICE_KEY est configurée dans Vercel.</div>';
+  }
+
+  if (btn) btn.classList.remove('spinning');
+}
+
+function renderBugsKPIs() {
+  const bloquants = allBugs.filter(b => b.severity === 'bloquant' && b.status !== 'resolu' && b.status !== 'ignore').length;
+  const ouverts   = allBugs.filter(b => b.status === 'ouvert').length;
+  const resolus   = allBugs.filter(b => b.status === 'resolu').length;
+
+  document.getElementById('bkpi-bloquants').textContent = bloquants;
+  document.getElementById('bkpi-ouverts').textContent   = ouverts;
+  document.getElementById('bkpi-resolus').textContent   = resolus;
+  document.getElementById('bkpi-total').textContent     = allBugs.length;
+}
+
+function renderBugsTable() {
+  const container = document.getElementById('bugs-table-container');
+
+  let bugs = allBugs;
+  if (bugFilters.statut)   bugs = bugs.filter(b => b.status   === bugFilters.statut);
+  if (bugFilters.severity) bugs = bugs.filter(b => b.severity === bugFilters.severity);
+
+  if (!bugs.length) {
+    container.innerHTML = `<div class="bugs-empty">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--border);margin:0 auto 12px;display:block"><polyline points="20 6 9 17 4 12"/></svg>
+      Aucun rapport pour ce filtre.
+    </div>`;
+    return;
+  }
+
+  const TYPE_LABELS = {
+    affichage:     'Affichage',
+    fonctionnalite:'Fonctionnalité',
+    erreur:        'Erreur',
+    lenteur:       'Lenteur',
+    autre:         'Autre'
+  };
+
+  const rows = bugs.map(b => {
+    const date  = new Date(b.created_at).toLocaleDateString('fr-FR', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' });
+    const sev   = b.severity || 'normale';
+    const email = b.user_email ? `<div class="bug-email-cell">${b.user_email}</div>` : '<div class="bug-email-cell">—</div>';
+
+    return `<tr>
+      <td><span class="sev-badge ${sev}">${sev}</span></td>
+      <td><span class="bug-type-tag">${TYPE_LABELS[b.bug_type] || b.bug_type || '—'}</span></td>
+      <td class="bug-desc-cell">${b.description || '—'}</td>
+      <td class="bug-page-cell" title="${b.page_url||''}">${b.page_name || b.page_url || '—'}</td>
+      <td>${email}</td>
+      <td class="bug-date-cell">${date}</td>
+      <td>
+        <select class="bug-status-sel ${b.status||'ouvert'}"
+          onchange="updateBugStatus('${b.id}', this)"
+          data-id="${b.id}">
+          <option value="ouvert"   ${b.status==='ouvert'   ?'selected':''}>Ouvert</option>
+          <option value="en_cours" ${b.status==='en_cours' ?'selected':''}>En cours</option>
+          <option value="resolu"   ${b.status==='resolu'   ?'selected':''}>Résolu</option>
+          <option value="ignore"   ${b.status==='ignore'   ?'selected':''}>Ignoré</option>
+        </select>
+      </td>
+    </tr>`;
+  }).join('');
+
+  container.innerHTML = `
+    <table class="bugs-table">
+      <thead>
+        <tr>
+          <th>Sévérité</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Page</th>
+          <th>Utilisateur</th>
+          <th>Date</th>
+          <th>Statut</th>
+        </tr>
+      </thead>
+      <tbody>${rows}</tbody>
+    </table>
+    <div style="padding:10px 12px;font-family:var(--font-mono);font-size:10px;color:var(--text-muted);border-top:1px solid var(--border);">
+      ${bugs.length} rapport${bugs.length > 1 ? 's' : ''} affiché${bugs.length > 1 ? 's' : ''}
+      ${allBugs.length !== bugs.length ? ` sur ${allBugs.length} total` : ''}
+    </div>`;
+}
+
+async function updateBugStatus(id, sel) {
+  const newStatus = sel.value;
+  sel.className = `bug-status-sel ${newStatus}`;
+  sel.disabled  = true;
+
+  try {
+    const res = await fetch('/api/admin-bugs', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ secret: ADMIN_PWD, action: 'update_status', id, status: newStatus })
+    });
+    if (!res.ok) {
+      const d = await res.json();
+      alert('Erreur : ' + (d.error || 'Inconnue'));
+      sel.value    = sel.dataset.prevValue || 'ouvert';
+      sel.className = `bug-status-sel ${sel.value}`;
+    } else {
+      // Mise à jour locale
+      const bug = allBugs.find(b => b.id === id);
+      if (bug) bug.status = newStatus;
+      renderBugsKPIs();
+    }
+  } catch(e) {
+    alert('Erreur réseau.');
+  }
+  sel.disabled = false;
+}
+
+// Filtres bugs
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.bug-filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const f = btn.dataset.filter;
+      // toggle actif dans le groupe
+      document.querySelectorAll(`.bug-filter-btn[data-filter="${f}"]`).forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      bugFilters[f === 'statut' ? 'statut' : 'severity'] = btn.dataset.val;
+      renderBugsTable();
+    });
+  });
+});
 </script>
 </body>
 </html>
