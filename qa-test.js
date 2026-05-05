@@ -89,6 +89,7 @@ async function testPages() {
     ['/admin-analytics.html', 'Admin analytics'],
     ['/admin-invites.html',      'Admin invites'],
     ['/mot-de-passe-oublie.html', 'Mot de passe oublié'],
+    ['/coach.html',               'Coach IA'],
   ];
   for (const [path, label] of pages) {
     try {
@@ -309,6 +310,20 @@ async function testPageContent() {
       ['connexion.html',         'mdp-oublie — redirect vers connexion après reset'],
     ].forEach(([n, l]) => r.body.includes(n) ? ok(l) : ko(l));
   } catch(e) { ko('mot-de-passe-oublie.html content', e.message); }
+
+  // coach.html : limite messages, compteur, banner, streaming
+  try {
+    const r = await get(BASE + '/coach.html');
+    [
+      ['MAX_MESSAGES',        'coach — constante limite messages définie'],
+      ['limit-banner',        'coach — bannière limite atteinte'],
+      ['msg-counter',         'coach — compteur messages restants'],
+      ['coach-ia',            'coach — appel edge function coach-ia'],
+      ['X-Remaining-Messages','coach — lecture header remaining du serveur'],
+      ['nav-mobile.js',       'coach — nav-mobile.js injecté'],
+      ['bug-report.js',       'coach — bug-report.js injecté'],
+    ].forEach(([n, l]) => r.body.includes(n) ? ok(l) : ko(l));
+  } catch(e) { ko('coach.html content', e.message); }
 }
 
 async function testSupabaseTables() {
@@ -416,6 +431,7 @@ async function testMobileNav() {
     '/inscription.html', '/connexion.html', '/presentation.html',
     '/invitation-entreprise.html', '/cgv.html', '/paiement-candidat.html',
     '/paiement-entreprise.html', '/bienvenue.html',
+    '/mot-de-passe-oublie.html', '/coach.html',
   ];
   for (const path of mobilePages) {
     try {
@@ -442,6 +458,7 @@ async function testBugReportInject() {
   const pages = [
     '/offres.html', '/offre-detail.html', '/ajouter-offre.html',
     '/inscription.html', '/connexion.html', '/invitation-entreprise.html',
+    '/mot-de-passe-oublie.html', '/coach.html',
   ];
   for (const path of pages) {
     try {
