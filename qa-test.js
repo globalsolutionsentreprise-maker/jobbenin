@@ -87,7 +87,8 @@ async function testPages() {
     ['/reactivation.html', 'Réactivation'],
     ['/admin.html', 'Admin dashboard'],
     ['/admin-analytics.html', 'Admin analytics'],
-    ['/admin-invites.html', 'Admin invites'],
+    ['/admin-invites.html',      'Admin invites'],
+    ['/mot-de-passe-oublie.html', 'Mot de passe oublié'],
   ];
   for (const [path, label] of pages) {
     try {
@@ -198,7 +199,7 @@ async function testPageContent() {
     const r = await get(BASE + '/offre-detail.html');
     [
       ['salary_min',         'offre-detail — salary_min dans select'],
-      ['is_diaspora_open',   'offre-detail — badge diaspora'],
+      ['diaspora_friendly',  'offre-detail — badge diaspora'],
       ['Devises.renderTriple','offre-detail — triple devise call'],
       ['bug-report.js',      'offre-detail — bug-report injecté'],
     ].forEach(([n, l]) => r.body.includes(n) ? ok(l) : ko(l));
@@ -274,8 +275,12 @@ async function testPageContent() {
       ['pro-competences',   'candidat — champ compétences'],
       ['pro-salaire',       'candidat — champ salaire attendu'],
       ['candidatures-list', 'candidat — section mes candidatures'],
-      ['badge-verifie',     'candidat — badge certifié'],
-      ['is_certified',      'candidat — colonne is_certified dans select'],
+      ['badge-verifie',        'candidat — badge certifié'],
+      ['is_certified',         'candidat — colonne is_certified dans select'],
+      ['btn-certif',           'candidat — bouton demande certification'],
+      ['certif-dispo',         'candidat — champ disponibilités certification'],
+      ['badge-certif-status',  'candidat — badge statut certification'],
+      ['certification_requests','candidat — table certification_requests référencée'],
     ].forEach(([n, l]) => r.body.includes(n) ? ok(l) : ko(l));
   } catch(e) { ko('candidat.html content', e.message); }
 
@@ -290,6 +295,20 @@ async function testPageContent() {
       ['offre-detail.html', 'entreprise-profil — lien vers offres publiées'],
     ].forEach(([n, l]) => r.body.includes(n) ? ok(l) : ko(l));
   } catch(e) { ko('entreprise-profil.html content', e.message); }
+
+  // mot-de-passe-oublie.html : formulaire email + formulaire reset
+  try {
+    const r = await get(BASE + '/mot-de-passe-oublie.html');
+    [
+      ['step-email',             'mdp-oublie — étape email (demande lien)'],
+      ['step-password',          'mdp-oublie — étape reset (nouveau mot de passe)'],
+      ['btn-send',               'mdp-oublie — bouton envoyer lien'],
+      ['btn-reset',              'mdp-oublie — bouton enregistrer mot de passe'],
+      ['reset-email',            'mdp-oublie — champ email'],
+      ['resetPasswordForEmail',  'mdp-oublie — appel Supabase resetPasswordForEmail'],
+      ['connexion.html',         'mdp-oublie — redirect vers connexion après reset'],
+    ].forEach(([n, l]) => r.body.includes(n) ? ok(l) : ko(l));
+  } catch(e) { ko('mot-de-passe-oublie.html content', e.message); }
 }
 
 async function testSupabaseTables() {
@@ -300,7 +319,8 @@ async function testSupabaseTables() {
     ['jobs',               'id,salary_min,salary_max,salary_currency,salary_period,is_diaspora_open,is_remote'],
     ['enterprise_invites', 'id,token,status,company_name'],
     ['bug_reports',        'id,bug_type,severity,status,description,page_name'],
-    ['transactions',       'id,amount,type,status'],
+    ['transactions',           'id,amount,type,status'],
+    ['certification_requests', 'id,candidate_id,status,availability,linkedin_url,motivation,certified_at'],
   ];
 
   for (const [table, cols] of tables) {
