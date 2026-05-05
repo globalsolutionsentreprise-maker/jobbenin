@@ -460,7 +460,7 @@ async function supprimerOffre(id) {
 
 // ── CANDIDATURES ──────────────────────────────────────────
 async function chargerCandidatures() {
-  const { data } = await sb.from('applications').select('id,status,created_at,job_id,candidate_id').order('created_at',{ascending:false}).limit(50);
+  const { data } = await sb.from('applications').select('id,status,created_at,job_id,user_id').order('created_at',{ascending:false}).limit(50);
   const el = document.getElementById('cand-list');
   if (!data?.length) { el.innerHTML = '<div style="padding:16px;color:var(--text-muted);font-size:13px;">Aucune candidature.</div>'; return; }
   el.innerHTML = `<div class="table-head" style="grid-template-columns:1fr auto auto;display:grid;"><span>ID Offre</span><span>Statut</span><span>Date</span></div>` +
@@ -575,7 +575,7 @@ async function voirProfil(userId) {
   // Charger user + candidatures
   const [{ data: u }, { data: apps, count: nbApps }] = await Promise.all([
     sb.from('users').select('*').eq('id', userId).single(),
-    sb.from('applications').select('id,status,created_at,jobs(title,city)', { count:'exact' }).eq('candidate_id', userId).order('created_at', { ascending:false }).limit(10),
+    sb.from('applications').select('id,status,created_at,jobs(title,city)', { count:'exact' }).eq('user_id', userId).order('created_at', { ascending:false }).limit(10),
   ]);
 
   if (!u) { document.getElementById('modal-content').innerHTML = '<div class="profile-loading">Profil introuvable.</div>'; return; }
