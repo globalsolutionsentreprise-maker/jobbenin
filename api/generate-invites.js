@@ -6,14 +6,20 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_KEY
 );
 
-const ADMIN_SECRET = process.env.ADMIN_SECRET_KEY;
 const INVITE_COUNT = 15;
 
 module.exports = async (req, res) => {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const { secret } = req.body;
-  if (secret !== ADMIN_SECRET) return res.status(401).json({ error: 'Non autorisé.' });
+  const authHeader = req.headers.authorization;
+  const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null;
+  if (!token) return res.status(401).json({ error: 'Non autorisé.' });
+
+  const { data: { user }, error: authErr } = await supabaseAdmin.auth.getUser(token);
+  if (authErr || !user) return res.status(401).json({ error: 'Non autorisé.' });
+
+  const { data: profile } = await supabaseAdmin.from('users').select('role').eq('id', user.id).maybeSingle();
+  if (profile?.role !== 'admin') return res.status(403).json({ error: 'Accès refusé.' });
 
   try {
     // Compter les invitations déjà existantes

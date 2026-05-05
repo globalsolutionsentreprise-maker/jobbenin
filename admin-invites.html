@@ -31,26 +31,11 @@
     .copy-btn:hover { opacity:.85; }
     .copy-btn.copied { background:var(--accent);color:#fff; }
     .copy-btn:disabled { opacity:.4;cursor:default; }
-    .auth-overlay { position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:100; }
-    .auth-box { background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:40px;width:100%;max-width:360px;text-align:center; }
-    .auth-box h1 { font-family:var(--font-serif);font-style:italic;font-size:22px;margin-bottom:18px; }
     .empty-state { text-align:center;padding:40px;color:var(--text-muted);font-size:13px; }
     #btn-generate { margin-bottom:24px; }
   </style>
 </head>
 <body>
-
-<!-- AUTH OVERLAY -->
-<div id="auth-overlay" class="auth-overlay">
-  <div class="auth-box">
-    <h1>Accès admin</h1>
-    <div class="form-field">
-      <input type="password" id="admin-pwd" placeholder="Mot de passe" style="text-align:center;">
-    </div>
-    <button class="btn btn-dark btn-full" onclick="checkAuth()" style="margin-top:8px;">Accéder</button>
-    <div id="auth-err" style="color:var(--accent);font-size:12px;margin-top:10px;display:none;">Mot de passe incorrect.</div>
-  </div>
-</div>
 
 <div class="admin-wrap" id="admin-content" style="display:none;">
   <div class="admin-header">
@@ -97,20 +82,15 @@
   const { createClient } = supabase;
   const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  const ADMIN_PWD  = 'talenco2025';
-  const SITE_URL   = window.location.origin;
+  const SITE_URL = window.location.origin;
 
-  function checkAuth() {
-    const pwd = document.getElementById('admin-pwd').value;
-    if (pwd === ADMIN_PWD) {
-      document.getElementById('auth-overlay').style.display = 'none';
-      document.getElementById('admin-content').style.display = 'block';
-      loadInvites();
-    } else {
-      document.getElementById('auth-err').style.display = 'block';
-    }
-  }
-  document.getElementById('admin-pwd').addEventListener('keydown', e => { if (e.key === 'Enter') checkAuth(); });
+  sb.auth.getSession().then(async ({ data: { session } }) => {
+    if (!session) { window.location.href = '/connexion.html'; return; }
+    const { data: profile } = await sb.from('users').select('role').eq('id', session.user.id).maybeSingle();
+    if (profile?.role !== 'admin') { window.location.href = '/'; return; }
+    document.getElementById('admin-content').style.display = 'block';
+    loadInvites();
+  });
 
   async function loadInvites() {
     const { data } = await sb
@@ -181,10 +161,14 @@
     btn.disabled = true;
     btn.textContent = 'Génération en cours…';
     try {
+      const { data: { session } } = await sb.auth.getSession();
       const res  = await fetch('/api/generate-invites', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ secret: ADMIN_PWD })
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`
+        },
+        body: JSON.stringify({})
       });
       const data = await res.json();
       if (!res.ok) { alert('Erreur : ' + (data.error || 'Inconnue')); btn.disabled = false; btn.textContent = 'Générer les 15 invitations'; return; }

@@ -180,8 +180,14 @@
       if (dbError) { showMsg('error', 'Erreur lors de l\'enregistrement du compte.'); btn.disabled = false; btn.textContent = 'Créer mon compte'; return; }
     }
 
-    showMsg('success', 'Compte créé avec succès. Vérifiez votre email pour activer votre compte.');
-    btn.textContent = 'Compte créé';
+    if (selectedRole === 'candidat') {
+      showMsg('success', 'Compte créé ! Uploadez votre CV pour commencer à postuler…');
+      btn.textContent = 'Compte créé';
+      setTimeout(() => { window.location.href = '/candidat.html?cv_requis=1#mon-cv'; }, 1800);
+    } else {
+      showMsg('success', 'Compte créé avec succès. Vérifiez votre email pour activer votre compte.');
+      btn.textContent = 'Compte créé';
+    }
   });
 </script>
 <script src="/nav-mobile.js"></script>

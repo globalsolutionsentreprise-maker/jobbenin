@@ -202,9 +202,14 @@
 
       <!-- ── CANDIDATS ── -->
       <div id="tab-candidats" class="tab-section">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
           <h2 class="section-title" style="margin:0;">Candidats inscrits</h2>
-          <span id="cands-count-label" style="font-size:12px;color:var(--text-muted);"></span>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span id="cands-count-label" style="font-size:12px;color:var(--text-muted);"></span>
+            <button class="btn btn-sm" style="border:1px solid var(--border);font-size:12px;" onclick="notifierSansCV()" id="btn-notify-cv">
+              📧 Relancer sans CV
+            </button>
+          </div>
         </div>
         <input class="search-bar" id="search-candidats" placeholder="Rechercher un candidat…" oninput="filtrerCandidats()">
         <div id="candidats-list" class="table-wrap"></div>
@@ -547,6 +552,13 @@ function fermerModal(e) {
     document.getElementById('modal-profil').style.display = 'none';
   }
 }
+
+async function adminPreviewCV(userId) {
+  const cvPath = `${userId}/cv.pdf`;
+  const { data, error } = await sb.storage.from('CVS').createSignedUrl(cvPath, 3600);
+  if (error || !data?.signedUrl) { alert('Impossible de charger le CV : ' + (error?.message || 'URL introuvable')); return; }
+  window.open(data.signedUrl, '_blank');
+}
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') document.getElementById('modal-profil').style.display = 'none';
 });
@@ -627,6 +639,18 @@ async function voirProfil(userId) {
       </div>
     </div>
 
+    <!-- CV -->
+    <div class="profile-section">
+      <div class="profile-section-title">CV</div>
+      ${u.cv_url
+        ? `<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+             <span style="font-size:13px;color:#15803d;">✅ CV uploadé</span>
+             <button class="btn btn-sm" style="border:1px solid var(--border);" onclick="adminPreviewCV('${userId}')">Voir le CV</button>
+           </div>`
+        : `<div style="font-size:13px;color:var(--text-muted);">Aucun CV uploadé.</div>`
+      }
+    </div>
+
     <!-- Candidatures -->
     <div class="profile-section">
       <div class="profile-section-title">Candidatures (${nbApps||0})</div>
@@ -655,6 +679,26 @@ async function chargerCandidats() {
   const label = document.getElementById('cands-count-label');
   if (label) label.textContent = `${allCandidats.length} candidat${allCandidats.length !== 1 ? 's' : ''}`;
   afficherCandidats(allCandidats);
+}
+
+async function notifierSansCV() {
+  const btn = document.getElementById('btn-notify-cv');
+  if (!confirm('Envoyer un email à tous les candidats actifs sans CV ?')) return;
+  btn.disabled = true; btn.textContent = '⏳ Envoi…';
+  try {
+    const { data: { session } } = await sb.auth.getSession();
+    const res = await fetch('/api/notify-missing-cv', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${session.access_token}` }
+    });
+    const data = await res.json();
+    if (!res.ok) { alert('Erreur : ' + (data.error || 'Inconnue')); return; }
+    alert(`✅ ${data.sent} email(s) envoyé(s) sur ${data.total} candidats sans CV.`);
+  } catch (e) {
+    alert('Erreur réseau.');
+  } finally {
+    btn.disabled = false; btn.textContent = '📧 Relancer sans CV';
+  }
 }
 
 function afficherCandidats(candidats) {
