@@ -6,7 +6,7 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_KEY
 );
 
-const ADMIN_SECRET = process.env.ADMIN_SECRET || 'talenco2025';
+const ADMIN_SECRET = process.env.ADMIN_SECRET_KEY;
 const INVITE_COUNT = 15;
 
 module.exports = async (req, res) => {

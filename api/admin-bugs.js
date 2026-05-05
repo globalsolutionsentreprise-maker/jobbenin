@@ -5,7 +5,7 @@ const sb = createClient(
   process.env.SUPABASE_SERVICE_KEY
 );
 
-const ADMIN_SECRET = process.env.ADMIN_SECRET || 'talenco2025';
+const ADMIN_SECRET = process.env.ADMIN_SECRET_KEY;
 
 module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');

@@ -16,7 +16,7 @@ module.exports = async (req, res) => {
       .from('users')
       .select('*')
       .eq('status', 'active')
-      .eq('role', 'candidat')
+      .eq('role', 'candidate')
       .lt('last_activity', threeMonthsAgo);
 
     if (!toSuspend || toSuspend.length === 0) {
@@ -31,7 +31,7 @@ module.exports = async (req, res) => {
         to: user.email,
         subject: 'Talenco.bj — Votre compte a été suspendu',
         html: `<h2>Votre compte Talenco.bj est suspendu</h2>
-<p>Bonjour ${user.nom || ''},</p>
+<p>Bonjour ${user.full_name || ''},</p>
 <p>Votre compte a été suspendu après <strong>3 mois d'inactivité</strong>.</p>
 <p>Pour réactiver votre accès, contactez notre support :</p>
 <ul>
