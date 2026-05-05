@@ -241,9 +241,9 @@
   async function chargerOffre() {
     const [{ data: job }, { data: { session } }] = await Promise.all([
       sb.from('jobs')
-        .select('id, title, company_id, city, sector, contract_type, description, profil, competences, avantages, created_at, score, salary_min, salary_max, salary_currency, salary_period, is_diaspora_open, is_remote')
+        .select('id, title, company_id, city, sector, contract_type, description, requirements, benefits, created_at, score, salary_min, salary_max, diaspora_friendly, work_mode')
         .eq('id', jobId)
-        .single(),
+        .maybeSingle(),
       sb.auth.getSession(),
     ]);
 
@@ -276,8 +276,8 @@
               <span class="tag tag-accent">${job.sector ?? ''}</span>
               ${job.score ? `<span class="badge badge-score">Score IA ${job.score}%</span>` : ''}
               ${badgeNouveau.isNew(job.created_at) ? '<span class="badge badge-new">Nouveau</span>' : ''}
-              ${job.is_diaspora_open ? `<span class="tag" style="background:rgba(139,69,19,.08);color:var(--accent);border:1px solid rgba(139,69,19,.2);">Diaspora bienvenue</span>` : ''}
-              ${job.is_remote ? `<span class="tag" style="background:rgba(46,125,50,.08);color:#2E7D32;border:1px solid rgba(46,125,50,.2);">Télétravail</span>` : ''}
+              ${job.diaspora_friendly ? `<span class="tag" style="background:rgba(139,69,19,.08);color:var(--accent);border:1px solid rgba(139,69,19,.2);">Diaspora bienvenue</span>` : ''}
+              ${job.work_mode && job.work_mode !== 'presentiel' ? `<span class="tag" style="background:rgba(46,125,50,.08);color:#2E7D32;border:1px solid rgba(46,125,50,.2);">${job.work_mode === 'remote' ? 'Télétravail' : 'Hybride'}</span>` : ''}
             </div>
             <p class="text-muted" style="font-size:11px;">${badgeNouveau.tempsRelatif(job.created_at)}</p>
           </div>
@@ -301,7 +301,7 @@
             ${job.salary_min ? `
             <div class="sidebar-info-row">
               <span class="sidebar-info-label">Rémunération</span>
-              <div style="margin-top:4px;">${window.Devises ? Devises.renderTriple(job.salary_min, job.salary_max||null, job.salary_currency||'FCFA', job.salary_period||'mois') : `${job.salary_min.toLocaleString('fr-FR')} ${job.salary_currency||'FCFA'} / ${job.salary_period||'mois'}`}</div>
+              <div style="margin-top:4px;">${window.Devises ? Devises.renderTriple(job.salary_min, job.salary_max||null, 'FCFA', 'mois') : `${job.salary_min.toLocaleString('fr-FR')} FCFA / mois`}</div>
             </div>` : ''}
           </div>
         </div>
@@ -315,22 +315,16 @@
               <div class="detail-text">${job.description}</div>
             </div>
           ` : ''}
-          ${job.profil ? `
+          ${job.requirements ? `
             <div class="detail-section">
               <div class="detail-section-label">Profil recherché</div>
-              <div class="detail-text">${job.profil}</div>
+              <div class="detail-text">${job.requirements}</div>
             </div>
           ` : ''}
-          ${job.competences ? `
-            <div class="detail-section">
-              <div class="detail-section-label">Compétences requises</div>
-              <div class="detail-text">${job.competences}</div>
-            </div>
-          ` : ''}
-          ${job.avantages ? `
+          ${job.benefits ? `
             <div class="detail-section">
               <div class="detail-section-label">Avantages</div>
-              <div class="detail-text">${job.avantages}</div>
+              <div class="detail-text">${job.benefits}</div>
             </div>
           ` : ''}
         </div>
@@ -361,7 +355,7 @@
     `;
 
     // Initialiser le bouton postuler
-    candidature?.initPostulerDetail?.(sb, jobId, 'postuler-zone');
+    candidature?.initPostulerBtn?.(sb, jobId, 'postuler-zone');
 
     // Offres similaires
     chargerSimilaires(job.sector, job.id);
