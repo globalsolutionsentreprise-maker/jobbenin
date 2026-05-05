@@ -388,6 +388,13 @@
   const msgCounter  = document.getElementById('msg-counter');
 
   // ── Auth : rediriger si non connecté ────────────────────────────────────
+  function rafraichirActivite(userId) {
+    const today = new Date().toDateString();
+    if (localStorage.getItem('ta_activity_date') === today) return;
+    sb.from('users').update({ last_activity: new Date().toISOString() }).eq('id', userId)
+      .then(() => localStorage.setItem('ta_activity_date', today));
+  }
+
   async function init() {
     const { data: { session: s } } = await sb.auth.getSession();
     if (!s) {
@@ -395,6 +402,7 @@
       return;
     }
     session = s;
+    rafraichirActivite(s.user.id);
 
     // Restaurer l'historique de sessionStorage
     try {

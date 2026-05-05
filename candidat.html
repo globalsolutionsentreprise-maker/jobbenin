@@ -574,8 +574,16 @@
     chargerProfil(session);
   });
 
+  function rafraichirActivite(userId) {
+    const today = new Date().toDateString();
+    if (localStorage.getItem('ta_activity_date') === today) return;
+    sb.from('users').update({ last_activity: new Date().toISOString() }).eq('id', userId)
+      .then(() => localStorage.setItem('ta_activity_date', today));
+  }
+
   async function chargerProfil(session) {
     const user = session.user;
+    rafraichirActivite(user.id);
 
     // Email sidebar
     document.getElementById('sidebar-email').textContent = user.email ?? '';
