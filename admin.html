@@ -693,7 +693,9 @@ async function notifierSansCV() {
     });
     const data = await res.json();
     if (!res.ok) { alert('Erreur : ' + (data.error || 'Inconnue')); return; }
-    alert(`✅ ${data.sent} email(s) envoyé(s) sur ${data.total} candidats sans CV.`);
+    alert(data.recap
+      ? `✅ Récap envoyé à ton email — ${data.total} candidat(s) sans CV listés.`
+      : `✅ ${data.sent} email(s) envoyé(s) sur ${data.total} candidats sans CV.`);
   } catch (e) {
     alert('Erreur réseau.');
   } finally {
