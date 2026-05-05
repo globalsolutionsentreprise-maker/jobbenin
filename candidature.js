@@ -10,7 +10,7 @@
 
 var SUPABASE_URL  = window.SUPABASE_URL || 'https://ywteoxnkkdgdpbkrlkar.supabase.co';
 const SITE_URL      = 'https://talenco.bj';
-const CV_BUCKET     = 'cvs';
+const CV_BUCKET     = 'CVS';
 const MAX_CV_SIZE   = 5 * 1024 * 1024; // 5 Mo
 
 // ════════════════════════════════════════════════════════════
@@ -40,7 +40,7 @@ async function initUploadCV(supabase, anchorId = 'mon-cv') {
   // Récupérer l'état actuel du CV
   const { data: profile } = await supabase
     .from('users')
-    .select('cv_path, cv_uploaded_at')
+    .select('cv_url, updated_at')
     .eq('id', user.id)
     .single();
 
@@ -49,9 +49,9 @@ async function initUploadCV(supabase, anchorId = 'mon-cv') {
 }
 
 function _buildUploadUI(profile) {
-  const hasCv = !!profile?.cv_path;
-  const uploadedAt = profile?.cv_uploaded_at
-    ? new Date(profile.cv_uploaded_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })
+  const hasCv = !!profile?.cv_url;
+  const uploadedAt = profile?.updated_at
+    ? new Date(profile.updated_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })
     : null;
 
   return `
@@ -191,7 +191,7 @@ async function _handleCvFile(file, supabase, userId, msgEl, container) {
   // Mettre à jour le profil
   const { error: updateErr } = await supabase
     .from('users')
-    .update({ cv_path: cvPath, cv_uploaded_at: new Date().toISOString() })
+    .update({ cv_url: cvPath })
     .eq('id', userId);
 
   if (updateErr) {
@@ -204,7 +204,7 @@ async function _handleCvFile(file, supabase, userId, msgEl, container) {
   // Ré-afficher l'UI avec le nouvel état
   const { data: profile } = await supabase
     .from('users')
-    .select('cv_path, cv_uploaded_at')
+    .select('cv_url, updated_at')
     .eq('id', userId)
     .single();
 
@@ -271,11 +271,11 @@ async function initPostulerBtn(supabase, jobId, containerId, opts = {}) {
 
   // ── Profil candidat ───────────────────────────────────────
   const [profileRes, alreadyAppliedRes] = await Promise.all([
-    supabase.from('users').select('cv_path').eq('id', user.id).single(),
+    supabase.from('users').select('cv_url').eq('id', user.id).single(),
     supabase.from('applications').select('id').eq('job_id', jobId).eq('user_id', user.id).maybeSingle(),
   ]);
 
-  const hasCv         = !!profileRes.data?.cv_path;
+  const hasCv         = !!profileRes.data?.cv_url;
   const alreadyApplied = !!alreadyAppliedRes.data;
 
   // ── Déjà postulé ──────────────────────────────────────────
@@ -297,7 +297,7 @@ async function initPostulerBtn(supabase, jobId, containerId, opts = {}) {
   // ── Prêt à postuler ───────────────────────────────────────
   container.innerHTML = _btnHtml('ready');
   container.querySelector('#btn-postuler-1clic')?.addEventListener('click', () =>
-    _soumettreCandidature(supabase, user, jobId, profileRes.data.cv_path, container, opts.message),
+    _soumettreCandidature(supabase, user, jobId, profileRes.data.cv_url, container, opts.message),
   );
 }
 
@@ -354,11 +354,11 @@ async function _soumettreCandidature(supabase, user, jobId, cvPath, container, m
   const { data: app, error: insertErr } = await supabase
     .from('applications')
     .insert({
-      job_id:  jobId,
-      user_id: user.id,
-      cv_path: cvPath,
-      statut:  'envoyée',
-      message: message ?? null,
+      job_id:       jobId,
+      user_id:      user.id,
+      cv_url:       cvPath,
+      status:       'received',
+      cover_letter: message ?? null,
     })
     .select('id')
     .single();
