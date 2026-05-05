@@ -152,6 +152,7 @@
     }
 
     btn.textContent = 'Connexion réussie…';
+    sb.from('login_events').insert({ user_id: data.user.id }).catch(() => {});
     await redirectByRole(data.user.id);
   }
 

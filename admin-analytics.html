@@ -32,9 +32,7 @@
     .last-update { font-family:var(--font-mono);font-size:10px;letter-spacing:.06em;color:var(--text-muted); }
 
     /* ── KPI CARDS ── */
-    .kpi-grid { display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:24px; }
-    @media(max-width:900px){ .kpi-grid{grid-template-columns:repeat(3,1fr);} }
-    @media(max-width:560px){ .kpi-grid{grid-template-columns:repeat(2,1fr);} }
+    .kpi-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin-bottom:24px; }
     .kpi-card { background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:20px 18px; }
     .kpi-label { font-family:var(--font-mono);font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px; }
     .kpi-value { font-family:var(--font-serif);font-style:italic;font-size:32px;line-height:1;color:var(--text);margin-bottom:5px; }
@@ -199,13 +197,14 @@
     <div class="kpi-card"><div class="kpi-label">Invitations</div><div class="kpi-loading" id="kpi-invites"></div><div class="kpi-delta neutral" id="kpi-invites-d"></div></div>
     <div class="kpi-card"><div class="kpi-label">Transactions</div><div class="kpi-loading" id="kpi-tx"></div><div class="kpi-delta neutral" id="kpi-tx-d"></div></div>
     <div class="kpi-card"><div class="kpi-label">Rev. FCFA</div><div class="kpi-loading" id="kpi-rev"></div><div class="kpi-delta neutral" id="kpi-rev-d"></div></div>
+    <div class="kpi-card"><div class="kpi-label">Connexions (7j)</div><div class="kpi-loading" id="kpi-logins"></div><div class="kpi-delta neutral" id="kpi-logins-d"></div></div>
   </div>
 
   <!-- ROW 1 : Croissance + Répartition -->
   <div class="chart-grid-2">
     <div class="chart-card">
       <div class="chart-card-header">
-        <div><div class="chart-card-title">Croissance des inscriptions</div><div class="chart-card-sub">30 derniers jours</div></div>
+        <div><div class="chart-card-title">Inscriptions & connexions</div><div class="chart-card-sub">30 derniers jours</div></div>
         <span class="chart-badge" id="badge-growth">—</span>
       </div>
       <div class="chart-container"><canvas id="chart-growth"></canvas></div>
@@ -404,7 +403,7 @@ async function loadAll() {
   btn.classList.add('spinning');
 
   try {
-    await Promise.all([loadUsers(), loadInvites(), loadTransactions()]);
+    await Promise.all([loadUsers(), loadInvites(), loadTransactions(), loadLogins()]);
     renderCharts();
     renderBenchmarks();
     document.getElementById('last-update').textContent = 'Mis à jour ' + new Date().toLocaleTimeString('fr-FR', { hour:'2-digit', minute:'2-digit' });
@@ -465,6 +464,33 @@ async function loadUsers() {
   ];
 }
 
+async function loadLogins() {
+  const { data } = await sb.from('login_events').select('user_id,created_at');
+  if (!data) { dashData.logins = { last7:0, last30:0, uniqueUsers30:0 }; return; }
+
+  const now = Date.now();
+  const last7  = data.filter(e => new Date(e.created_at) > new Date(now - 7*864e5)).length;
+  const month  = data.filter(e => new Date(e.created_at) > new Date(now - 30*864e5));
+  const unique30 = new Set(month.map(e => e.user_id)).size;
+
+  const days30 = Array.from({length:30}, (_,i) => {
+    const d = new Date(now); d.setDate(d.getDate() - (29-i));
+    return d.toISOString().split('T')[0];
+  });
+  const loginMap = {};
+  days30.forEach(d => loginMap[d] = 0);
+  data.forEach(e => {
+    if (!e.created_at) return;
+    const d = e.created_at.split('T')[0];
+    if (loginMap[d] !== undefined) loginMap[d]++;
+  });
+
+  dashData.loginGrowth = { labels: days30.map(d => d.slice(5)), values: days30.map(d => loginMap[d]) };
+  dashData.logins = { last7, last30: month.length, uniqueUsers30: unique30 };
+
+  setKPI('kpi-logins', last7, `${unique30} utilisateurs uniques / 30j`, last7 > 0 ? 'up' : 'neutral');
+}
+
 async function loadInvites() {
   const { data } = await sb.from('enterprise_invites').select('*').order('created_at', {ascending:true});
   dashData.invites = data || [];
@@ -514,19 +540,28 @@ const GRID_COLOR = 'rgba(26,26,26,.06)';
 function renderGrowthChart() {
   if (!dashData.growth) return;
   const { labels, values } = dashData.growth;
+  const loginValues = dashData.loginGrowth?.values || labels.map(() => 0);
   const total30 = values.reduce((s,v)=>s+v,0);
-  document.getElementById('badge-growth').textContent = `+${total30} / 30j`;
+  const login30 = loginValues.reduce((s,v)=>s+v,0);
+  document.getElementById('badge-growth').textContent = `+${total30} inscrits · ${login30} cnx`;
 
   mkChart('chart-growth', {
     type: 'line',
     data: {
       labels,
-      datasets: [{ label:'Inscriptions', data:values, borderColor:'#8B4513', backgroundColor:'rgba(139,69,19,.08)',
-        borderWidth:2, pointRadius:0, pointHoverRadius:4, tension:.35, fill:true }]
+      datasets: [
+        { label:'Inscriptions', data:values, borderColor:'#8B4513', backgroundColor:'rgba(139,69,19,.10)',
+          borderWidth:2, pointRadius:0, pointHoverRadius:4, tension:.35, fill:true },
+        { label:'Connexions', data:loginValues, borderColor:'#1A1A1A', backgroundColor:'rgba(26,26,26,.04)',
+          borderWidth:2, pointRadius:0, pointHoverRadius:4, tension:.35, fill:false, borderDash:[5,3] }
+      ]
     },
     options: {
       responsive:true, maintainAspectRatio:false,
-      plugins:{ legend:{display:false}, tooltip:{ callbacks:{ title: t => t[0].label, label: t => ` ${t.raw} inscription${t.raw>1?'s':''}`}}},
+      plugins:{
+        legend:{ display:true, position:'top', labels:{font:{family:'Space Grotesk',size:10},color:'#706050',boxWidth:24,boxHeight:2,padding:14,usePointStyle:false}},
+        tooltip:{ callbacks:{ title: t => t[0].label }}
+      },
       scales:{ x:{ grid:{color:GRID_COLOR}, ticks:{font:{family:'DM Mono',size:9},color:'#A09080',maxRotation:0,maxTicksLimit:6}},
                y:{ grid:{color:GRID_COLOR}, ticks:{font:{family:'DM Mono',size:10},color:'#A09080'}, beginAtZero:true }}
     }
@@ -553,13 +588,17 @@ function renderRolesChart() {
 function renderFunnel() {
   const c = document.getElementById('funnel-container');
   if (!dashData.funnel || !c) return;
-  const max = dashData.funnel[0].value || 1;
-  c.innerHTML = dashData.funnel.map(row => {
+  const funnel = [...dashData.funnel];
+  if (dashData.logins?.uniqueUsers30 !== undefined) {
+    funnel.splice(1, 0, { label: 'Connectés (30j)', value: dashData.logins.uniqueUsers30, color: '#3D3D3D' });
+  }
+  const max = funnel[0].value || 1;
+  c.innerHTML = funnel.map(row => {
     const pct = max > 0 ? Math.round((row.value/max)*100) : 0;
     return `<div class="funnel-row">
       <div class="funnel-label">${row.label}</div>
       <div class="funnel-bar-wrap">
-        <div class="funnel-bar" style="width:${pct}%;background:${row.color};color:${row.color==='#1A1A1A'?'#fff':'#fff'};">
+        <div class="funnel-bar" style="width:${pct}%;background:${row.color};color:#fff;">
           ${row.value}
         </div>
       </div>
@@ -748,6 +787,9 @@ function buildAiPayload() {
     paid_transactions:tx.filter(x=>x.status==='approved'||x.status==='completed').length,
     revenue_fcfa:     tx.filter(x=>x.status==='approved'||x.status==='completed').reduce((s,t)=>s+(t.amount||0),0),
     growth_7d:        u.filter(x=>x.created_at&&new Date(x.created_at)>new Date(Date.now()-7*864e5)).length,
+    logins_7d:        dashData.logins?.last7 || 0,
+    logins_30d:       dashData.logins?.last30 || 0,
+    unique_users_30d: dashData.logins?.uniqueUsers30 || 0,
     test_phase_end:   '2026-07-12',
   };
 
