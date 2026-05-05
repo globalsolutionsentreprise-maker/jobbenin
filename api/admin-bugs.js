@@ -5,17 +5,21 @@ const sb = createClient(
   process.env.SUPABASE_SERVICE_KEY
 );
 
-const ADMIN_SECRET = process.env.ADMIN_SECRET_KEY;
-
 module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const { secret, action, id, status } = req.body || {};
-  if (secret !== ADMIN_SECRET) return res.status(401).json({ error: 'Non autorisé.' });
+  const token = req.headers.authorization?.startsWith('Bearer ') ? req.headers.authorization.slice(7) : null;
+  if (!token) return res.status(401).json({ error: 'Non autorisé.' });
+  const { data: { user }, error: authErr } = await sb.auth.getUser(token);
+  if (authErr || !user) return res.status(401).json({ error: 'Non autorisé.' });
+  const { data: profile } = await sb.from('users').select('role').eq('id', user.id).maybeSingle();
+  if (profile?.role !== 'admin') return res.status(403).json({ error: 'Accès refusé.' });
+
+  const { action, id, status } = req.body || {};
 
   // ── Action : mise à jour du statut d'un bug ──
   if (action === 'update_status') {
