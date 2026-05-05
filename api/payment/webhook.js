@@ -25,9 +25,9 @@ module.exports = async (req, res) => {
         const end = new Date(Date.now() + 30*24*60*60*1000).toISOString();
         const { data: existing } = await supabase.from('users').select('id').eq('email', txn.email).single();
         if (existing) {
-          await supabase.from('users').update({ status: 'active', subscription_start: now, subscription_end: end, last_activity: now }).eq('id', existing.id);
+          await supabase.from('users').update({ status: 'active', subscription_start: now, subscription_end: end, premium_until: end, last_activity: now }).eq('id', existing.id);
         } else {
-          await supabase.from('users').insert({ email: txn.email, nom: txn.nom, telephone: txn.telephone, role: 'candidat', status: 'active', subscription_start: now, subscription_end: end, last_activity: now, credits: 0 });
+          await supabase.from('users').insert({ email: txn.email, nom: txn.nom, telephone: txn.telephone, role: 'candidate', status: 'active', subscription_start: now, subscription_end: end, premium_until: end, last_activity: now, credits: 0 });
         }
         await sendMail({ to: txn.email, subject: 'Bienvenue sur Talenco.bj — Abonnement activé !',
           html: `<h2>Votre abonnement est activé</h2><p>Bonjour ${txn.nom},</p><p>Abonnement <strong>1 000 FCFA/mois</strong> actif.</p><p><strong>Important :</strong> Compte suspendu après 3 mois d'inactivité. Réactivation : 2 000 FCFA via le support.</p><a href="${process.env.SITE_URL}/offres.html" style="background:#F0A500;color:#000;padding:10px 20px;border-radius:8px;text-decoration:none;font-weight:bold">Voir les offres →</a>`
@@ -40,7 +40,8 @@ module.exports = async (req, res) => {
       const { data: rt } = await supabase.from('reactivation_tokens').select('*, users(*)').eq('token', reactivationToken).single();
       if (rt) {
         const now = new Date().toISOString();
-        await supabase.from('users').update({ status: 'active', subscription_start: now, subscription_end: new Date(Date.now() + 30*24*60*60*1000).toISOString(), last_activity: now }).eq('id', rt.user_id);
+        const end2 = new Date(Date.now() + 30*24*60*60*1000).toISOString();
+        await supabase.from('users').update({ status: 'active', subscription_start: now, subscription_end: end2, premium_until: end2, last_activity: now }).eq('id', rt.user_id);
         await supabase.from('reactivation_tokens').update({ used: true }).eq('token', reactivationToken);
         await sendMail({ to: rt.users.email, subject: 'Talenco.bj — Compte réactivé',
           html: `<p>Votre compte Talenco.bj est de nouveau actif !</p><a href="${process.env.SITE_URL}/offres.html">Voir les offres →</a>`
