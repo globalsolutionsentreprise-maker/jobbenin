@@ -140,7 +140,12 @@
 
       <!-- ── STATS ── -->
       <div id="tab-stats" class="tab-section active">
-        <h2 class="section-title">Vue d'ensemble</h2>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+          <h2 class="section-title" style="margin:0;">Vue d'ensemble</h2>
+          <a href="/admin-analytics.html" class="btn btn-sm" style="border:1px solid var(--border);font-size:12px;display:inline-flex;align-items:center;gap:6px;">
+            <span data-icon="chart" data-size="13"></span> Métriques avancées
+          </a>
+        </div>
         <div class="stats-row">
           <div class="stat-box"><div class="stat-num" id="s-offres">—</div><div class="stat-label">Offres publiées</div></div>
           <div class="stat-box"><div class="stat-num" id="s-users">—</div><div class="stat-label">Utilisateurs</div></div>
