@@ -357,13 +357,13 @@ async function testApiEndpoints() {
       : wo('POST /api/enterprise-invite-setup', `HTTP ${r.status} — comportement inattendu`);
   } catch(e) { ko('POST /api/enterprise-invite-setup', e.message); }
 
-  // check-inactivity (GET)
+  // check-inactivity — auth guard (cron protégé, Vercel injecte le header en prod)
   try {
     const r = await get(`${BASE}/api/payment/check-inactivity`);
-    r.status === 200
-      ? ok('GET /api/payment/check-inactivity', `HTTP ${r.status}`)
-      : wo('GET /api/payment/check-inactivity', `HTTP ${r.status} — cron peut nécessiter header auth`);
-  } catch(e) { ko('GET /api/payment/check-inactivity', e.message); }
+    r.status === 401
+      ? ok('GET /api/payment/check-inactivity auth guard', 'Rejet 401 correct (CRON_SECRET requis)')
+      : wo('GET /api/payment/check-inactivity auth guard', `Status inattendu ${r.status} — attendu 401`);
+  } catch(e) { ko('GET /api/payment/check-inactivity auth guard', e.message); }
 }
 
 async function testDevisesLogic() {
