@@ -246,9 +246,9 @@ async function testPageContent() {
       ['afficherCompanies',      'admin — fonction afficherCompanies'],
       ['allCompanies',           'admin — variable allCompanies'],
       ["showTab('companies",     'admin — lien sidebar vers onglet entreprises'],
-      ['u.entreprise',           'admin — champ entreprise (nom correct)'],
-      ['u.ville',                'admin — champ ville entreprise'],
-      ['u.secteur',              'admin — champ secteur entreprise'],
+      ['u.company_name',         'admin — champ entreprise (nom correct)'],
+      ['u.city',                 'admin — champ ville entreprise'],
+      ['u.sector',               'admin — champ secteur entreprise'],
       ['entreprise-profil.html?id=', 'admin — lien voir profil entreprise'],
     ].forEach(([n, l]) => r.body.includes(n) ? ok(l) : ko(l));
   } catch(e) { ko('admin.html entreprises tab', e.message); }
@@ -286,7 +286,7 @@ async function testPageContent() {
       ['nav-drawer',        'entreprise-profil — drawer mobile natif'],
       ['badge-nouveau.js',  'entreprise-profil — badge-nouveau.js chargé'],
       ['company-name',      'entreprise-profil — affichage nom entreprise'],
-      ['company.entreprise','entreprise-profil — logique nom entreprise'],
+      ['company.name',      'entreprise-profil — logique nom entreprise'],
       ['offre-detail.html', 'entreprise-profil — lien vers offres publiées'],
     ].forEach(([n, l]) => r.body.includes(n) ? ok(l) : ko(l));
   } catch(e) { ko('entreprise-profil.html content', e.message); }
