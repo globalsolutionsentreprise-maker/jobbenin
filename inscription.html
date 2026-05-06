@@ -84,6 +84,19 @@
       <input type="password" id="reg-password" placeholder="Minimum 8 caractères" autocomplete="new-password">
     </div>
 
+    <div id="cv-field" class="form-field" style="margin-top:4px;">
+      <label class="form-label">CV (PDF) <span style="color:var(--accent);font-size:11px;">obligatoire</span></label>
+      <label id="cv-drop-zone" for="cv-file" style="display:block;border:2px dashed var(--border);border-radius:var(--radius-sm);padding:18px 16px;text-align:center;cursor:pointer;transition:border-color .2s,background .2s;">
+        <input type="file" id="cv-file" accept=".pdf" style="display:none;">
+        <div id="cv-drop-label" style="font-size:13px;color:var(--text-muted);pointer-events:none;">
+          <div style="font-size:22px;margin-bottom:6px;">📎</div>
+          Cliquez pour choisir votre CV
+        </div>
+        <div id="cv-selected" style="display:none;font-size:13px;font-weight:500;color:#15803d;pointer-events:none;"></div>
+      </label>
+      <div style="font-size:11px;color:var(--text-muted);margin-top:5px;">Format PDF uniquement · 5 Mo maximum</div>
+    </div>
+
     <button class="btn btn-dark btn-full" id="btn-register" style="margin-top:8px;">Créer mon compte</button>
 
     <div class="auth-footer">
@@ -121,12 +134,33 @@
         showMsg('info', 'L\'accès recruteur est sur invitation uniquement. Vous avez reçu un lien personnalisé ? Utilisez-le directement.');
         entrepriseField.style.display = 'none';
         document.getElementById('reg-diaspora-field').style.display = 'none';
+        document.getElementById('cv-field').style.display = 'none';
       } else {
         document.getElementById('auth-msg').style.display = 'none';
         entrepriseField.style.display = 'none';
         document.getElementById('reg-diaspora-field').style.display = 'block';
+        document.getElementById('cv-field').style.display = 'block';
       }
     });
+  });
+
+  // Feedback visuel quand un fichier est sélectionné
+  document.getElementById('cv-file').addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    const zone = document.getElementById('cv-drop-zone');
+    if (file) {
+      document.getElementById('cv-drop-label').style.display = 'none';
+      const sel = document.getElementById('cv-selected');
+      sel.style.display = 'block';
+      sel.textContent = '✅ ' + file.name;
+      zone.style.borderColor = '#15803d';
+      zone.style.background = '#f0fdf4';
+    } else {
+      document.getElementById('cv-drop-label').style.display = 'block';
+      document.getElementById('cv-selected').style.display = 'none';
+      zone.style.borderColor = '';
+      zone.style.background = '';
+    }
   });
 
   function showMsg(type, text) {
@@ -147,6 +181,14 @@
 
     if (!email || !password) { showMsg('error', 'Email et mot de passe requis.'); return; }
     if (password.length < 8) { showMsg('error', 'Le mot de passe doit contenir au moins 8 caractères.'); return; }
+
+    // Validation CV obligatoire pour les candidats
+    if (selectedRole === 'candidat') {
+      const cvFile = document.getElementById('cv-file').files[0];
+      if (!cvFile) { showMsg('error', 'Veuillez joindre votre CV (PDF) pour créer votre compte.'); document.getElementById('cv-drop-zone').style.borderColor = '#b91c1c'; return; }
+      if (cvFile.type !== 'application/pdf') { showMsg('error', 'Le CV doit être un fichier PDF.'); return; }
+      if (cvFile.size > 5 * 1024 * 1024) { showMsg('error', 'Le CV ne doit pas dépasser 5 Mo.'); return; }
+    }
 
     const btn = document.getElementById('btn-register');
     btn.disabled = true; btn.textContent = 'Création du compte…';
@@ -181,9 +223,19 @@
     }
 
     if (selectedRole === 'candidat') {
-      showMsg('success', 'Compte créé ! Uploadez votre CV pour commencer à postuler…');
+      // Upload du CV immédiatement après création du compte
+      const cvFile = document.getElementById('cv-file').files[0];
+      btn.textContent = 'Upload du CV…';
+      const cvPath = `${data.user.id}/cv.pdf`;
+      const { error: uploadErr } = await sb.storage
+        .from('CVS')
+        .upload(cvPath, cvFile, { contentType: 'application/pdf', upsert: true });
+      if (!uploadErr) {
+        await sb.from('users').update({ cv_url: cvPath }).eq('id', data.user.id);
+      }
+      showMsg('success', uploadErr ? 'Compte créé ! (CV à re-uploader dans votre profil).' : 'Compte créé avec votre CV. Redirection…');
       btn.textContent = 'Compte créé';
-      setTimeout(() => { window.location.href = '/candidat.html?cv_requis=1#mon-cv'; }, 1800);
+      setTimeout(() => { window.location.href = uploadErr ? '/candidat.html?cv_requis=1#mon-cv' : '/candidat.html'; }, 1500);
     } else {
       showMsg('success', 'Compte créé avec succès. Vérifiez votre email pour activer votre compte.');
       btn.textContent = 'Compte créé';
