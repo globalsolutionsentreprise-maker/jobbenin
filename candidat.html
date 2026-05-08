@@ -361,12 +361,37 @@
       <div class="section-card" id="cv">
         <div class="section-card-header">
           <h2 class="section-card-title">Mon CV</h2>
-          <span class="badge badge-info">PDF, max 5 Mo</span>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span class="badge badge-info">PDF, max 5 Mo</span>
+            <button id="btn-coach-cv" class="btn btn-outline btn-sm" style="display:none;">✨ Analyser mon CV</button>
+          </div>
         </div>
         <div class="section-card-body">
           <div id="mon-cv">Chargement…</div>
         </div>
+        <!-- Résultat analyse CV -->
+        <div id="coach-cv-result" style="display:none;border-top:1px solid var(--border);padding:20px;">
+          <div id="coach-cv-loading" style="display:none;text-align:center;padding:24px 0;">
+            <div style="width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:cv-spin .7s linear infinite;margin:0 auto 10px;"></div>
+            <p style="font-size:13px;color:var(--text-muted);">L'IA analyse votre CV…</p>
+          </div>
+          <div id="coach-cv-content" style="display:none;"></div>
+          <div id="coach-cv-error" style="display:none;" class="alert alert-error"></div>
+        </div>
       </div>
+      <style>
+        @keyframes cv-spin { to { transform: rotate(360deg); } }
+        .cv-score-ring { width:72px;height:72px;flex-shrink:0; }
+        .cv-score-ring circle { fill:none;stroke-width:6;stroke-linecap:round; }
+        .cv-score-bg { stroke:var(--border); }
+        .cv-score-fg { stroke:var(--accent);transition:stroke-dashoffset .6s ease; }
+        .coach-conseil { border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:10px; }
+        .coach-conseil-haute { border-left:3px solid var(--accent); }
+        .coach-conseil-moyenne { border-left:3px solid #94a3b8; }
+        .coach-conseil-titre { font-family:var(--font-sans);font-size:12px;font-weight:700;color:var(--text);margin-bottom:4px; }
+        .coach-conseil-texte { font-size:13px;color:var(--text-mid);line-height:1.55; }
+        .coach-conseil-exemple { font-size:12px;color:var(--accent);font-style:italic;margin-top:6px;padding-top:6px;border-top:1px dashed var(--border); }
+      </style>
 
       <!-- Candidatures -->
       <div class="section-card" id="candidatures">
@@ -545,6 +570,7 @@
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdn.fedapay.com/checkout.js?v=1.1.7"></script>
 <script src="/candidature.js"></script>
 <script src="/pwa.js"></script>
@@ -995,5 +1021,124 @@
 
 </script>
 <script src="/icons.js"></script>
+
+<!-- ── Coach CV ─────────────────────────────────────────────────── -->
+<script>
+(function () {
+  'use strict';
+
+  const btnCoach   = document.getElementById('btn-coach-cv');
+  const resultBox  = document.getElementById('coach-cv-result');
+  const loading    = document.getElementById('coach-cv-loading');
+  const content    = document.getElementById('coach-cv-content');
+  const errEl      = document.getElementById('coach-cv-error');
+
+  // Afficher le bouton dès qu'un CV est présent dans le DOM
+  const observer = new MutationObserver(() => {
+    const hasCv = document.querySelector('#mon-cv a[href]') || document.querySelector('#mon-cv .cv-filename');
+    if (hasCv) btnCoach.style.display = 'inline-flex';
+  });
+  observer.observe(document.getElementById('mon-cv'), { childList: true, subtree: true });
+
+  async function extrairePdf(url) {
+    const pdfjsLib = window['pdfjs-dist/build/pdf'];
+    pdfjsLib.GlobalWorkerOptions.workerSrc =
+      'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    const pdf = await pdfjsLib.getDocument({ url, withCredentials: false }).promise;
+    let texte = '';
+    for (let i = 1; i <= Math.min(pdf.numPages, 5); i++) {
+      const page = await pdf.getPage(i);
+      const tc = await page.getTextContent();
+      texte += tc.items.map(it => it.str).join(' ') + '\n';
+    }
+    return texte.trim();
+  }
+
+  function scoreColor(s) {
+    if (s >= 75) return '#16a34a';
+    if (s >= 50) return '#f59e0b';
+    return '#ef4444';
+  }
+
+  function renderAnalyse(a) {
+    const score   = Math.max(0, Math.min(100, a.score ?? 50));
+    const circ    = 2 * Math.PI * 28;
+    const offset  = circ - (score / 100) * circ;
+    const col     = scoreColor(score);
+
+    const fortsHtml = (a.points_forts ?? []).map(p =>
+      `<li style="font-size:13px;color:var(--text-mid);margin-bottom:4px;">✓ ${p}</li>`
+    ).join('');
+
+    const conseilsHtml = (a.conseils ?? []).map(c => `
+      <div class="coach-conseil coach-conseil-${c.priorite ?? 'moyenne'}">
+        <div class="coach-conseil-titre">${c.titre ?? ''}</div>
+        <div class="coach-conseil-texte">${c.conseil ?? ''}</div>
+        ${c.exemple ? `<div class="coach-conseil-exemple">Exemple : ${c.exemple}</div>` : ''}
+      </div>
+    `).join('');
+
+    content.innerHTML = `
+      <div style="display:flex;align-items:flex-start;gap:20px;margin-bottom:20px;flex-wrap:wrap;">
+        <svg class="cv-score-ring" viewBox="0 0 64 64">
+          <circle class="cv-score-bg" cx="32" cy="32" r="28" stroke-dasharray="${circ}" stroke-dashoffset="0"/>
+          <circle class="cv-score-fg" cx="32" cy="32" r="28"
+            stroke="${col}"
+            stroke-dasharray="${circ}"
+            stroke-dashoffset="${offset}"
+            transform="rotate(-90 32 32)"/>
+          <text x="32" y="37" text-anchor="middle" font-size="14" font-weight="700" fill="${col}" font-family="var(--font-mono)">${score}</text>
+        </svg>
+        <div style="flex:1;min-width:180px;">
+          <div style="font-family:var(--font-sans);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);margin-bottom:8px;">Points forts</div>
+          <ul style="list-style:none;margin:0;padding:0;">${fortsHtml}</ul>
+        </div>
+      </div>
+      <div style="font-family:var(--font-sans);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);margin-bottom:10px;">Conseils d'amélioration</div>
+      ${conseilsHtml}
+      <p style="font-size:11px;color:var(--text-muted);margin-top:12px;text-align:right;">Analyse générée par IA — à titre indicatif</p>
+    `;
+    content.style.display = 'block';
+  }
+
+  btnCoach.addEventListener('click', async () => {
+    errEl.style.display   = 'none';
+    content.style.display = 'none';
+    resultBox.style.display = 'block';
+    loading.style.display   = 'block';
+    btnCoach.disabled = true;
+
+    try {
+      const { data: { session } } = await sb.auth.getSession();
+      if (!session) throw new Error('Non connecté');
+
+      const cvPath = `cvs/${session.user.id}/cv.pdf`;
+      const { data: urlData, error: urlErr } = await sb.storage.from('cvs').createSignedUrl(cvPath, 120);
+      if (urlErr || !urlData?.signedUrl) throw new Error('CV introuvable — uploadez votre CV d\'abord');
+
+      const cvText = await extrairePdf(urlData.signedUrl);
+      if (!cvText || cvText.length < 50) throw new Error('Impossible de lire le PDF — vérifiez que votre CV n\'est pas une image scannée');
+
+      const res = await fetch('/api/agent-coach-cv', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ cvText }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) throw new Error(data.error ?? 'Erreur lors de l\'analyse');
+
+      renderAnalyse(data.analyse);
+    } catch (err) {
+      errEl.textContent = '❌ ' + err.message;
+      errEl.style.display = 'block';
+    } finally {
+      loading.style.display = 'none';
+      btnCoach.disabled = false;
+      resultBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  });
+})();
+</script>
 </body>
 </html>
