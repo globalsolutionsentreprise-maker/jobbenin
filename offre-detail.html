@@ -330,6 +330,8 @@
         </div>
 
         <div class="detail-sidebar-sticky">
+          <!-- Lettre de motivation IA -->
+          <div id="lettre-zone"></div>
           <!-- Boutons candidature (injectés par candidature.js) -->
           <div id="postuler-zone"></div>
 
@@ -357,6 +359,9 @@
     // Initialiser le bouton postuler
     candidature?.initPostulerBtn?.(sb, jobId, 'postuler-zone');
 
+    // Initialiser le générateur de lettre
+    initLettreZone(job);
+
     // Offres similaires
     chargerSimilaires(job.sector, job.id);
   }
@@ -379,6 +384,138 @@
         <span class="similar-job-meta">${j.city ?? ''} · ${j.contract_type ?? ''}</span>
       </a>
     `).join('');
+  }
+
+  chargerOffre();
+
+  // ── Agent lettre de motivation ────────────────────────────
+  function initLettreZone(job) {
+    const zone = document.getElementById('lettre-zone');
+    if (!zone) return;
+
+    zone.innerHTML = `
+      <style>
+        #lettre-textarea {
+          width:100%;box-sizing:border-box;
+          border:1px solid var(--border);border-radius:var(--radius-sm);
+          padding:12px;font-size:12px;font-family:var(--font-body);
+          color:var(--text);background:var(--bg-card);
+          line-height:1.6;resize:vertical;min-height:180px;
+          margin-top:10px;
+        }
+        #lettre-textarea:focus { outline:none;border-color:var(--accent); }
+        #lettre-spin {
+          width:14px;height:14px;border:2px solid rgba(124,58,237,.3);
+          border-top-color:#7c3aed;border-radius:50%;
+          animation:ls .7s linear infinite;display:none;flex-shrink:0;
+        }
+        @keyframes ls { to { transform:rotate(360deg); } }
+      </style>
+      <div id="lettre-box">
+        <button id="btn-gen-lettre" type="button" style="
+          width:100%;background:linear-gradient(135deg,#7c3aed,#6d28d9);
+          color:#fff;border:none;border-radius:var(--radius-sm);
+          padding:11px 16px;font-size:13px;font-weight:600;cursor:pointer;
+          display:flex;align-items:center;justify-content:center;gap:8px;
+          transition:opacity .2s;
+        ">
+          <span id="lettre-spin"></span>
+          <span id="lettre-btn-label">✨ Générer ma lettre de motivation</span>
+        </button>
+        <div id="lettre-content" style="display:none;">
+          <textarea id="lettre-textarea" placeholder="Votre lettre apparaîtra ici…"></textarea>
+          <div style="display:flex;gap:8px;margin-top:8px;">
+            <button id="btn-postuler-avec-lettre" type="button" style="
+              flex:1;background:#16a34a;color:#fff;border:none;
+              border-radius:var(--radius-sm);padding:10px;
+              font-size:13px;font-weight:600;cursor:pointer;
+            ">⚡ Postuler avec cette lettre</button>
+            <button id="btn-regen-lettre" type="button" style="
+              background:none;border:1px solid var(--border);color:var(--text-muted);
+              border-radius:var(--radius-sm);padding:10px 12px;
+              font-size:12px;cursor:pointer;
+            ">🔄</button>
+          </div>
+          <p style="font-size:10px;color:var(--text-muted);margin-top:6px;text-align:center;">
+            Vous pouvez modifier la lettre avant de postuler
+          </p>
+        </div>
+        <div id="lettre-error" style="display:none;font-size:12px;color:#b91c1c;margin-top:8px;"></div>
+      </div>
+    `;
+
+    document.getElementById('btn-gen-lettre').addEventListener('click', () => genererLettre(job));
+    document.getElementById('btn-regen-lettre').addEventListener('click', () => genererLettre(job));
+    document.getElementById('btn-postuler-avec-lettre').addEventListener('click', postulerAvecLettre);
+  }
+
+  async function genererLettre(job) {
+    const btn   = document.getElementById('btn-gen-lettre');
+    const spin  = document.getElementById('lettre-spin');
+    const label = document.getElementById('lettre-btn-label');
+    const errEl = document.getElementById('lettre-error');
+    const cont  = document.getElementById('lettre-content');
+    const ta    = document.getElementById('lettre-textarea');
+
+    errEl.style.display = 'none';
+    btn.disabled = true;
+    spin.style.display = 'inline-block';
+    label.textContent = 'Rédaction en cours…';
+
+    try {
+      // Récupérer le profil candidat
+      const { data: { session } } = await sb.auth.getSession();
+      let candidatNom = '', candidatTitre = '', candidatBio = '', candidatCompetences = '';
+      if (session) {
+        const { data: profile } = await sb.from('users')
+          .select('full_name, prenom, nom, job_title, bio, skills')
+          .eq('id', session.user.id)
+          .maybeSingle();
+        if (profile) {
+          candidatNom         = profile.full_name || [profile.prenom, profile.nom].filter(Boolean).join(' ');
+          candidatTitre       = profile.job_title ?? '';
+          candidatBio         = profile.bio ?? '';
+          candidatCompetences = Array.isArray(profile.skills) ? profile.skills.join(', ') : '';
+        }
+      }
+
+      const res = await fetch('/api/agent-lettre-motivation', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          jobTitle:          job.title,
+          jobDescription:    job.description ?? '',
+          jobRequirements:   job.requirements ?? '',
+          sector:            job.sector ?? '',
+          city:              job.city ?? '',
+          candidatNom,
+          candidatTitre,
+          candidatBio,
+          candidatCompetences,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) throw new Error(data.error ?? 'Erreur lors de la génération');
+
+      ta.value = data.lettre;
+      cont.style.display = 'block';
+    } catch (err) {
+      errEl.textContent = '❌ ' + err.message;
+      errEl.style.display = 'block';
+    } finally {
+      btn.disabled = false;
+      spin.style.display = 'none';
+      label.textContent = '✨ Regénérer';
+    }
+  }
+
+  async function postulerAvecLettre() {
+    const lettre = document.getElementById('lettre-textarea')?.value?.trim();
+    if (!lettre) return;
+    // Réinitialise le bouton postuler avec la lettre incluse, puis clique
+    await candidature?.initPostulerBtn?.(sb, jobId, 'postuler-zone', { message: lettre });
+    document.getElementById('btn-postuler-1clic')?.click();
   }
 
   chargerOffre();
