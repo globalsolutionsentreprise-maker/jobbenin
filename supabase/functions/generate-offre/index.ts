@@ -1,9 +1,9 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
-const SUPA_URL      = Deno.env.get('SUPABASE_URL')!;
-const SUPA_KEY      = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-const ANTHROPIC_KEY = Deno.env.get('ANTHROPIC_API_KEY')!;
-const MODEL         = 'claude-sonnet-4-5'; // à migrer vers claude-sonnet-4-6 si besoin
+const SUPA_URL  = Deno.env.get('SUPABASE_URL')!;
+const SUPA_KEY  = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+const GROQ_KEY  = Deno.env.get('GROQ_API_KEY')!;
+const MODEL     = 'llama-3.3-70b-versatile';
 
 const sb = createClient(SUPA_URL, SUPA_KEY);
 
@@ -14,7 +14,7 @@ const CORS = {
 
 const SYSTEM_PROMPT = `Tu es un expert RH spécialisé dans le marché de l'emploi béninois.
 Rédige une offre d'emploi professionnelle, claire et attractive.
-Réponds UNIQUEMENT en JSON valide (pas de markdown, pas de blocs de code) avec exactement ces champs :
+Réponds UNIQUEMENT en JSON valide avec exactement ces champs :
 {
   "titre": "Intitulé précis du poste (ex: Comptable Senior, Responsable Marketing Digital)",
   "description": "Description du poste et des responsabilités (200-300 mots, ton professionnel adapté au marché béninois)",
@@ -24,34 +24,17 @@ Réponds UNIQUEMENT en JSON valide (pas de markdown, pas de blocs de code) avec 
 }
 Adapte systématiquement le contenu au contexte économique et culturel du Bénin.`;
 
-// ── Extraire le JSON de la réponse Claude (gère les blocs markdown) ─────────
-
-function parseClaudeJson(text: string): Record<string, unknown> {
-  // Enlever les blocs ```json ... ``` si présents
-  const cleaned = text
-    .replace(/^```(?:json)?\s*/i, '')
-    .replace(/\s*```\s*$/, '')
-    .trim();
-
-  return JSON.parse(cleaned);
-}
-
-// ── Logger dans ai_logs ───────────────────────────────────────────────────────
-
 async function logUsage(userId: string | null, tokensUsed: number): Promise<void> {
   try {
     await sb.from('ai_logs').insert({
-      user_id:    userId,
-      type:       'generate-offre',
+      user_id:     userId,
+      type:        'generate-offre',
       tokens_used: tokensUsed,
     });
   } catch (err) {
-    // Non bloquant
     console.warn('ai_logs insert failed:', err);
   }
 }
-
-// ── Handler principal ─────────────────────────────────────────────────────────
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: CORS });
@@ -61,11 +44,9 @@ Deno.serve(async (req) => {
     });
   }
 
-  // Récupérer l'user_id depuis le JWT (optionnel — pour le log)
   let userId: string | null = null;
   try {
-    const authHeader = req.headers.get('Authorization') ?? '';
-    const token = authHeader.replace('Bearer ', '');
+    const token = (req.headers.get('Authorization') ?? '').replace('Bearer ', '');
     const { data: { user } } = await sb.auth.getUser(token);
     userId = user?.id ?? null;
   } catch { /* non bloquant */ }
@@ -74,7 +55,6 @@ Deno.serve(async (req) => {
     const body = await req.json();
     const { poste, entreprise, ville, secteur, type_contrat } = body;
 
-    // Validation des champs requis
     const missing = ['poste', 'ville', 'secteur', 'type_contrat'].filter((k) => !body[k]?.trim());
     if (missing.length) {
       return new Response(
@@ -91,40 +71,41 @@ Deno.serve(async (req) => {
 - Secteur : ${secteur}
 - Type de contrat : ${type_contrat}`;
 
-    // ── Appel API Anthropic ───────────────────────────────────────────────────
-    const anthropicRes = await fetch('https://api.anthropic.com/v1/messages', {
+    const groqRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'anthropic-version': '2023-06-01',
-        'x-api-key':        ANTHROPIC_KEY,
-        'content-type':     'application/json',
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${GROQ_KEY}`,
       },
       body: JSON.stringify({
-        model:      MODEL,
-        max_tokens: 1500,
-        system:     SYSTEM_PROMPT,
-        messages:   [{ role: 'user', content: userPrompt }],
+        model:           MODEL,
+        max_tokens:      1500,
+        temperature:     0.7,
+        response_format: { type: 'json_object' },
+        messages: [
+          { role: 'system', content: SYSTEM_PROMPT },
+          { role: 'user',   content: userPrompt },
+        ],
       }),
     });
 
-    if (!anthropicRes.ok) {
-      const errBody = await anthropicRes.text();
-      console.error('Anthropic API error:', anthropicRes.status, errBody);
+    if (!groqRes.ok) {
+      const errBody = await groqRes.text();
+      console.error('Groq API error:', groqRes.status, errBody);
       return new Response(
-        JSON.stringify({ error: `Anthropic API ${anthropicRes.status}` }),
+        JSON.stringify({ error: `Groq API ${groqRes.status}` }),
         { status: 502, headers: { ...CORS, 'Content-Type': 'application/json' } },
       );
     }
 
-    const anthropicData = await anthropicRes.json();
-    const rawText: string = anthropicData.content?.[0]?.text ?? '';
+    const groqData = await groqRes.json();
+    const rawText: string = groqData.choices?.[0]?.message?.content ?? '';
     const tokensUsed: number =
-      (anthropicData.usage?.input_tokens ?? 0) + (anthropicData.usage?.output_tokens ?? 0);
+      (groqData.usage?.prompt_tokens ?? 0) + (groqData.usage?.completion_tokens ?? 0);
 
-    // ── Parser le JSON retourné par Claude ─────────────────────────────────────
     let offre: Record<string, unknown>;
     try {
-      offre = parseClaudeJson(rawText);
+      offre = JSON.parse(rawText);
     } catch (parseErr) {
       console.error('JSON parse error. Réponse brute:', rawText);
       return new Response(
@@ -133,9 +114,7 @@ Deno.serve(async (req) => {
       );
     }
 
-    // ── Logger la consommation (fire-and-forget) ───────────────────────────────
     logUsage(userId, tokensUsed);
-
     console.log(`✅ generate-offre — tokens: ${tokensUsed}, user: ${userId ?? 'anon'}`);
 
     return new Response(
