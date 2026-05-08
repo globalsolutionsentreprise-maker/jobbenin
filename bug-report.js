@@ -54,6 +54,9 @@
     }
     #br-trigger:hover { transform: translateY(-2px); box-shadow: 0 4px 18px rgba(0,0,0,.22); opacity: 1; }
     #br-trigger svg { flex-shrink: 0; }
+    @media (max-width: 640px) {
+      #br-trigger { bottom: 16px; left: auto; right: 16px; padding: 9px 12px; }
+    }
 
     #br-panel {
       position: fixed; bottom: 72px; left: 24px; z-index: 9999;
