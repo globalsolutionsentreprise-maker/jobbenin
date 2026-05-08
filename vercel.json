@@ -11,6 +11,11 @@
       "source": "/",
       "destination": "/presentation.html",
       "permanent": false
+    },
+    {
+      "source": "/bienvenue.html",
+      "destination": "/presentation.html",
+      "permanent": false
     }
   ],
   "crons": [

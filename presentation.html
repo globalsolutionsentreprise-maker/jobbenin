@@ -382,6 +382,201 @@
       font-size: 12px;
       color: var(--text-muted);
     }
+
+    /* ── HERO CTAs SPLIT ── */
+    .hero-ctas-split {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+    .hero-cta-block {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+    }
+    .hero-cta-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    /* ── CERTIFICATION ── */
+    .certif-section {
+      background: var(--bg-soft);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 60px 24px;
+    }
+    .certif-inner {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .certif-header {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+    .certif-header .section-label { margin-bottom: 10px; }
+    .certif-header h2 {
+      font-family: var(--font-serif);
+      font-style: italic;
+      font-size: clamp(22px, 3.5vw, 32px);
+      margin-bottom: 10px;
+    }
+    .certif-header p {
+      font-size: 14px;
+      color: var(--text-mid);
+      max-width: 480px;
+      margin: 0 auto;
+      line-height: 1.7;
+    }
+    .certif-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+    @media (max-width: 640px) { .certif-grid { grid-template-columns: 1fr; } }
+    .certif-track {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 28px;
+    }
+    .certif-track-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .certif-track-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+    .certif-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+    .certif-step {
+      display: flex;
+      gap: 14px;
+      position: relative;
+    }
+    .certif-step:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      left: 11px;
+      top: 28px;
+      bottom: -4px;
+      width: 1px;
+      background: var(--border);
+    }
+    .certif-step + .certif-step { margin-top: 16px; }
+    .certif-dot {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--accent-bg);
+      border: 1px solid var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .certif-dot svg { color: var(--accent); }
+    .certif-step-body { flex: 1; padding-bottom: 16px; }
+    .certif-step-title { font-size: 13px; font-weight: 600; margin-bottom: 3px; }
+    .certif-step-desc { font-size: 12px; color: var(--text-mid); line-height: 1.6; }
+    .certif-note {
+      margin-top: 12px;
+      font-size: 11px;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    /* ── CHAT AGENT ── */
+    #tc-chat-btn {
+      position: fixed; bottom: 28px; right: 28px;
+      width: 52px; height: 52px; border-radius: 50%;
+      background: linear-gradient(135deg, #9B5E1A, #C8892A);
+      border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 20px rgba(200,137,42,0.40);
+      z-index: 9999; transition: transform .2s, box-shadow .2s;
+    }
+    #tc-chat-btn:hover { transform: scale(1.07); box-shadow: 0 6px 28px rgba(200,137,42,0.55); }
+    #tc-chat-btn svg { width: 22px; height: 22px; stroke: #fff; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    #tc-chat-box {
+      position: fixed; bottom: 90px; right: 28px;
+      width: 340px; max-height: 480px;
+      background: #0f0f13; border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px; box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+      display: none; flex-direction: column;
+      z-index: 9998; overflow: hidden;
+    }
+    #tc-chat-box.open { display: flex; }
+    #tc-chat-header {
+      padding: 14px 16px;
+      background: rgba(200,137,42,0.10);
+      border-bottom: 1px solid rgba(200,137,42,0.12);
+      display: flex; align-items: center; gap: 10px;
+    }
+    #tc-chat-header .tc-avatar {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: linear-gradient(135deg, #9B5E1A, #C8892A);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; font-weight: 700; color: #fff;
+    }
+    #tc-chat-header .tc-info .tc-name { font-size: 13px; font-weight: 600; color: #f0f0f5; }
+    #tc-chat-header .tc-info .tc-status { font-size: 11px; color: #6ee7b7; display: flex; align-items: center; gap: 4px; }
+    #tc-chat-header .tc-info .tc-status::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: #6ee7b7; display: inline-block; }
+    #tc-chat-messages {
+      flex: 1; overflow-y: auto; padding: 14px;
+      display: flex; flex-direction: column; gap: 10px;
+      scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.1) transparent;
+    }
+    .tc-msg { max-width: 82%; padding: 9px 13px; border-radius: 12px; font-size: 13px; line-height: 1.5; color: #e8e8f0; font-family: 'Space Grotesk', sans-serif; }
+    .tc-msg.bot { background: rgba(255,255,255,0.06); align-self: flex-start; border-bottom-left-radius: 3px; }
+    .tc-msg.user { background: rgba(200,137,42,0.28); align-self: flex-end; border-bottom-right-radius: 3px; color: #fff; }
+    .tc-msg.typing { color: rgba(255,255,255,0.35); font-style: italic; }
+    #tc-chat-footer {
+      padding: 10px 12px; border-top: 1px solid rgba(255,255,255,0.06);
+      display: flex; gap: 8px; align-items: center;
+    }
+    #tc-chat-input {
+      flex: 1; background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08); border-radius: 8px;
+      padding: 9px 12px; font-size: 13px; color: #f0f0f5;
+      font-family: 'Space Grotesk', sans-serif;
+      outline: none; resize: none; height: 38px; line-height: 1.3;
+      transition: border-color .2s;
+    }
+    #tc-chat-input:focus { border-color: rgba(200,137,42,0.5); }
+    #tc-chat-input::placeholder { color: rgba(255,255,255,0.25); }
+    #tc-chat-send {
+      width: 36px; height: 36px; border-radius: 8px;
+      background: linear-gradient(135deg, #9B5E1A, #C8892A);
+      border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: opacity .2s; flex-shrink: 0;
+    }
+    #tc-chat-send:disabled { opacity: 0.4; cursor: default; }
+    #tc-chat-send svg { width: 16px; height: 16px; stroke: #fff; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
   </style>
 </head>
 <body>
@@ -419,9 +614,15 @@
   <p class="hero-sub">
     Conçu par un recruteur béninois, pour les talents et entreprises du pays. Talenco.bj est la première plateforme RH pensée pour notre marché — pas un outil occidental adapté à la va-vite.
   </p>
-  <div class="hero-ctas">
-    <a href="/inscription.html" class="btn-hero-primary">Je crée mon compte — Gratuit</a>
-    <a href="#entreprises" class="btn-hero-outline">Accès recruteur</a>
+  <div class="hero-ctas-split">
+    <div class="hero-cta-block">
+      <span class="hero-cta-label">Je cherche un emploi</span>
+      <a href="/inscription.html" class="btn-hero-primary">Candidat — Inscription gratuite</a>
+    </div>
+    <div class="hero-cta-block">
+      <span class="hero-cta-label">Je recrute</span>
+      <a href="#entreprises" class="btn-hero-outline">Recruteur — Demander l'accès</a>
+    </div>
   </div>
 </section>
 
@@ -525,6 +726,96 @@
         15 accès entreprise — Sur invitation
       </div>
       <a href="mailto:yakoubou.kabir@gmail.com?subject=Demande accès recruteur Talenco.bj" class="btn btn-dark btn-sm">Demander l'accès recruteur</a>
+    </div>
+  </div>
+</section>
+
+<!-- CERTIFICATION -->
+<section class="certif-section">
+  <div class="certif-inner">
+    <div class="certif-header">
+      <div class="section-label">Confiance &amp; qualité</div>
+      <h2>Des profils vérifiés, des entreprises contrôlées</h2>
+      <p>Talenco.bj n'est pas un annuaire libre. Chaque profil candidat et chaque entreprise est vérifié manuellement par l'équipe avant d'être visible.</p>
+    </div>
+    <div class="certif-grid">
+
+      <!-- CANDIDATS -->
+      <div class="certif-track">
+        <div class="certif-track-label">Parcours candidat</div>
+        <div class="certif-steps">
+          <div class="certif-step">
+            <div class="certif-dot">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+            </div>
+            <div class="certif-step-body">
+              <div class="certif-step-title">Vous créez votre compte</div>
+              <div class="certif-step-desc">Remplissez votre profil, déposez votre CV. L'inscription est gratuite pendant la phase bêta.</div>
+            </div>
+          </div>
+          <div class="certif-step">
+            <div class="certif-dot">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            </div>
+            <div class="certif-step-body">
+              <div class="certif-step-title">L'équipe vérifie votre dossier</div>
+              <div class="certif-step-desc">CV lisible, expériences cohérentes — une vérification humaine sous 24 h. Pas un algorithme.</div>
+            </div>
+          </div>
+          <div class="certif-step">
+            <div class="certif-dot">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            </div>
+            <div class="certif-step-body">
+              <div class="certif-step-title">Profil activé — visible aux recruteurs</div>
+              <div class="certif-step-desc">Votre profil porte le badge vérifié. Les entreprises peuvent vous contacter directement.</div>
+            </div>
+          </div>
+        </div>
+        <div class="certif-note">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          Validation sous 24 h en phase bêta
+        </div>
+      </div>
+
+      <!-- RECRUTEURS -->
+      <div class="certif-track">
+        <div class="certif-track-label">Parcours recruteur</div>
+        <div class="certif-steps">
+          <div class="certif-step">
+            <div class="certif-dot">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+            </div>
+            <div class="certif-step-body">
+              <div class="certif-step-title">Vous envoyez une demande d'accès</div>
+              <div class="certif-step-desc">Nom de l'entreprise, secteur, taille. La phase bêta est limitée à 15 structures.</div>
+            </div>
+          </div>
+          <div class="certif-step">
+            <div class="certif-dot">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </div>
+            <div class="certif-step-body">
+              <div class="certif-step-title">Vérification de l'entreprise</div>
+              <div class="certif-step-desc">RCCM, activité, légitimité du recrutement. On vérifie que vos offres correspondent à une réalité.</div>
+            </div>
+          </div>
+          <div class="certif-step">
+            <div class="certif-dot">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <div class="certif-step-body">
+              <div class="certif-step-title">Accès accordé — vous recrutez</div>
+              <div class="certif-step-desc">CVthèque, publication d'offres, tableau Kanban. Vos candidats savent que vous êtes une entreprise sérieuse.</div>
+            </div>
+          </div>
+        </div>
+        <div class="certif-note">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          Invitation uniquement · 15 places disponibles
+        </div>
+      </div>
+
     </div>
   </div>
 </section>
@@ -684,5 +975,86 @@
   setInterval(updateCountdown, 30000);
 </script>
 <script src="/nav-mobile.js"></script>
+
+<!-- AGENT ONBOARDING -->
+<button id="tc-chat-btn" title="Assistant Talenco" aria-label="Ouvrir l'assistant">
+  <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+</button>
+<div id="tc-chat-box" role="dialog" aria-label="Assistant Talenco">
+  <div id="tc-chat-header">
+    <div class="tc-avatar">T</div>
+    <div class="tc-info">
+      <div class="tc-name">Assistant Talenco</div>
+      <div class="tc-status">En ligne</div>
+    </div>
+  </div>
+  <div id="tc-chat-messages">
+    <div class="tc-msg bot">Bonjour 👋 Je suis l'assistant Talenco. Candidat ou recruteur — comment puis-je vous aider ?</div>
+  </div>
+  <div id="tc-chat-footer">
+    <textarea id="tc-chat-input" placeholder="Posez votre question…" rows="1"></textarea>
+    <button id="tc-chat-send" title="Envoyer">
+      <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+    </button>
+  </div>
+</div>
+<script>
+(function () {
+  const btn = document.getElementById('tc-chat-btn');
+  const box = document.getElementById('tc-chat-box');
+  const input = document.getElementById('tc-chat-input');
+  const send = document.getElementById('tc-chat-send');
+  const msgs = document.getElementById('tc-chat-messages');
+  let history = [], loading = false;
+
+  btn.addEventListener('click', () => {
+    box.classList.toggle('open');
+    if (box.classList.contains('open')) input.focus();
+  });
+
+  function addMsg(text, role) {
+    const el = document.createElement('div');
+    el.className = 'tc-msg ' + role;
+    el.textContent = text;
+    msgs.appendChild(el);
+    msgs.scrollTop = msgs.scrollHeight;
+    return el;
+  }
+
+  async function sendMessage() {
+    const text = input.value.trim();
+    if (!text || loading) return;
+    input.value = '';
+    send.disabled = true;
+    loading = true;
+    addMsg(text, 'user');
+    history.push({ role: 'user', content: text });
+    const typing = addMsg('…', 'bot typing');
+    try {
+      const res = await fetch('/api/agent-onboarding', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: text, history: history.slice(0, -1) }),
+      });
+      const data = await res.json();
+      const reply = data.reply || "Désolé, une erreur est survenue.";
+      typing.remove();
+      addMsg(reply, 'bot');
+      history.push({ role: 'assistant', content: reply });
+    } catch {
+      typing.remove();
+      addMsg("Connexion impossible. Veuillez réessayer.", 'bot');
+    }
+    send.disabled = false;
+    loading = false;
+    input.focus();
+  }
+
+  send.addEventListener('click', sendMessage);
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+  });
+})();
+</script>
 </body>
 </html>
