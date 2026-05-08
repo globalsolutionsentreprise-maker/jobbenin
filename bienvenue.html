@@ -10,7 +10,7 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      background: #080808;
+      background: #0F0A06;
       color: #fff;
       font-family: 'Hanken Grotesk', sans-serif;
       min-height: 100vh;
@@ -19,33 +19,32 @@
       overflow: hidden;
     }
 
-    /* Grain texture overlay */
+    /* Motif géométrique Fon — très subtil, comme un tissu brodé */
     body::before {
       content: '';
       position: fixed;
       inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      background-image: url("data:image/svg+xml,%3Csvg width='48' height='48' viewBox='0 0 48 48' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M24 4L44 24L24 44L4 24z' fill='none' stroke='%23C8892A' stroke-width='0.4' opacity='0.12'/%3E%3Cpath d='M24 12L36 24L24 36L12 24z' fill='none' stroke='%23C8892A' stroke-width='0.3' opacity='0.08'/%3E%3C/svg%3E");
       pointer-events: none;
       z-index: 0;
-      opacity: 0.4;
     }
 
-    /* Subtle gradient orbs */
+    /* Lueurs ambrées — chaleur de Cotonou au coucher du soleil */
     .orb {
       position: fixed;
       border-radius: 50%;
-      filter: blur(120px);
+      filter: blur(130px);
       pointer-events: none;
       z-index: 0;
     }
     .orb-1 {
-      width: 500px; height: 500px;
-      background: radial-gradient(circle, rgba(180,140,80,0.12) 0%, transparent 70%);
-      top: -100px; left: -100px;
+      width: 520px; height: 520px;
+      background: radial-gradient(circle, rgba(200,137,42,0.14) 0%, transparent 70%);
+      top: -120px; left: -100px;
     }
     .orb-2 {
-      width: 400px; height: 400px;
-      background: radial-gradient(circle, rgba(100,80,180,0.10) 0%, transparent 70%);
+      width: 420px; height: 420px;
+      background: radial-gradient(circle, rgba(155,78,46,0.12) 0%, transparent 70%);
       bottom: -80px; right: -80px;
     }
 
@@ -88,10 +87,11 @@
       font-weight: 500;
       letter-spacing: 0.08em;
       text-transform: uppercase;
-      color: rgba(255,255,255,0.4);
-      border: 1px solid rgba(255,255,255,0.1);
+      color: #C8892A;
+      border: 1px solid rgba(200,137,42,0.3);
       padding: 6px 14px;
       border-radius: 20px;
+      background: rgba(200,137,42,0.06);
     }
 
     /* Main content */
@@ -306,13 +306,13 @@
       </div>
       <div class="logo-tagline">Recrutement au Bénin</div>
     </a>
-    <div class="header-badge">Plateforme N°1 au Bénin</div>
+    <div class="header-badge">Fait au Bénin · Phase bêta</div>
   </header>
 
   <main>
-    <div class="eyebrow">Bienvenue sur Talenco.bj</div>
+    <div class="eyebrow">La référence RH du Bénin</div>
     <h1 class="headline">Vous êtes ici pour quoi ?</h1>
-    <p class="subline">Choisissez votre profil pour accéder à l'espace qui vous correspond.</p>
+    <p class="subline">Talenco, c'est la première plateforme pensée par un recruteur béninois, pour les talents et entreprises du pays.</p>
 
     <div class="cards">
       <a href="/paiement-candidat.html" class="card card-candidat">
@@ -364,17 +364,17 @@
     width: 54px;
     height: 54px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #6450dc, #9b8af5);
+    background: linear-gradient(135deg, #9B5E1A, #C8892A);
     border: none;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 4px 20px rgba(100,80,220,0.45);
+    box-shadow: 0 4px 20px rgba(200,137,42,0.40);
     z-index: 9999;
     transition: transform .2s, box-shadow .2s;
   }
-  #tc-chat-btn:hover { transform: scale(1.07); box-shadow: 0 6px 28px rgba(100,80,220,0.6); }
+  #tc-chat-btn:hover { transform: scale(1.07); box-shadow: 0 6px 28px rgba(200,137,42,0.55); }
   #tc-chat-btn svg { width: 24px; height: 24px; stroke: #fff; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
   #tc-chat-box {
@@ -397,15 +397,15 @@
 
   #tc-chat-header {
     padding: 14px 16px;
-    background: rgba(100,80,220,0.12);
-    border-bottom: 1px solid rgba(255,255,255,0.06);
+    background: rgba(200,137,42,0.10);
+    border-bottom: 1px solid rgba(200,137,42,0.12);
     display: flex;
     align-items: center;
     gap: 10px;
   }
   #tc-chat-header .avatar {
     width: 32px; height: 32px; border-radius: 50%;
-    background: linear-gradient(135deg, #6450dc, #9b8af5);
+    background: linear-gradient(135deg, #9B5E1A, #C8892A);
     display: flex; align-items: center; justify-content: center;
     font-size: 14px; font-weight: 700; color: #fff;
   }
@@ -432,7 +432,7 @@
     color: #e8e8f0;
   }
   .tc-msg.bot { background: rgba(255,255,255,0.06); align-self: flex-start; border-bottom-left-radius: 3px; }
-  .tc-msg.user { background: rgba(100,80,220,0.3); align-self: flex-end; border-bottom-right-radius: 3px; color: #fff; }
+  .tc-msg.user { background: rgba(200,137,42,0.28); align-self: flex-end; border-bottom-right-radius: 3px; color: #fff; }
   .tc-msg.typing { color: rgba(255,255,255,0.35); font-style: italic; }
 
   #tc-chat-footer {
@@ -457,11 +457,11 @@
     line-height: 1.3;
     transition: border-color .2s;
   }
-  #tc-chat-input:focus { border-color: rgba(100,80,220,0.5); }
+  #tc-chat-input:focus { border-color: rgba(200,137,42,0.5); }
   #tc-chat-input::placeholder { color: rgba(255,255,255,0.25); }
   #tc-chat-send {
     width: 36px; height: 36px; border-radius: 8px;
-    background: linear-gradient(135deg, #6450dc, #9b8af5);
+    background: linear-gradient(135deg, #9B5E1A, #C8892A);
     border: none; cursor: pointer;
     display: flex; align-items: center; justify-content: center;
     transition: opacity .2s;
