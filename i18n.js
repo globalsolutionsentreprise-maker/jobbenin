@@ -69,7 +69,15 @@
       }
     });
     var actions = document.querySelector('.navbar-actions');
-    if (actions) actions.insertBefore(btn, actions.firstChild);
+    if (actions) {
+      actions.insertBefore(btn, actions.firstChild);
+    } else {
+      var nav = document.querySelector('nav');
+      if (nav) {
+        btn.style.marginLeft = 'auto';
+        nav.appendChild(btn);
+      }
+    }
   }
 
   function loadAndApply() {
