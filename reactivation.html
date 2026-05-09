@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr"><head>
+<html lang="fr" data-i18n-title="react.title"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Réactivation — Talenco.bj</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Outfit:wght@400;500;600&display=swap" rel="stylesheet">
@@ -36,24 +36,21 @@ h1{font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:800;margin-bottom:
     <div class="icon-circle">
       <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#F0A500" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
     </div>
-    <h1>Réactiver mon compte</h1>
-    <p class="sub">Votre compte a été suspendu après 3 mois d'inactivité. Réglez les frais de réactivation pour retrouver un accès complet.</p>
+    <h1 data-i18n="react.h1">Réactiver mon compte</h1>
+    <p class="sub" data-i18n="react.sub">Votre compte a été désactivé suite à une période d'inactivité. Réglez les frais de réactivation pour retrouver un accès complet.</p>
     <div class="price-row">
-      <div style="font-size:.8rem;color:var(--muted);margin-bottom:.3rem">Frais de réactivation</div>
+      <div style="font-size:.8rem;color:var(--muted);margin-bottom:.3rem" data-i18n="react.fee.label">Frais de réactivation</div>
       <div class="price-big">2 000</div>
-      <div class="price-detail">FCFA · puis 1 000 FCFA/mois</div>
+      <div class="price-detail" data-i18n="react.fee.detail">FCFA · puis 1 000 FCFA/mois</div>
     </div>
-    <button class="submit-btn" id="pay-btn" onclick="submitReactivation()">Réactiver mon compte →</button>
+    <button class="submit-btn" id="pay-btn" onclick="submitReactivation()" data-i18n="react.btn">Réactiver mon compte →</button>
     <div class="error-msg" id="error-msg"></div>
-    <p class="note">Ce lien est valable 48h. Accès restauré immédiatement après paiement.</p>
+    <p class="note" data-i18n="react.note">Ce lien est valable 48h. Accès restauré immédiatement après paiement.</p>
   </div>
   <div id="invalid-content">
-    <h2 style="font-family:'Syne',sans-serif;color:#E84040;margin-bottom:.5rem">Lien invalide ou expiré</h2>
-    <p style="color:var(--muted);font-size:.9rem">Contactez notre support pour recevoir un nouveau lien.</p>
-    <div class="contact-box">
-      <h3>Contacter le support</h3>
-      <p>Email : <strong>support@talenco.bj</strong><br>Lundi–Vendredi, 8h–18h</p>
-    </div>
+    <h2 style="font-family:'Syne',sans-serif;color:#E84040;margin-bottom:.5rem" data-i18n="react.invalid.title">Lien invalide ou expiré</h2>
+    <p style="color:var(--muted);font-size:.9rem" data-i18n="react.invalid.sub">Ce lien a expiré ou est invalide. Vous pouvez en demander un nouveau directement.</p>
+    <a href="/reactivation-demande.html" style="display:inline-block;margin-top:1rem;background:#F0A500;color:#000;padding:10px 20px;border-radius:8px;text-decoration:none;font-weight:700;font-size:.9rem;" data-i18n="react.invalid.btn">Obtenir un nouveau lien →</a>
   </div>
 </div></main>
 <script>
@@ -73,4 +70,5 @@ async function submitReactivation(){
 }
 </script>
 <script src="/nav-mobile.js"></script>
+<script src="/i18n.js"></script>
 </body></html>

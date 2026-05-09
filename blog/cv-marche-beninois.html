@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Votre CV pour le marché béninois : ce qui compte vraiment · Talenco.bj</title>
+  <meta name="description" content="Ce que les recruteurs béninois regardent en premier, les sections inutiles à supprimer, et comment vous démarquer dans une pile de 50 CVs similaires.">
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Hanken+Grotesk:wght@300;400;500;700;900&family=Space+Grotesk:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/design-system.css">
+  <style>
+    .article-header {
+      padding: 100px 24px 56px;
+      max-width: 720px;
+      margin: 0 auto;
+      border-bottom: 1px solid var(--border);
+    }
+    .article-meta {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .article-tag {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: var(--accent-bg);
+      padding: 3px 8px;
+      border-radius: 3px;
+    }
+    .article-date {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+    .article-title {
+      font-family: var(--font-serif);
+      font-style: italic;
+      font-size: clamp(28px, 5vw, 46px);
+      line-height: 1.1;
+      letter-spacing: -.02em;
+      margin-bottom: 18px;
+    }
+    .article-lead {
+      font-size: 17px;
+      color: var(--text-mid);
+      line-height: 1.75;
+      font-style: italic;
+    }
+
+    .article-body {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 56px 24px 80px;
+    }
+    .article-body p {
+      font-size: 15px;
+      color: var(--text-mid);
+      line-height: 1.8;
+      margin-bottom: 24px;
+    }
+    .article-body h2 {
+      font-family: var(--font-serif);
+      font-style: italic;
+      font-size: clamp(20px, 3vw, 26px);
+      color: var(--text);
+      margin: 48px 0 16px;
+      padding-top: 8px;
+      border-top: 1px solid var(--border);
+    }
+    .article-body h2 .num {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--accent);
+      letter-spacing: .08em;
+      display: block;
+      margin-bottom: 6px;
+      font-style: normal;
+    }
+    .article-body strong { color: var(--text); font-weight: 600; }
+    .highlight-box {
+      background: var(--accent-bg);
+      border-left: 2px solid var(--accent);
+      padding: 20px 24px;
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      margin: 28px 0;
+    }
+    .highlight-box p { margin: 0; font-size: 14px; color: var(--text); font-style: italic; }
+
+    .cv-checklist {
+      background: var(--bg-soft);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 28px 32px;
+      margin: 28px 0;
+    }
+    .cv-checklist-title {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 16px;
+    }
+    .cv-checklist ul {
+      list-style: none;
+      padding: 0; margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .cv-checklist li {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 13px;
+      color: var(--text-mid);
+      line-height: 1.5;
+    }
+    .cv-checklist li::before {
+      content: '';
+      width: 16px; height: 16px;
+      border: 1.5px solid var(--accent);
+      border-radius: 3px;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .article-footer-cta {
+      background: #0F0A06;
+      border-radius: var(--radius-md);
+      padding: 36px 32px;
+      text-align: center;
+      margin-top: 48px;
+    }
+    .article-footer-cta h3 {
+      font-family: var(--font-serif);
+      font-style: italic;
+      font-size: 22px;
+      margin-bottom: 10px;
+      color: #F9F6F1;
+    }
+    .article-footer-cta p {
+      font-size: 14px;
+      color: rgba(249,246,241,0.55);
+      margin-bottom: 20px;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      text-decoration: none;
+      margin-bottom: 28px;
+      transition: color .15s;
+    }
+    .back-link:hover { color: var(--text); }
+
+    .pres-footer {
+      border-top: 1px solid var(--border);
+      padding: 32px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      max-width: 1100px;
+      margin: 0 auto;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .pres-footer-brand { font-family: var(--font-serif); font-style: italic; font-size: 18px; }
+    .pres-footer-brand span { color: var(--accent); }
+    .pres-footer-copy { font-size: 12px; color: var(--text-muted); }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <a href="/presentation.html" class="talenco-logo">
+    <div class="nav-logo">
+      <div class="nav-logo-text">
+        <span class="logo-primary">Talenco</span><span class="logo-dot">.</span><span class="logo-tld">bj</span>
+      </div>
+      <div class="logo-tagline">Recrutement au Bénin</div>
+    </div>
+  </a>
+  <ul class="navbar-links">
+    <li><a href="/offres.html">Offres</a></li>
+    <li><a href="/presentation.html#candidats">Candidats</a></li>
+    <li><a href="/presentation.html#entreprises">Entreprises</a></li>
+    <li><a href="/coach.html">Coach IA</a></li>
+    <li><a href="/blog.html">Blog</a></li>
+  </ul>
+  <div class="navbar-actions">
+    <a href="/inscription.html" class="btn btn-dark btn-sm">Créer un compte</a>
+  </div>
+</nav>
+
+<!-- ARTICLE HEADER -->
+<div class="article-header">
+  <a href="/blog.html" class="back-link">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+    Tous les articles
+  </a>
+  <div class="article-meta">
+    <span class="article-tag">Conseils CV</span>
+    <span class="article-date">9 mai 2026 · 5 min de lecture</span>
+  </div>
+  <h1 class="article-title">Votre CV pour le marché béninois : ce qui compte vraiment</h1>
+  <p class="article-lead">Ce que les recruteurs locaux regardent en premier, les mentions inutiles à supprimer, et comment vous distinguer dans une pile de 50 candidatures qui se ressemblent toutes.</p>
+</div>
+
+<!-- ARTICLE BODY -->
+<div class="article-body">
+
+  <p>Un recruteur béninois reçoit en moyenne entre 40 et 120 candidatures pour un seul poste. Il passe moins de 30 secondes sur chaque CV avant de décider de continuer ou pas. Ce n'est pas du mépris — c'est une contrainte de temps.</p>
+
+  <p>Votre CV doit répondre à une seule question en 15 secondes : <em>est-ce que cette personne peut faire le travail que je cherche à faire faire ?</em> Tout le reste est du bruit.</p>
+
+  <h2><span class="num">Principe 01</span>Une page, point final</h2>
+
+  <p>Sauf si vous avez plus de dix ans d'expérience très diverse, votre CV tient sur une page. Pas une page et demie. Pas deux pages "parce qu'il y a beaucoup à dire". Une page.</p>
+
+  <p>Ce n'est pas une question d'espace — c'est une question de discipline éditoriale. Un CV de deux pages dit implicitement : <em>"je n'ai pas su choisir ce qui est important."</em> Un recruteur voit ça et passe à la candidature suivante.</p>
+
+  <div class="highlight-box">
+    <p>Si vous avez du mal à tenir sur une page, commencez par supprimer tout ce qui date de plus de huit ans et toutes les "compétences" génériques comme "dynamique", "rigoureux", "esprit d'équipe". Ces mots ne disent rien sur vous — ils les mettent tous.</p>
+  </div>
+
+  <h2><span class="num">Principe 02</span>Ce que les recruteurs béninois regardent en premier</h2>
+
+  <p>Dans notre contexte, les recruteurs regardent dans cet ordre :</p>
+
+  <p><strong>1. La formation.</strong> Niveau de diplôme, nom de l'université ou l'école, année d'obtention. Dans beaucoup de secteurs au Bénin, c'est encore un filtre fort. Mettez-le en haut, clair et précis.</p>
+
+  <p><strong>2. L'expérience récente.</strong> Dernier poste ou deux derniers postes. Titre exact, nom de l'entreprise, durée. Pas de dates approximatives.</p>
+
+  <p><strong>3. La localisation.</strong> Êtes-vous à Cotonou ? Porto-Novo ? Parakou ? Êtes-vous prêt à vous déplacer ? Pour les postes qui exigent une présence physique, c'est une question pratique immédiate.</p>
+
+  <p><strong>4. Les compétences techniques spécifiques.</strong> Logiciels maîtrisés, langues (avec niveau réel), outils. Pas les soft skills génériques.</p>
+
+  <h2><span class="num">Principe 03</span>Quantifiez. Toujours.</h2>
+
+  <p>La différence entre un CV moyen et un CV fort tient souvent à des chiffres. Comparez :</p>
+
+  <p><em>Avant :</em> "Gestion d'une équipe commerciale et développement du chiffre d'affaires."</p>
+  <p><em>Après :</em> "Management d'une équipe de 6 commerciaux. +34% de CA sur le portefeuille clients de la zone Sud en 18 mois."</p>
+
+  <p>La deuxième version dit quelque chose de concret. Le recruteur peut s'en saisir. Si vous n'avez pas de chiffres précis, estimez — "environ 50 dossiers traités par semaine" vaut mieux que rien.</p>
+
+  <h2><span class="num">Principe 04</span>Ce qu'il faut supprimer</h2>
+
+  <div class="cv-checklist">
+    <div class="cv-checklist-title">À supprimer de votre CV</div>
+    <ul>
+      <li>La photo, sauf si le secteur ou l'offre le demande explicitement</li>
+      <li>La date de naissance et le statut matrimonial — ces informations n'ont pas à figurer</li>
+      <li>L'"objectif professionnel" générique en haut du CV ("cherche poste stimulant dans une entreprise dynamique…")</li>
+      <li>Les centres d'intérêt qui ne disent rien (lecture, voyage, sport) — n'en mettez que si c'est vraiment pertinent pour le poste</li>
+      <li>Les compétences "bureautiques" si vous avez plus de trois ans d'expérience — Word et Excel sont acquis, ça ne compte plus</li>
+      <li>Les stages de moins d'un mois datant de plus de cinq ans</li>
+    </ul>
+  </div>
+
+  <h2><span class="num">Principe 05</span>Adaptez à chaque offre</h2>
+
+  <p>Un CV générique envoyé à 30 entreprises donne 30 fois de mauvais résultats. Un CV adapté à chaque offre — avec les mots-clés de l'offre repris, les compétences les plus pertinentes mises en avant — donne un résultat dix fois meilleur pour deux fois moins de candidatures.</p>
+
+  <p>Concrètement : lisez l'offre, identifiez les trois mots ou compétences qui reviennent le plus, et assurez-vous qu'ils apparaissent dans votre CV — si vous les avez vraiment. Ne mentez pas. Mais ne laissez pas non plus une compétence réelle disparaître dans le désordre de votre CV.</p>
+
+  <!-- CTA -->
+  <div class="article-footer-cta">
+    <h3>Faites analyser votre CV par l'IA</h3>
+    <p>Le Coach IA de Talenco.bj lit votre CV, identifie ce qui manque et vous suggère des améliorations concrètes — en quelques secondes.</p>
+    <a href="/coach.html" style="display:inline-flex;align-items:center;gap:9px;background:linear-gradient(135deg,#9B5E1A,#C8892A);color:#fff;padding:13px 28px;border-radius:4px;font-size:14px;font-weight:500;text-decoration:none;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      Analyser mon CV gratuitement
+    </a>
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="pres-footer">
+    <div class="pres-footer-brand">Talenco<span>.</span>bj</div>
+    <div class="pres-footer-copy">© 2026 GlobalSolutions Entreprise</div>
+    <div style="display:flex;gap:16px;">
+      <a href="/blog.html" style="font-size:12px;color:var(--text-muted);text-decoration:none;">← Blog</a>
+      <a href="/presentation.html" style="font-size:12px;color:var(--text-muted);text-decoration:none;">Accueil</a>
+    </div>
+  </div>
+</footer>
+
+<script src="/nav-mobile.js"></script>
+<script src="/i18n.js"></script>
+</body>
+</html>

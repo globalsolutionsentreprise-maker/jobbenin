@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="fr" data-i18n-title="reactd.title">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Réactiver mon compte — Talenco.bj</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@400;500;600&family=DM+Mono:wght@400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/design-system.css">
+  <style>
+    .page-wrap {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 100px 24px 60px;
+    }
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 48px 40px;
+      width: 100%;
+      max-width: 440px;
+      text-align: center;
+    }
+    .card-icon {
+      width: 56px; height: 56px;
+      border-radius: 50%;
+      background: var(--accent-bg);
+      border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 24px;
+      color: var(--accent);
+    }
+    .card-title {
+      font-family: var(--font-serif);
+      font-style: italic;
+      font-size: 26px;
+      margin-bottom: 10px;
+    }
+    .card-sub {
+      font-size: 14px;
+      color: var(--text-mid);
+      line-height: 1.7;
+      margin-bottom: 28px;
+    }
+    .price-box {
+      background: var(--bg-soft);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 16px;
+      margin-bottom: 28px;
+    }
+    .price-label { font-size: 12px; color: var(--text-muted); margin-bottom: 4px; }
+    .price-amount {
+      font-family: var(--font-serif);
+      font-style: italic;
+      font-size: 32px;
+      color: var(--accent);
+      line-height: 1;
+    }
+    .price-after { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+    .form-group { text-align: left; margin-bottom: 16px; }
+    .form-group label {
+      display: block;
+      font-size: 12px;
+      font-weight: 500;
+      margin-bottom: 6px;
+      color: var(--text-mid);
+    }
+    .form-group input {
+      width: 100%;
+      padding: 11px 14px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--bg);
+      font-family: var(--font-body);
+      font-size: 14px;
+      color: var(--text);
+      outline: none;
+      transition: border-color .2s;
+    }
+    .form-group input:focus { border-color: var(--accent); }
+    .btn-submit {
+      width: 100%;
+      background: var(--text);
+      color: var(--bg);
+      border: none;
+      border-radius: var(--radius-sm);
+      padding: 13px;
+      font-family: var(--font-body);
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: opacity .2s;
+    }
+    .btn-submit:hover { opacity: .88; }
+    .btn-submit:disabled { opacity: .45; cursor: not-allowed; }
+    .feedback {
+      margin-top: 16px;
+      padding: 12px 16px;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      display: none;
+      text-align: left;
+    }
+    .feedback.success {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      color: #166534;
+    }
+    .feedback.error {
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      color: #991b1b;
+    }
+    .back-link {
+      display: inline-block;
+      margin-top: 20px;
+      font-size: 13px;
+      color: var(--text-muted);
+      text-decoration: none;
+    }
+    .back-link:hover { color: var(--text); }
+  </style>
+</head>
+<body>
+
+<nav class="navbar">
+  <a href="/presentation.html" class="talenco-logo">
+    <div class="nav-logo">
+      <div class="nav-logo-text">
+        <span class="logo-primary">Talenco</span><span class="logo-dot">.</span><span class="logo-tld">bj</span>
+      </div>
+    </div>
+  </a>
+</nav>
+
+<div class="page-wrap">
+  <div class="card">
+    <div id="form-view">
+      <div class="card-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+        </svg>
+      </div>
+      <h1 class="card-title" data-i18n="reactd.h1">Réactiver mon compte</h1>
+      <p class="card-sub" data-i18n="reactd.sub">Entrez votre adresse email. Vous recevrez un lien de paiement valable 48 heures pour retrouver un accès complet.</p>
+
+      <div class="price-box">
+        <div class="price-label" data-i18n="reactd.fee.label">Frais de réactivation</div>
+        <div class="price-amount">2 000 FCFA</div>
+        <div class="price-after" data-i18n="reactd.fee.after">puis 1 000 FCFA/mois · Accès restauré immédiatement</div>
+      </div>
+
+      <div class="form-group">
+        <label for="email" data-i18n="reactd.email.label">Adresse email de votre compte</label>
+        <input type="email" id="email" placeholder="votre@email.com" data-i18n-ph="reactd.email.ph" autocomplete="email">
+      </div>
+
+      <button class="btn-submit" id="submit-btn" onclick="demanderLien()" data-i18n="reactd.btn">Recevoir mon lien de réactivation</button>
+
+      <div class="feedback" id="feedback"></div>
+      <a href="/connexion.html" class="back-link" data-i18n="reactd.back">← Retour à la connexion</a>
+    </div>
+
+    <div id="success-view" style="display:none;">
+      <div class="card-icon" style="background:#f0fdf4;border-color:#bbf7d0;color:#166534;">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <h1 class="card-title" data-i18n="reactd.success.h1">Email envoyé</h1>
+      <p class="card-sub" data-i18n-html="reactd.success.sub">Si un compte désactivé correspond à cette adresse, vous recevrez votre lien de réactivation dans quelques minutes.<br><br>Vérifiez aussi vos spams.</p>
+      <a href="/connexion.html" class="back-link" data-i18n="reactd.back">← Retour à la connexion</a>
+    </div>
+  </div>
+</div>
+
+<script>
+async function demanderLien() {
+  const email = document.getElementById('email').value.trim();
+  if (!email) { showFeedback('Veuillez entrer votre adresse email.', 'error'); return; }
+
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = true;
+  btn.textContent = 'Envoi en cours…';
+  hideFeedback();
+
+  try {
+    await fetch('/api/payment/send-reactivation', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
+    });
+    // Toujours afficher le succès (réponse générique pour la sécurité)
+    document.getElementById('form-view').style.display = 'none';
+    document.getElementById('success-view').style.display = 'block';
+  } catch {
+    showFeedback('Erreur réseau. Veuillez réessayer.', 'error');
+    btn.disabled = false;
+    btn.textContent = 'Recevoir mon lien de réactivation';
+  }
+}
+
+function showFeedback(msg, type) {
+  const el = document.getElementById('feedback');
+  el.textContent = msg;
+  el.className = 'feedback ' + type;
+  el.style.display = 'block';
+}
+function hideFeedback() {
+  document.getElementById('feedback').style.display = 'none';
+}
+
+document.getElementById('email').addEventListener('keydown', e => {
+  if (e.key === 'Enter') demanderLien();
+});
+</script>
+<script src="/nav-mobile.js"></script>
+<script src="/i18n.js"></script>
+</body>
+</html>

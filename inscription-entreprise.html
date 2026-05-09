@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inscription Recruteur — Talenco.bj</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Hanken+Grotesk:wght@300;400;500;700;900&family=Space+Grotesk:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/design-system.css">
+  <style>
+    .reg-page { min-height:100vh; display:flex; flex-direction:column; }
+    .reg-center { flex:1; display:flex; align-items:flex-start; justify-content:center; padding:60px 24px 80px; }
+    .reg-card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-md); padding:36px; width:100%; max-width:520px; }
+
+    /* steps indicator */
+    .steps-indicator { display:flex; align-items:center; gap:0; margin-bottom:36px; }
+    .step-dot { width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:var(--font-mono); font-size:11px; font-weight:600; flex-shrink:0; transition:all .2s; }
+    .step-dot.active  { background:var(--text); color:var(--bg); }
+    .step-dot.done    { background:var(--accent); color:#fff; }
+    .step-dot.waiting { background:var(--bg-soft); color:var(--text-muted); border:1px solid var(--border); }
+    .step-line { flex:1; height:1px; background:var(--border); transition:background .2s; }
+    .step-line.done { background:var(--accent); }
+    .step-label { font-family:var(--font-mono); font-size:10px; letter-spacing:.06em; text-transform:uppercase; color:var(--text-muted); margin-top:4px; text-align:center; }
+    .steps-labels { display:flex; justify-content:space-between; margin-bottom:28px; margin-top:-24px; }
+    .steps-labels span { font-family:var(--font-mono); font-size:9px; letter-spacing:.06em; text-transform:uppercase; color:var(--text-muted); text-align:center; width:28px; }
+
+    .step-section { display:none; }
+    .step-section.active { display:block; }
+
+    .reg-title { font-family:var(--font-serif); font-style:italic; font-size:22px; margin-bottom:6px; }
+    .reg-sub { font-size:13px; color:var(--text-muted); margin-bottom:24px; line-height:1.6; }
+
+    .info-box { background:var(--bg-soft); border:1px solid var(--border); border-radius:var(--radius-sm); padding:14px 16px; margin-bottom:20px; }
+    .info-box p { font-size:12px; color:var(--text-mid); line-height:1.6; margin:0; }
+    .info-box strong { color:var(--text); }
+
+    .form-row-2 { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    @media (max-width:480px) { .form-row-2 { grid-template-columns:1fr; } .reg-card { padding:24px 18px; } }
+
+    .doc-field { position:relative; }
+    .doc-field .form-label { display:flex; align-items:center; gap:6px; }
+    .doc-tip { display:inline-flex; align-items:center; justify-content:center; width:16px; height:16px; border-radius:50%; background:var(--bg-soft); border:1px solid var(--border); font-size:10px; color:var(--text-muted); cursor:help; }
+    .doc-tip:hover + .doc-tooltip, .doc-tip:focus + .doc-tooltip { display:block; }
+    .doc-tooltip { display:none; position:absolute; top:100%; left:0; right:0; background:var(--text); color:var(--bg); font-size:11px; line-height:1.5; padding:10px 12px; border-radius:var(--radius-sm); margin-top:4px; z-index:10; }
+
+    .format-choice { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:0; }
+    .format-option { border:1px solid var(--border); border-radius:var(--radius-sm); padding:14px; cursor:pointer; transition:all .15s; }
+    .format-option:hover { border-color:var(--accent); background:var(--accent-bg); }
+    .format-option input { display:none; }
+    .format-option.selected { border-color:var(--accent); background:var(--accent-bg); }
+    .format-option-icon { font-size:22px; margin-bottom:6px; }
+    .format-option-label { font-size:13px; font-weight:500; margin-bottom:2px; }
+    .format-option-desc { font-size:11px; color:var(--text-muted); line-height:1.4; }
+
+    .reg-footer { text-align:center; margin-top:20px; font-size:12px; color:var(--text-muted); }
+    .reg-footer a { color:var(--accent); }
+
+    .certif-badge { display:flex; align-items:center; gap:8px; background:var(--bg-soft); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px 14px; margin-bottom:20px; font-size:12px; color:var(--text-mid); }
+    .certif-badge svg { color:var(--accent); flex-shrink:0; }
+  </style>
+</head>
+<body class="reg-page">
+
+<nav class="navbar">
+  <a href="/presentation.html" class="talenco-logo">
+    <div class="nav-logo">
+      <div class="nav-logo-text">
+        <span class="logo-primary">Talenco</span><span class="logo-dot">.</span><span class="logo-tld">bj</span>
+      </div>
+      <div class="logo-tagline">Recrutement au Bénin</div>
+    </div>
+  </a>
+  <ul class="navbar-links">
+    <li><a href="/offres.html">Offres</a></li>
+  </ul>
+  <div class="navbar-actions">
+    <a href="/connexion.html" class="btn btn-dark btn-sm">Se connecter</a>
+  </div>
+</nav>
+
+<div class="reg-center">
+  <div class="reg-card">
+
+    <!-- Progress indicator -->
+    <div class="steps-indicator">
+      <div class="step-dot active" id="dot-1">1</div>
+      <div class="step-line" id="line-1"></div>
+      <div class="step-dot waiting" id="dot-2">2</div>
+    </div>
+    <div class="steps-labels">
+      <span>Compte</span>
+      <span>Documents</span>
+    </div>
+
+    <div id="auth-msg" class="alert" style="display:none;margin-bottom:16px;"></div>
+
+    <!-- ── STEP 1 : Compte ── -->
+    <div id="step-1" class="step-section active">
+      <div class="reg-title">Créer votre compte recruteur</div>
+      <p class="reg-sub">Phase bêta — 15 places entreprise disponibles. Accès sur dossier uniquement.</p>
+
+      <div class="certif-badge">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Toutes les entreprises sont vérifiées avant activation. RCCM + IFU requis.
+      </div>
+
+      <div class="form-row-2">
+        <div class="form-field">
+          <label class="form-label">Prénom</label>
+          <input type="text" id="reg-prenom" placeholder="Prénom du responsable">
+        </div>
+        <div class="form-field">
+          <label class="form-label">Nom</label>
+          <input type="text" id="reg-nom" placeholder="Nom">
+        </div>
+      </div>
+      <div class="form-field">
+        <label class="form-label">Email professionnel</label>
+        <input type="email" id="reg-email" placeholder="contact@entreprise.bj" autocomplete="email">
+      </div>
+      <div class="form-field">
+        <label class="form-label">Téléphone / WhatsApp</label>
+        <input type="tel" id="reg-phone" placeholder="+229 XX XX XX XX">
+      </div>
+      <div class="form-field">
+        <label class="form-label">Nom de l'entreprise</label>
+        <input type="text" id="reg-company" placeholder="Nom officiel de votre entreprise">
+      </div>
+      <div class="form-row-2">
+        <div class="form-field">
+          <label class="form-label">Secteur d'activité</label>
+          <select id="reg-sector" style="width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:14px;font-family:inherit;background:var(--bg-card);">
+            <option value="">Choisir…</option>
+            <option>Commerce & Distribution</option>
+            <option>BTP & Immobilier</option>
+            <option>Finance & Banque</option>
+            <option>Télécommunications</option>
+            <option>Agriculture & Agro-alimentaire</option>
+            <option>Santé & Pharmaceutique</option>
+            <option>Éducation & Formation</option>
+            <option>Transport & Logistique</option>
+            <option>Industrie & Manufacturing</option>
+            <option>Services & Conseil</option>
+            <option>ONG & Humanitaire</option>
+            <option>Administration & Secteur public</option>
+            <option>Autre</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label class="form-label">Taille de l'entreprise</label>
+          <select id="reg-size" style="width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:14px;font-family:inherit;background:var(--bg-card);">
+            <option value="">Choisir…</option>
+            <option>1–9 employés</option>
+            <option>10–49 employés</option>
+            <option>50–199 employés</option>
+            <option>200+ employés</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-field">
+        <label class="form-label">Mot de passe</label>
+        <input type="password" id="reg-password" placeholder="Minimum 8 caractères" autocomplete="new-password">
+      </div>
+      <button class="btn btn-dark btn-full" id="btn-step1" style="margin-top:4px;">Continuer →</button>
+      <div class="reg-footer">Déjà un compte ? <a href="/connexion.html">Se connecter</a></div>
+    </div>
+
+    <!-- ── STEP 2 : Documents ── -->
+    <div id="step-2" class="step-section">
+      <div class="reg-title">Documents officiels</div>
+      <p class="reg-sub">Ces informations nous permettent de vérifier que votre entreprise est légalement enregistrée au Bénin.</p>
+
+      <div class="info-box">
+        <p>Vos documents sont vérifiés manuellement sous <strong>48 h</strong>. Une fois validés, nous vous contactons pour un court entretien (30 min) de certification.</p>
+      </div>
+
+      <div class="form-field doc-field">
+        <label class="form-label">
+          Numéro RCCM
+          <span class="doc-tip" tabindex="0">?</span>
+          <div class="doc-tooltip">Le RCCM (Registre du Commerce et du Crédit Mobilier) est votre numéro d'immatriculation au registre du commerce béninois. Exemple : RB/COT/24 B 12345</div>
+        </label>
+        <input type="text" id="reg-rccm" placeholder="Ex : RB/COT/24 B 12345" style="text-transform:uppercase;">
+      </div>
+
+      <div class="form-field doc-field">
+        <label class="form-label">
+          Numéro IFU
+          <span class="doc-tip" tabindex="0">?</span>
+          <div class="doc-tooltip">L'IFU (Identifiant Fiscal Unique) est votre numéro fiscal délivré par la DGI du Bénin. Il comporte généralement 13 chiffres.</div>
+        </label>
+        <input type="text" id="reg-ifu" placeholder="Ex : 3202400012345">
+      </div>
+
+      <div class="form-field">
+        <label class="form-label" style="margin-bottom:12px;">Format d'entretien préféré</label>
+        <div class="format-choice" id="format-choice">
+          <label class="format-option selected" id="opt-meet" onclick="selectFormat('google_meet')">
+            <input type="radio" name="interview-format" value="google_meet" checked>
+            <div class="format-option-icon">📹</div>
+            <div class="format-option-label">Google Meet</div>
+            <div class="format-option-desc">Visioconférence · Lien envoyé par email</div>
+          </label>
+          <label class="format-option" id="opt-wa" onclick="selectFormat('whatsapp')">
+            <input type="radio" name="interview-format" value="whatsapp">
+            <div class="format-option-icon">📱</div>
+            <div class="format-option-label">Appel WhatsApp</div>
+            <div class="format-option-desc">Appel vocal via votre numéro enregistré</div>
+          </label>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:10px;margin-top:8px;">
+        <button class="btn btn-sm" style="border:1px solid var(--border);" onclick="goStep(1)">← Retour</button>
+        <button class="btn btn-dark btn-full" id="btn-step2">Envoyer mon dossier</button>
+      </div>
+    </div>
+
+    <!-- ── STEP 3 : Confirmation ── -->
+    <div id="step-3" class="step-section">
+      <div style="text-align:center;padding:20px 0;">
+        <div style="font-size:48px;margin-bottom:16px;">✅</div>
+        <div class="reg-title" style="font-size:24px;">Dossier envoyé !</div>
+        <p style="font-size:14px;color:var(--text-mid);line-height:1.7;margin-bottom:24px;">
+          Notre équipe vérifie vos documents sous <strong>48 h</strong>. Vous recevrez un email à chaque étape.
+        </p>
+        <div class="info-box" style="text-align:left;">
+          <p><strong>La suite :</strong><br>
+          1. Vérification RCCM + IFU (48h)<br>
+          2. Entretien de certification (30 min)<br>
+          3. Profil activé — vous pouvez recruter</p>
+        </div>
+        <a href="/presentation.html" class="btn btn-dark btn-sm" style="text-decoration:none;display:inline-block;margin-top:8px;">Retour à l'accueil</a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+const SUPABASE_URL     = 'https://ywteoxnkkdgdpbkrlkar.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl3dGVveG5ra2RnZHBia3Jsa2FyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1MjA1MjYsImV4cCI6MjA5MDA5NjUyNn0.jzgNVgYR6iCEV_GIpvBTs4aN3RzK3E3MJW9YtBmLI3c';
+const { createClient } = supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+let selectedFormat = 'google_meet';
+let createdUserId  = null;
+
+function selectFormat(fmt) {
+  selectedFormat = fmt;
+  document.getElementById('opt-meet').classList.toggle('selected', fmt === 'google_meet');
+  document.getElementById('opt-wa').classList.toggle('selected', fmt === 'whatsapp');
+}
+
+function showMsg(type, text) {
+  const el = document.getElementById('auth-msg');
+  el.className = `alert alert-${type}`;
+  el.textContent = text;
+  el.style.display = 'block';
+}
+
+function goStep(n) {
+  document.querySelectorAll('.step-section').forEach(s => s.classList.remove('active'));
+  document.getElementById(`step-${n}`).classList.add('active');
+  document.getElementById('auth-msg').style.display = 'none';
+
+  // Mettre à jour les dots
+  for (let i = 1; i <= 2; i++) {
+    const dot  = document.getElementById(`dot-${i}`);
+    const line = document.getElementById(`line-${i}`);
+    if (i < n) {
+      dot.className  = 'step-dot done';
+      dot.textContent = '✓';
+      if (line) line.className = 'step-line done';
+    } else if (i === n) {
+      dot.className  = 'step-dot active';
+      dot.textContent = i;
+    } else {
+      dot.className  = 'step-dot waiting';
+      dot.textContent = i;
+      if (line) line.className = 'step-line';
+    }
+  }
+}
+
+// ── STEP 1 : créer le compte auth + users ──────────────────────
+document.getElementById('btn-step1').addEventListener('click', async () => {
+  const prenom   = document.getElementById('reg-prenom').value.trim();
+  const nom      = document.getElementById('reg-nom').value.trim();
+  const email    = document.getElementById('reg-email').value.trim();
+  const phone    = document.getElementById('reg-phone').value.trim();
+  const company  = document.getElementById('reg-company').value.trim();
+  const sector   = document.getElementById('reg-sector').value;
+  const size     = document.getElementById('reg-size').value;
+  const password = document.getElementById('reg-password').value;
+
+  if (!prenom || !nom || !email || !company) { showMsg('error', 'Prénom, nom, email et nom d\'entreprise requis.'); return; }
+  if (!password || password.length < 8)      { showMsg('error', 'Mot de passe : 8 caractères minimum.'); return; }
+
+  const btn = document.getElementById('btn-step1');
+  btn.disabled = true; btn.textContent = 'Création du compte…';
+
+  const { data, error } = await sb.auth.signUp({
+    email, password,
+    options: { data: { prenom, nom, role: 'company', entreprise: company } },
+  });
+
+  if (error) {
+    showMsg('error', error.message === 'User already registered'
+      ? 'Un compte avec cet email existe déjà. Connectez-vous.'
+      : error.message);
+    btn.disabled = false; btn.textContent = 'Continuer →';
+    return;
+  }
+
+  createdUserId = data.user?.id;
+
+  const { error: dbErr } = await sb.from('users').upsert({
+    id:                  createdUserId,
+    email,
+    full_name:           `${prenom} ${nom}`.trim(),
+    role:                'company',
+    status:              'pending',
+    phone:               phone || null,
+    company_name:        company,
+    company_sector:      sector || null,
+    company_size:        size || null,
+    verification_status: 'none',
+  });
+
+  if (dbErr) {
+    showMsg('error', 'Erreur enregistrement : ' + dbErr.message);
+    btn.disabled = false; btn.textContent = 'Continuer →';
+    return;
+  }
+
+  btn.disabled = false; btn.textContent = 'Continuer →';
+  goStep(2);
+});
+
+// ── STEP 2 : soumettre RCCM + IFU ─────────────────────────────
+document.getElementById('btn-step2').addEventListener('click', async () => {
+  const rccm = document.getElementById('reg-rccm').value.trim().toUpperCase();
+  const ifu  = document.getElementById('reg-ifu').value.trim();
+
+  if (!rccm || !ifu) { showMsg('error', 'RCCM et IFU obligatoires.'); return; }
+  if (!createdUserId) { showMsg('error', 'Erreur de session. Revenez à l\'étape 1.'); return; }
+
+  const btn = document.getElementById('btn-step2');
+  btn.disabled = true; btn.textContent = 'Envoi en cours…';
+
+  const { error: docErr } = await sb.from('users').update({
+    rccm,
+    ifu,
+    certif_interview_format: selectedFormat,
+    verification_status:     'docs_submitted',
+  }).eq('id', createdUserId);
+
+  if (docErr) {
+    showMsg('error', 'Erreur : ' + docErr.message);
+    btn.disabled = false; btn.textContent = 'Envoyer mon dossier';
+    return;
+  }
+
+  // Notifier l'admin via API
+  fetch('/api/admin/company-verify', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'notify_admin', company_id: createdUserId }),
+  }).catch(() => {});
+
+  btn.disabled = false;
+  goStep(3);
+});
+</script>
+<script src="/nav-mobile.js"></script>
+<script src="/i18n.js"></script>
+</body>
+</html>

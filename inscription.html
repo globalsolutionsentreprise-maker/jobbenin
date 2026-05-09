@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" data-i18n-title="reg.title">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -29,78 +29,78 @@
       <div class="nav-logo-text">
         <span class="logo-primary">Talenco</span><span class="logo-dot">.</span><span class="logo-tld">bj</span>
       </div>
-      <div class="logo-tagline">Recrutement au Bénin</div>
+      <div class="logo-tagline" data-i18n="nav.tagline">Recrutement au Bénin</div>
     </div>
   </a>
   <ul class="navbar-links">
-    <li><a href="/offres.html">Offres</a></li>
+    <li><a href="/offres.html" data-i18n="nav.jobs">Offres</a></li>
   </ul>
   <div class="navbar-actions">
-    <a href="/connexion.html" class="btn btn-dark btn-sm">Se connecter</a>
+    <a href="/connexion.html" class="btn btn-dark btn-sm" data-i18n="nav.login">Se connecter</a>
   </div>
 </nav>
 
 <div class="auth-center">
   <div class="auth-card">
-    <h1 class="auth-title">Créer un compte</h1>
-    <p class="auth-sub">Rejoignez Talenco.bj gratuitement</p>
+    <h1 class="auth-title" data-i18n="reg.h1">Créer un compte</h1>
+    <p class="auth-sub" data-i18n="reg.sub">Rejoignez Talenco.bj gratuitement</p>
 
     <div class="auth-role-tabs">
-      <button class="auth-role-btn active" id="role-candidat" data-role="candidat">Candidat</button>
-      <button class="auth-role-btn" id="role-recruteur" data-role="recruteur">Recruteur</button>
+      <button class="auth-role-btn active" id="role-candidat" data-role="candidat" data-i18n="reg.role.cand">Candidat</button>
+      <button class="auth-role-btn" id="role-recruteur" data-role="recruteur" data-i18n="reg.role.recruiter">Recruteur</button>
     </div>
 
     <div id="auth-msg" class="alert" style="display:none;margin-bottom:16px;"></div>
 
     <div class="form-row-2">
       <div class="form-field">
-        <label class="form-label">Prénom</label>
-        <input type="text" id="reg-prenom" placeholder="Votre prénom">
+        <label class="form-label" data-i18n="reg.firstname">Prénom</label>
+        <input type="text" id="reg-prenom" placeholder="Votre prénom" data-i18n-ph="reg.firstname.ph">
       </div>
       <div class="form-field">
-        <label class="form-label">Nom</label>
-        <input type="text" id="reg-nom" placeholder="Votre nom">
+        <label class="form-label" data-i18n="reg.lastname">Nom</label>
+        <input type="text" id="reg-nom" placeholder="Votre nom" data-i18n-ph="reg.lastname.ph">
       </div>
     </div>
     <div class="form-field">
-      <label class="form-label">Email</label>
-      <input type="email" id="reg-email" placeholder="votre@email.com" autocomplete="email">
+      <label class="form-label" data-i18n="reg.email">Email</label>
+      <input type="email" id="reg-email" placeholder="votre@email.com" data-i18n-ph="cnx.email.ph" autocomplete="email">
     </div>
     <div id="reg-entreprise-field" class="form-field" style="display:none;">
-      <label class="form-label">Nom de l'entreprise</label>
-      <input type="text" id="reg-entreprise" placeholder="Nom de votre entreprise">
+      <label class="form-label" data-i18n="reg.company">Nom de l'entreprise</label>
+      <input type="text" id="reg-entreprise" placeholder="Nom de votre entreprise" data-i18n-ph="reg.company.ph">
     </div>
     <div id="reg-diaspora-field" class="form-field" style="display:none;">
       <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;padding:12px;border:1px solid var(--border);border-radius:var(--radius-sm);">
         <input type="checkbox" id="reg-is-diaspora" style="width:16px;height:16px;accent-color:var(--accent);cursor:pointer;margin-top:2px;flex-shrink:0;">
         <div>
-          <div style="font-size:13px;font-weight:500;">Je suis de la diaspora</div>
-          <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">Vous résidez à l'étranger et souhaitez travailler au Bénin ou à distance. Cette information sera visible sur votre profil uniquement si vous le souhaitez.</div>
+          <div style="font-size:13px;font-weight:500;" data-i18n="reg.diaspora.title">Je suis de la diaspora</div>
+          <div style="font-size:11px;color:var(--text-muted);margin-top:2px;" data-i18n="reg.diaspora.desc">Vous résidez à l'étranger et souhaitez travailler au Bénin ou à distance. Cette information sera visible sur votre profil uniquement si vous le souhaitez.</div>
         </div>
       </label>
     </div>
     <div class="form-field">
-      <label class="form-label">Mot de passe</label>
-      <input type="password" id="reg-password" placeholder="Minimum 8 caractères" autocomplete="new-password">
+      <label class="form-label" data-i18n="reg.password">Mot de passe</label>
+      <input type="password" id="reg-password" placeholder="Minimum 8 caractères" data-i18n-ph="reg.password.ph" autocomplete="new-password">
     </div>
 
     <div id="cv-field" class="form-field" style="margin-top:4px;">
-      <label class="form-label">CV (PDF) <span style="color:var(--accent);font-size:11px;">obligatoire</span></label>
+      <label class="form-label"><span data-i18n="reg.cv.label">CV (PDF)</span> <span style="color:var(--accent);font-size:11px;" data-i18n="reg.cv.required">obligatoire</span></label>
       <label id="cv-drop-zone" for="cv-file" style="display:block;border:2px dashed var(--border);border-radius:var(--radius-sm);padding:18px 16px;text-align:center;cursor:pointer;transition:border-color .2s,background .2s;">
         <input type="file" id="cv-file" accept=".pdf" style="display:none;">
         <div id="cv-drop-label" style="font-size:13px;color:var(--text-muted);pointer-events:none;">
           <div style="font-size:22px;margin-bottom:6px;">📎</div>
-          Cliquez pour choisir votre CV
+          <span data-i18n="reg.cv.click">Cliquez pour choisir votre CV</span>
         </div>
         <div id="cv-selected" style="display:none;font-size:13px;font-weight:500;color:#15803d;pointer-events:none;"></div>
       </label>
-      <div style="font-size:11px;color:var(--text-muted);margin-top:5px;">Format PDF uniquement · 5 Mo maximum</div>
+      <div style="font-size:11px;color:var(--text-muted);margin-top:5px;" data-i18n="reg.cv.hint">Format PDF uniquement · 5 Mo maximum</div>
     </div>
 
-    <button class="btn btn-dark btn-full" id="btn-register" style="margin-top:8px;">Créer mon compte</button>
+    <button class="btn btn-dark btn-full" id="btn-register" style="margin-top:8px;" data-i18n="reg.btn">Créer mon compte</button>
 
     <div class="auth-footer">
-      Déjà un compte ? <a href="/connexion.html">Se connecter</a>
+      <span data-i18n="reg.already">Déjà un compte ?</span> <a href="/connexion.html" data-i18n="reg.login">Se connecter</a>
     </div>
   </div>
 </div>
@@ -244,5 +244,6 @@
 </script>
 <script src="/nav-mobile.js"></script>
 <script src="/bug-report.js"></script>
+<script src="/i18n.js"></script>
 </body>
 </html>

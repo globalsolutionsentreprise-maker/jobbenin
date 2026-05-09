@@ -609,7 +609,7 @@
   function rafraichirActivite(userId) {
     const today = new Date().toDateString();
     if (localStorage.getItem('ta_activity_date') === today) return;
-    sb.from('users').update({ last_activity: new Date().toISOString() }).eq('id', userId)
+    sb.from('users').update({ last_activity: new Date().toISOString(), inactivity_warned_at: null }).eq('id', userId)
       .then(() => localStorage.setItem('ta_activity_date', today));
   }
 
@@ -1140,5 +1140,6 @@
   });
 })();
 </script>
+<script src="/i18n.js"></script>
 </body>
 </html>

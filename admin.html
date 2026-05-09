@@ -130,6 +130,9 @@
       <button class="side-link" onclick="showTab('companies',this)"><span data-icon="building" data-size="14"></span> Entreprises</button>
       <button class="side-link" onclick="showTab('certifications',this)"><span data-icon="award" data-size="14"></span> Certifications <span class="badge-count" id="badge-certif">0</span></button>
 
+      <div class="side-label">Vérifications</div>
+      <button class="side-link" onclick="showTab('verif-companies',this)"><span data-icon="shield" data-size="14"></span> Vérif. Entreprises <span class="badge-count" id="badge-verif">0</span></button>
+
       <div class="side-label">Communication</div>
       <button class="side-link" onclick="showTab('whatsapp',this)"><span data-icon="whatsapp" data-size="14"></span> WhatsApp</button>
       <button class="side-link" onclick="showTab('digest',this)"><span data-icon="mail" data-size="14"></span> Digest email</button>
@@ -237,7 +240,76 @@
         <div id="certif-list" class="table-wrap"></div>
       </div>
 
-      <!-- ── WHATSAPP ── -->
+      <!-- ── VÉRIF ENTREPRISES ── -->
+      <div id="tab-verif-companies" class="tab-section">
+        <h2 class="section-title">Vérification des entreprises</h2>
+        <p style="color:var(--text-muted);font-size:13px;margin-bottom:24px;">Pipeline de certification : RCCM/IFU → Entretien → Certification</p>
+
+        <!-- DOSSIERS EN ATTENTE DE VÉRIFICATION DOCS -->
+        <div style="margin-bottom:32px;">
+          <h3 style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+            ⏳ Documents à vérifier <span id="count-docs" style="background:#fef9c3;color:#854d0e;font-size:10px;padding:1px 8px;border-radius:10px;font-weight:600;"></span>
+          </h3>
+          <div id="list-docs-submitted" class="table-wrap"></div>
+        </div>
+
+        <!-- DOCS OK — ENTRETIEN À PLANIFIER -->
+        <div style="margin-bottom:32px;">
+          <h3 style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+            📋 Entretien à planifier <span id="count-verified" style="background:#dbeafe;color:#1e40af;font-size:10px;padding:1px 8px;border-radius:10px;font-weight:600;"></span>
+          </h3>
+          <div id="list-docs-verified" class="table-wrap"></div>
+        </div>
+
+        <!-- ENTRETIEN PLANIFIÉ -->
+        <div style="margin-bottom:32px;">
+          <h3 style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+            📅 Entretien planifié <span id="count-scheduled" style="background:#f3e8ff;color:#6b21a8;font-size:10px;padding:1px 8px;border-radius:10px;font-weight:600;"></span>
+          </h3>
+          <div id="list-interview-scheduled" class="table-wrap"></div>
+        </div>
+
+        <!-- CERTIFIÉES -->
+        <div style="margin-bottom:32px;">
+          <h3 style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+            ✅ Certifiées
+          </h3>
+          <div id="list-certified" class="table-wrap"></div>
+        </div>
+      </div>
+
+      <!-- Modal planifier entretien -->
+      <div id="modal-interview" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:600;display:none;align-items:center;justify-content:center;">
+        <div style="background:var(--bg);border-radius:12px;padding:28px;width:min(480px,90vw);box-shadow:0 12px 40px rgba(0,0,0,.2);">
+          <h3 style="font-family:'Instrument Serif',serif;font-style:italic;font-size:18px;margin-bottom:20px;">Planifier l'entretien</h3>
+          <input type="hidden" id="iv-company-id">
+          <div style="margin-bottom:12px;">
+            <label style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:6px;">Date & heure</label>
+            <input type="datetime-local" id="iv-date" style="width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;">
+          </div>
+          <div style="margin-bottom:12px;">
+            <label style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:6px;">Format</label>
+            <select id="iv-format" onchange="toggleIvLink()" style="width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;">
+              <option value="google_meet">📹 Google Meet</option>
+              <option value="whatsapp">📱 Appel WhatsApp</option>
+            </select>
+          </div>
+          <div id="iv-link-wrap" style="margin-bottom:12px;">
+            <label id="iv-link-label" style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:6px;">Lien Google Meet</label>
+            <input type="text" id="iv-link" placeholder="https://meet.google.com/xxx-xxxx-xxx" style="width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;">
+          </div>
+          <div style="margin-bottom:20px;">
+            <label style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:6px;">Responsable Talenco (optionnel)</label>
+            <input type="text" id="iv-responsible" placeholder="Prénom Nom" style="width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;">
+          </div>
+          <div style="display:flex;gap:10px;">
+            <button onclick="fermerModalInterview()" style="flex:1;padding:10px;border:1px solid var(--border);border-radius:8px;background:none;font-size:13px;cursor:pointer;">Annuler</button>
+            <button id="btn-send-interview" onclick="envoyerEntretien()" style="flex:2;padding:10px;background:var(--text);color:var(--bg);border:none;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;">Envoyer la convocation</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- WHATSAPP ── -->
       <div id="tab-whatsapp" class="tab-section">
         <h2 class="section-title">Notification WhatsApp manuelle</h2>
         <div class="notif-box">Envoie un message WhatsApp à un numéro ou à tous les utilisateurs ayant un numéro enregistré.</div>
@@ -330,6 +402,7 @@ function showTab(id, btn) {
   if (id === 'companies' && !allCompanies.length) chargerCompanies();
   if (id === 'news') chargerNews();
   if (id === 'certifications') chargerCertifications();
+  if (id === 'verif-companies') chargerVerifCompanies();
   if (id === 'whatsapp') chargerWAUsers();
 }
 
@@ -939,6 +1012,210 @@ async function envoyerWA() {
   }
 }
 
+// ── VÉRIF ENTREPRISES ─────────────────────────────────────
+async function chargerVerifCompanies() {
+  const { data } = await sb.from('users')
+    .select('id,email,full_name,company_name,company_sector,company_size,phone,rccm,ifu,verification_status,certif_interview_format,certif_interview_date,certif_interview_link,certif_responsible,created_at')
+    .eq('role','company')
+    .in('verification_status',['docs_submitted','docs_verified','interview_scheduled','certified'])
+    .order('created_at',{ascending:false});
+
+  const groups = { docs_submitted:[], docs_verified:[], interview_scheduled:[], certified:[] };
+  (data||[]).forEach(c => { if (groups[c.verification_status]) groups[c.verification_status].push(c); });
+
+  const pending = groups.docs_submitted.length + groups.docs_verified.length + groups.interview_scheduled.length;
+  document.getElementById('badge-verif').textContent = pending || 0;
+  document.getElementById('count-docs').textContent = groups.docs_submitted.length || '';
+  document.getElementById('count-verified').textContent = groups.docs_verified.length || '';
+  document.getElementById('count-scheduled').textContent = groups.interview_scheduled.length || '';
+
+  const fmt = (c) => c.certif_interview_format === 'whatsapp' ? '📱 WhatsApp' : '📹 Meet';
+  const esc = (s) => (s||'').replace(/'/g,"\\'");
+
+  function rowDocs(c) {
+    const nom = c.company_name || c.full_name || '—';
+    return `<div class="table-row" style="grid-template-columns:auto 1fr auto auto auto auto;" id="vc-row-${c.id}">
+      <div class="avatar" style="background:#1e40af;">${nom[0].toUpperCase()}</div>
+      <div>
+        <div style="font-weight:500;font-size:13px;">${nom}</div>
+        <div style="font-size:11px;color:var(--text-muted);">${c.email}${c.phone?' · 📱 '+c.phone:''}</div>
+        <div style="font-size:11px;color:var(--text-muted);">${c.company_sector||''}${c.company_size?' · '+c.company_size:''}</div>
+      </div>
+      <div style="font-size:12px;font-family:monospace;color:var(--text-mid);">
+        <div>RCCM: ${c.rccm||'—'}</div>
+        <div>IFU: ${c.ifu||'—'}</div>
+      </div>
+      <span style="font-size:11px;color:var(--text-muted);">${fmt(c)}</span>
+      <span style="font-size:11px;color:var(--text-muted);">${new Date(c.created_at).toLocaleDateString('fr-FR')}</span>
+      <div style="display:flex;flex-direction:column;gap:5px;">
+        <button class="btn-action btn-publish" onclick="approuverDocs('${c.id}')">✓ Docs OK</button>
+        <button class="btn-action btn-reject" onclick="rejeterDocs('${c.id}')">✕ Rejeter</button>
+      </div>
+    </div>`;
+  }
+
+  function rowVerified(c) {
+    const nom = c.company_name || c.full_name || '—';
+    return `<div class="table-row" style="grid-template-columns:auto 1fr auto auto;" id="vc-row-${c.id}">
+      <div class="avatar" style="background:#1e40af;">${nom[0].toUpperCase()}</div>
+      <div>
+        <div style="font-weight:500;font-size:13px;">${nom}</div>
+        <div style="font-size:11px;color:var(--text-muted);">${c.email}${c.phone?' · 📱 '+c.phone:''}</div>
+        <div style="font-size:11px;color:#15803d;">Souhaite : ${fmt(c)}</div>
+      </div>
+      <span style="font-size:11px;color:var(--text-muted);">${new Date(c.created_at).toLocaleDateString('fr-FR')}</span>
+      <div style="display:flex;gap:5px;">
+        <button class="btn-action" style="border-color:#6b21a8;color:#6b21a8;" onclick="ouvrirModalInterview('${c.id}','${esc(c.certif_interview_format||'')}')">📅 Planifier</button>
+        <button class="btn-action btn-reject" onclick="rejeterFinal('${c.id}')">✕ Refuser</button>
+      </div>
+    </div>`;
+  }
+
+  function rowScheduled(c) {
+    const nom = c.company_name || c.full_name || '—';
+    const dateStr = c.certif_interview_date
+      ? new Date(c.certif_interview_date).toLocaleString('fr-FR',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}) : '—';
+    return `<div class="table-row" style="grid-template-columns:auto 1fr auto auto;" id="vc-row-${c.id}">
+      <div class="avatar" style="background:#1e40af;">${nom[0].toUpperCase()}</div>
+      <div>
+        <div style="font-weight:500;font-size:13px;">${nom}</div>
+        <div style="font-size:11px;color:var(--text-muted);">${c.email}${c.phone?' · 📱 '+c.phone:''}</div>
+        <div style="font-size:11px;color:#6b21a8;">${fmt(c)} · ${dateStr}${c.certif_responsible?' · '+c.certif_responsible:''}</div>
+        ${c.certif_interview_link?`<a href="${c.certif_interview_link}" target="_blank" style="font-size:11px;color:#1e40af;">${c.certif_interview_link}</a>`:''}
+      </div>
+      <span style="font-size:11px;color:var(--text-muted);">${new Date(c.created_at).toLocaleDateString('fr-FR')}</span>
+      <div style="display:flex;flex-direction:column;gap:5px;">
+        <button class="btn-action btn-publish" onclick="certifierEntreprise('${c.id}')">🏅 Certifier</button>
+        <button class="btn-action btn-reject" onclick="rejeterFinal('${c.id}')">✕ Refuser</button>
+      </div>
+    </div>`;
+  }
+
+  function rowCertified(c) {
+    const nom = c.company_name || c.full_name || '—';
+    return `<div class="table-row" style="grid-template-columns:auto 1fr auto;">
+      <div class="avatar" style="background:#15803d;">${nom[0].toUpperCase()}</div>
+      <div>
+        <div style="font-weight:500;font-size:13px;">${nom} <span style="font-size:10px;background:#dcfce7;color:#15803d;padding:1px 8px;border-radius:10px;margin-left:6px;">✓ Certifiée</span></div>
+        <div style="font-size:11px;color:var(--text-muted);">${c.email}</div>
+      </div>
+      <span style="font-size:11px;color:var(--text-muted);">${new Date(c.created_at).toLocaleDateString('fr-FR')}</span>
+    </div>`;
+  }
+
+  const hHead = (cols) => `<div class="table-head" style="grid-template-columns:${cols};display:grid;"><span></span><span>Entreprise</span>${Array(cols.split(' ').length - 2).fill('<span></span>').join('')}</div>`;
+  const empty = '<div style="padding:16px;color:var(--text-muted);font-size:13px;text-align:center;">Aucune</div>';
+
+  document.getElementById('list-docs-submitted').innerHTML   = groups.docs_submitted.length   ? hHead('auto 1fr auto auto auto auto') + groups.docs_submitted.map(rowDocs).join('')       : empty;
+  document.getElementById('list-docs-verified').innerHTML    = groups.docs_verified.length    ? hHead('auto 1fr auto auto')           + groups.docs_verified.map(rowVerified).join('')    : empty;
+  document.getElementById('list-interview-scheduled').innerHTML = groups.interview_scheduled.length ? hHead('auto 1fr auto auto') + groups.interview_scheduled.map(rowScheduled).join('') : empty;
+  document.getElementById('list-certified').innerHTML        = groups.certified.length        ? hHead('auto 1fr auto')              + groups.certified.map(rowCertified).join('')         : empty;
+}
+
+async function approuverDocs(companyId) {
+  if (!confirm('Valider les documents RCCM/IFU de cette entreprise ?')) return;
+  const { data:{ session } } = await sb.auth.getSession();
+  const res = await fetch('/api/admin/company-verify', {
+    method:'POST',
+    headers:{'Content-Type':'application/json','Authorization':`Bearer ${session.access_token}`},
+    body: JSON.stringify({ action:'approve_docs', company_id: companyId }),
+  });
+  const data = await res.json();
+  if (!res.ok) { toast('Erreur : ' + data.error, false); return; }
+  toast('✅ Documents validés — email envoyé à l\'entreprise');
+  chargerVerifCompanies();
+}
+
+async function rejeterDocs(companyId) {
+  const reason = prompt('Motif de refus (optionnel) :');
+  if (reason === null) return;
+  const { data:{ session } } = await sb.auth.getSession();
+  const res = await fetch('/api/admin/company-verify', {
+    method:'POST',
+    headers:{'Content-Type':'application/json','Authorization':`Bearer ${session.access_token}`},
+    body: JSON.stringify({ action:'reject_docs', company_id: companyId, reason }),
+  });
+  if (!res.ok) { toast('Erreur', false); return; }
+  toast('❌ Dossier refusé');
+  chargerVerifCompanies();
+}
+
+function ouvrirModalInterview(companyId, preferredFormat) {
+  document.getElementById('iv-company-id').value = companyId;
+  if (preferredFormat) document.getElementById('iv-format').value = preferredFormat;
+  toggleIvLink();
+  document.getElementById('modal-interview').style.display = 'flex';
+}
+
+function fermerModalInterview() {
+  document.getElementById('modal-interview').style.display = 'none';
+}
+
+function toggleIvLink() {
+  const fmt = document.getElementById('iv-format').value;
+  const label = document.getElementById('iv-link-label');
+  const input = document.getElementById('iv-link');
+  if (fmt === 'whatsapp') {
+    label.textContent = 'Numéro WhatsApp Talenco';
+    input.placeholder = '+229 XX XX XX XX';
+  } else {
+    label.textContent = 'Lien Google Meet';
+    input.placeholder = 'https://meet.google.com/xxx-xxxx-xxx';
+  }
+}
+
+async function envoyerEntretien() {
+  const companyId   = document.getElementById('iv-company-id').value;
+  const date        = document.getElementById('iv-date').value;
+  const format      = document.getElementById('iv-format').value;
+  const link        = document.getElementById('iv-link').value.trim();
+  const responsible = document.getElementById('iv-responsible').value.trim();
+  if (!date || !link) { toast('Date et lien/numéro requis', false); return; }
+  const btn = document.getElementById('btn-send-interview');
+  btn.disabled = true; btn.textContent = 'Envoi…';
+  const { data:{ session } } = await sb.auth.getSession();
+  const res = await fetch('/api/admin/company-verify', {
+    method:'POST',
+    headers:{'Content-Type':'application/json','Authorization':`Bearer ${session.access_token}`},
+    body: JSON.stringify({ action:'schedule', company_id:companyId, interview_date:date, format, link_or_contact:link, responsible }),
+  });
+  const data = await res.json();
+  btn.disabled = false; btn.textContent = 'Envoyer la convocation';
+  if (!res.ok) { toast('Erreur : ' + data.error, false); return; }
+  toast('📅 Convocation envoyée par email');
+  fermerModalInterview();
+  chargerVerifCompanies();
+}
+
+async function certifierEntreprise(companyId) {
+  const notes = prompt('Notes sur l\'entretien (optionnel) :');
+  if (notes === null) return;
+  const { data:{ session } } = await sb.auth.getSession();
+  const res = await fetch('/api/admin/company-verify', {
+    method:'POST',
+    headers:{'Content-Type':'application/json','Authorization':`Bearer ${session.access_token}`},
+    body: JSON.stringify({ action:'certify', company_id: companyId, notes }),
+  });
+  if (!res.ok) { toast('Erreur', false); return; }
+  toast('🏅 Entreprise certifiée !');
+  chargerVerifCompanies();
+  chargerStats();
+}
+
+async function rejeterFinal(companyId) {
+  const notes = prompt('Motif de refus :');
+  if (notes === null) return;
+  const { data:{ session } } = await sb.auth.getSession();
+  const res = await fetch('/api/admin/company-verify', {
+    method:'POST',
+    headers:{'Content-Type':'application/json','Authorization':`Bearer ${session.access_token}`},
+    body: JSON.stringify({ action:'reject_final', company_id: companyId, notes }),
+  });
+  if (!res.ok) { toast('Erreur', false); return; }
+  toast('❌ Entreprise refusée');
+  chargerVerifCompanies();
+}
+
 // ── DIGEST ────────────────────────────────────────────────
 async function envoyerDigest() {
   const btn = document.getElementById('btn-digest');
@@ -961,5 +1238,6 @@ async function envoyerDigest() {
   }
 }
 </script>
+<script src="/i18n.js"></script>
 </body>
 </html>
