@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" data-i18n-title="cand.title">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -125,20 +125,20 @@
       <div class="nav-logo-text">
         <span class="logo-primary">Talenco</span><span class="logo-dot">.</span><span class="logo-tld">bj</span>
       </div>
-      <div class="logo-tagline">Recrutement au Bénin</div>
+      <div class="logo-tagline" data-i18n="nav.tagline">Recrutement au Bénin</div>
     </div>
   </a>
 
   <ul class="navbar-links">
-    <li><a href="/index.html">Accueil</a></li>
-    <li><a href="/offres.html">Offres</a></li>
-    <li><a href="/entreprises.html">Recruteurs</a></li>
-    <li><a href="/cvtheque.html">CVthèque</a></li>
-    <li><a href="/coach.html">✨ Coach IA</a></li>
+    <li><a href="/index.html" data-i18n="nav.home">Accueil</a></li>
+    <li><a href="/offres.html" data-i18n="nav.jobs">Offres</a></li>
+    <li><a href="/entreprises.html" data-i18n="nav.recruiters">Recruteurs</a></li>
+    <li><a href="/cvtheque.html" data-i18n="nav.cvtheque">CVthèque</a></li>
+    <li><a href="/coach.html">✨ <span data-i18n="nav.coach">Coach IA</span></a></li>
   </ul>
 
   <div class="navbar-actions" id="nav-actions">
-    <a href="/candidat.html" class="btn btn-primary btn-sm active">Mon profil</a>
+    <a href="/candidat.html" class="btn btn-primary btn-sm active" data-i18n="nav.myprofile">Mon profil</a>
   </div>
 
   <button class="navbar-toggle" id="nav-toggle" aria-label="Menu">
@@ -156,12 +156,12 @@
       </div>
     </div>
     <ul class="nav-drawer-links">
-      <li><a href="/index.html">Accueil</a></li>
-      <li><a href="/offres.html">Offres d'emploi</a></li>
-      <li><a href="/entreprises.html">Recruteurs</a></li>
-      <li><a href="/cvtheque.html">CVthèque</a></li>
-      <li><a href="/coach.html">✨ Coach IA</a></li>
-      <li><a href="/candidat.html">Mon profil</a></li>
+      <li><a href="/index.html" data-i18n="nav.home">Accueil</a></li>
+      <li><a href="/offres.html" data-i18n="nav.jobs.full">Offres d'emploi</a></li>
+      <li><a href="/entreprises.html" data-i18n="nav.recruiters">Recruteurs</a></li>
+      <li><a href="/cvtheque.html" data-i18n="nav.cvtheque">CVthèque</a></li>
+      <li><a href="/coach.html">✨ <span data-i18n="nav.coach">Coach IA</span></a></li>
+      <li><a href="/candidat.html" data-i18n="nav.myprofile">Mon profil</a></li>
     </ul>
   </div>
 </div>
@@ -169,11 +169,11 @@
 <!-- ── Mur auth ──────────────────────────────────────────────────────── -->
 <div id="auth-wall" class="auth-wall" style="display:none;">
   <div style="font-size:40px;margin-bottom:16px;">🔒</div>
-  <h2 style="font-family:var(--font-serif);font-style:italic;margin-bottom:12px;">Connectez-vous pour accéder à votre profil</h2>
-  <p class="text-muted" style="margin-bottom:24px;max-width:360px;">Créez un compte gratuit pour postuler, enregistrer votre CV et recevoir des alertes personnalisées.</p>
+  <h2 style="font-family:var(--font-serif);font-style:italic;margin-bottom:12px;" data-i18n="cand.authwall.h2">Connectez-vous pour accéder à votre profil</h2>
+  <p class="text-muted" style="margin-bottom:24px;max-width:360px;" data-i18n="cand.authwall.p">Créez un compte gratuit pour postuler, enregistrer votre CV et recevoir des alertes personnalisées.</p>
   <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;">
-    <a href="/connexion.html" class="btn btn-primary">Se connecter</a>
-    <a href="/inscription.html" class="btn btn-outline">Créer un compte</a>
+    <a href="/connexion.html" class="btn btn-primary" data-i18n="cand.authwall.login">Se connecter</a>
+    <a href="/inscription.html" class="btn btn-outline" data-i18n="cand.authwall.signup">Créer un compte</a>
   </div>
 </div>
 
@@ -187,15 +187,15 @@
       <div class="sidebar-email" id="sidebar-email">—</div>
       <hr class="sidebar-divider">
       <ul class="ds-sidebar-links">
-        <li><a href="#profil" class="active"><span data-icon="user" data-size="13"></span> Profil</a></li>
-        <li><a href="#cv"><span data-icon="file_text" data-size="13"></span> Mon CV</a></li>
-        <li><a href="#candidatures"><span data-icon="briefcase" data-size="13"></span> Candidatures</a></li>
-        <li><a href="#alertes"><span data-icon="bell" data-size="13"></span> Alertes email</a></li>
-        <li><a href="#whatsapp"><span data-icon="whatsapp" data-size="13"></span> Alertes WhatsApp</a></li>
-        <li><a href="/coach.html"><span data-icon="ai" data-size="13"></span> Coach IA</a></li>
+        <li><a href="#profil" class="active"><span data-icon="user" data-size="13"></span> <span data-i18n="cand.nav.profil">Profil</span></a></li>
+        <li><a href="#cv"><span data-icon="file_text" data-size="13"></span> <span data-i18n="cand.nav.cv">Mon CV</span></a></li>
+        <li><a href="#candidatures"><span data-icon="briefcase" data-size="13"></span> <span data-i18n="cand.nav.candidatures">Candidatures</span></a></li>
+        <li><a href="#alertes"><span data-icon="bell" data-size="13"></span> <span data-i18n="cand.nav.alertes">Alertes email</span></a></li>
+        <li><a href="#whatsapp"><span data-icon="whatsapp" data-size="13"></span> <span data-i18n="cand.nav.whatsapp">Alertes WhatsApp</span></a></li>
+        <li><a href="/coach.html"><span data-icon="ai" data-size="13"></span> <span data-i18n="cand.nav.coach">Coach IA</span></a></li>
       </ul>
       <hr class="sidebar-divider">
-      <button class="btn btn-ghost btn-sm" onclick="sb.auth.signOut().then(()=>location.href='/index.html')" style="width:100%;">Déconnexion</button>
+      <button class="btn btn-ghost btn-sm" onclick="sb.auth.signOut().then(()=>location.href='/index.html')" style="width:100%;" data-i18n="cand.logout">Déconnexion</button>
     </aside>
 
     <!-- ── Contenu ──────────────────────────────────────────────── -->
@@ -204,31 +204,31 @@
       <!-- Profil -->
       <div class="section-card" id="profil">
         <div class="section-card-header">
-          <h2 class="section-card-title">Informations personnelles</h2>
-          <button class="btn btn-outline btn-sm" id="btn-save-profile">Enregistrer</button>
+          <h2 class="section-card-title" data-i18n="cand.s.profil.title">Informations personnelles</h2>
+          <button class="btn btn-outline btn-sm" id="btn-save-profile" data-i18n="cand.s.profil.btn">Enregistrer</button>
         </div>
         <div class="section-card-body">
           <div class="profile-grid">
             <div class="form-field">
-              <label class="form-label">Prénom</label>
-              <input type="text" id="profile-prenom" placeholder="Votre prénom">
+              <label class="form-label" data-i18n="cand.f.prenom">Prénom</label>
+              <input type="text" id="profile-prenom" placeholder="Votre prénom" data-i18n-ph="cand.f.prenom.ph">
             </div>
             <div class="form-field">
-              <label class="form-label">Nom</label>
-              <input type="text" id="profile-nom" placeholder="Votre nom">
+              <label class="form-label" data-i18n="cand.f.nom">Nom</label>
+              <input type="text" id="profile-nom" placeholder="Votre nom" data-i18n-ph="cand.f.nom.ph">
             </div>
             <div class="form-field">
-              <label class="form-label">Email</label>
+              <label class="form-label" data-i18n="cand.f.email">Email</label>
               <input type="email" id="profile-email" disabled>
             </div>
             <div class="form-field">
-              <label class="form-label">Téléphone</label>
-              <input type="tel" id="profile-tel" placeholder="+229 61 23 45 67">
+              <label class="form-label" data-i18n="cand.f.tel">Téléphone</label>
+              <input type="tel" id="profile-tel" placeholder="+229 61 23 45 67" data-i18n-ph="cand.f.tel.ph">
             </div>
             <div class="form-field" style="grid-column:1/-1;">
-              <label class="form-label">Ville</label>
+              <label class="form-label" data-i18n="cand.f.ville">Ville</label>
               <select id="profile-ville">
-                <option value="">Sélectionnez une ville</option>
+                <option value="" data-i18n="cand.f.ville.ph">Sélectionnez une ville</option>
                 <option>Cotonou</option>
                 <option>Abomey-Calavi</option>
                 <option>Porto-Novo</option>
@@ -245,20 +245,20 @@
       <div class="section-card" id="profil-pro">
         <div class="section-card-header">
           <div style="display:flex;align-items:center;gap:10px;">
-            <h2 class="section-card-title">Profil professionnel</h2>
+            <h2 class="section-card-title" data-i18n="cand.s.pro.title">Profil professionnel</h2>
             <span id="badge-verifie" style="display:none;background:#dcfce7;color:#15803d;font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;letter-spacing:.04em;">✓ CERTIFIÉ</span>
           </div>
-          <button class="btn btn-outline btn-sm" id="btn-save-pro">Enregistrer</button>
+          <button class="btn btn-outline btn-sm" id="btn-save-pro" data-i18n="cand.s.pro.btn">Enregistrer</button>
         </div>
         <div class="section-card-body">
-          <p style="font-size:12px;color:var(--text-muted);margin-bottom:16px;">Ces informations permettent aux recruteurs de vous trouver en 30 secondes. Un profil complet = plus de chances d'être contacté.</p>
+          <p style="font-size:12px;color:var(--text-muted);margin-bottom:16px;" data-i18n="cand.s.pro.desc">Ces informations permettent aux recruteurs de vous trouver en 30 secondes. Un profil complet = plus de chances d'être contacté.</p>
           <div class="profile-grid">
             <div class="form-field" style="grid-column:1/-1;">
-              <label class="form-label">Titre de poste <span style="color:var(--text-muted);font-weight:400;">ce que vous cherchez</span></label>
-              <input type="text" id="pro-titre" placeholder="ex: Développeur Full Stack, Comptable senior, Chef de projet…">
+              <label class="form-label" data-i18n="cand.f.titre">Titre de poste</label>
+              <input type="text" id="pro-titre" placeholder="ex: Développeur Full Stack, Comptable senior, Chef de projet…" data-i18n-ph="cand.f.titre.ph">
             </div>
             <div class="form-field">
-              <label class="form-label">Secteur</label>
+              <label class="form-label" data-i18n="cand.f.secteur">Secteur</label>
               <select id="pro-secteur">
                 <option value="">Sélectionnez</option>
                 <option>Tech</option><option>Finance</option><option>Santé</option>
@@ -268,7 +268,7 @@
               </select>
             </div>
             <div class="form-field">
-              <label class="form-label">Niveau</label>
+              <label class="form-label" data-i18n="cand.f.niveau">Niveau</label>
               <select id="pro-niveau">
                 <option value="">Sélectionnez</option>
                 <option value="junior">Junior (0-2 ans)</option>
@@ -277,11 +277,11 @@
               </select>
             </div>
             <div class="form-field">
-              <label class="form-label">Années d'expérience</label>
-              <input type="number" id="pro-experience" min="0" max="40" placeholder="ex: 4">
+              <label class="form-label" data-i18n="cand.f.experience">Années d'expérience</label>
+              <input type="number" id="pro-experience" min="0" max="40" placeholder="ex: 4" data-i18n-ph="cand.f.experience.ph">
             </div>
             <div class="form-field">
-              <label class="form-label">Disponibilité</label>
+              <label class="form-label" data-i18n="cand.f.dispo">Disponibilité</label>
               <select id="pro-dispo">
                 <option value="">Sélectionnez</option>
                 <option value="immediate">Immédiatement disponible</option>
@@ -300,16 +300,16 @@
               </select>
             </div>
             <div class="form-field" style="grid-column:1/-1;">
-              <label class="form-label">Prétention salariale <span style="color:var(--text-muted);font-weight:400;">(optionnel)</span></label>
-              <input type="text" id="pro-salaire" placeholder="ex: 200 000 – 300 000 FCFA / mois">
+              <label class="form-label" data-i18n="cand.f.salaire">Prétention salariale</label>
+              <input type="text" id="pro-salaire" placeholder="ex: 200 000 – 300 000 FCFA / mois" data-i18n-ph="cand.f.salaire.ph">
             </div>
             <div class="form-field" style="grid-column:1/-1;">
-              <label class="form-label">5 compétences clés <span style="color:var(--text-muted);font-weight:400;">séparées par des virgules</span></label>
-              <input type="text" id="pro-competences" placeholder="ex: JavaScript, React, Node.js, Gestion de projet, Excel">
+              <label class="form-label" data-i18n="cand.f.competences">5 compétences clés</label>
+              <input type="text" id="pro-competences" placeholder="ex: JavaScript, React, Node.js, Gestion de projet, Excel" data-i18n-ph="cand.f.competences.ph">
             </div>
             <div class="form-field" style="grid-column:1/-1;">
-              <label class="form-label">Bio <span style="color:var(--text-muted);font-weight:400;">2-3 phrases max</span></label>
-              <textarea id="pro-bio" rows="3" placeholder="Décrivez votre profil en quelques mots. Ex: Développeur avec 4 ans d'expérience en fintech, passionné par les solutions mobiles…" style="resize:vertical;"></textarea>
+              <label class="form-label" data-i18n="cand.f.bio">Bio</label>
+              <textarea id="pro-bio" rows="3" placeholder="Décrivez votre profil en quelques mots. Ex: Développeur avec 4 ans d'expérience en fintech, passionné par les solutions mobiles…" style="resize:vertical;" data-i18n-ph="cand.f.bio.ph"></textarea>
             </div>
           </div>
           <div id="pro-msg" class="alert" style="display:none;margin-top:12px;"></div>
@@ -320,38 +320,38 @@
       <div class="section-card" id="certification">
         <div class="section-card-header">
           <div style="display:flex;align-items:center;gap:10px;">
-            <h2 class="section-card-title">Certification du profil</h2>
+            <h2 class="section-card-title" data-i18n="cand.s.certif.title">Certification du profil</h2>
             <span id="badge-certif-status" style="font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;letter-spacing:.04em;display:none;"></span>
           </div>
         </div>
         <div class="section-card-body">
           <div id="certif-content">
             <div style="background:#fefce8;border:1px solid #fde68a;border-radius:10px;padding:16px 18px;margin-bottom:18px;">
-              <div style="font-weight:600;font-size:13px;color:#92400e;margin-bottom:6px;">🏅 Pourquoi se faire certifier ?</div>
+              <div style="font-weight:600;font-size:13px;color:#92400e;margin-bottom:6px;" data-i18n="cand.certif.why.title">🏅 Pourquoi se faire certifier ?</div>
               <ul style="font-size:12px;color:#78350f;line-height:1.8;padding-left:16px;margin:0;">
-                <li>Badge <strong>✓ Certifié Talenco</strong> visible par les recruteurs</li>
-                <li>Votre profil apparaît en <strong>priorité</strong> dans la CVthèque</li>
-                <li>Les recruteurs font davantage confiance aux profils certifiés</li>
-                <li>Un call de 30 min avec un expert RH Talenco</li>
+                <li data-i18n-html="cand.certif.why.l1">Badge <strong>✓ Certifié Talenco</strong> visible par les recruteurs</li>
+                <li data-i18n-html="cand.certif.why.l2">Votre profil apparaît en <strong>priorité</strong> dans la CVthèque</li>
+                <li data-i18n="cand.certif.why.l3">Les recruteurs font davantage confiance aux profils certifiés</li>
+                <li data-i18n="cand.certif.why.l4">Un call de 30 min avec un expert RH Talenco</li>
               </ul>
             </div>
             <div id="certif-form-zone">
-              <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px;">Remplissez ce formulaire rapide pour demander votre certification. Un expert vous contactera pour planifier le call de 30 min.</p>
+              <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px;" data-i18n="cand.certif.p">Remplissez ce formulaire rapide pour demander votre certification. Un expert vous contactera pour planifier le call de 30 min.</p>
               <div class="profile-grid">
                 <div class="form-field" style="grid-column:1/-1;">
-                  <label class="form-label">Vos disponibilités pour le call <span style="color:var(--text-muted);font-weight:400;">donnez 2-3 créneaux</span></label>
-                  <textarea id="certif-dispo" rows="2" placeholder="ex: Lundi 28 avril 10h-12h, Mercredi 30 avril 14h-16h, Jeudi 1er mai toute la journée" style="resize:vertical;"></textarea>
+                  <label class="form-label" data-i18n="cand.certif.dispo.label">Vos disponibilités pour le call</label>
+                  <textarea id="certif-dispo" rows="2" placeholder="ex: Lundi 28 avril 10h-12h, Mercredi 30 avril 14h-16h, Jeudi 1er mai toute la journée" style="resize:vertical;" data-i18n-ph="cand.certif.dispo.ph"></textarea>
                 </div>
                 <div class="form-field">
-                  <label class="form-label">LinkedIn <span style="color:var(--text-muted);font-weight:400;">(optionnel)</span></label>
+                  <label class="form-label" data-i18n="cand.certif.linkedin.label">LinkedIn</label>
                   <input type="url" id="certif-linkedin" placeholder="https://linkedin.com/in/votre-profil">
                 </div>
                 <div class="form-field">
-                  <label class="form-label">Motivation en 1 phrase</label>
-                  <input type="text" id="certif-motivation" placeholder="ex: Je cherche un poste en tech à Cotonou d'ici 2 mois">
+                  <label class="form-label" data-i18n="cand.certif.motivation.label">Motivation en 1 phrase</label>
+                  <input type="text" id="certif-motivation" placeholder="ex: Je cherche un poste en tech à Cotonou d'ici 2 mois" data-i18n-ph="cand.certif.motivation.ph">
                 </div>
               </div>
-              <button class="btn btn-primary" id="btn-certif" style="margin-top:16px;">🏅 Demander la certification</button>
+              <button class="btn btn-primary" id="btn-certif" style="margin-top:16px;" data-i18n="cand.certif.btn">🏅 Demander la certification</button>
               <div id="certif-msg" class="alert" style="display:none;margin-top:12px;"></div>
             </div>
           </div>
@@ -360,10 +360,10 @@
       <!-- CV -->
       <div class="section-card" id="cv">
         <div class="section-card-header">
-          <h2 class="section-card-title">Mon CV</h2>
+          <h2 class="section-card-title" data-i18n="cand.s.cv.title">Mon CV</h2>
           <div style="display:flex;align-items:center;gap:8px;">
-            <span class="badge badge-info">PDF, max 5 Mo</span>
-            <button id="btn-coach-cv" class="btn btn-outline btn-sm" style="display:none;">✨ Analyser mon CV</button>
+            <span class="badge badge-info" data-i18n="cand.s.cv.badge">PDF, max 5 Mo</span>
+            <button id="btn-coach-cv" class="btn btn-outline btn-sm" style="display:none;" data-i18n="cand.s.cv.analyze">✨ Analyser mon CV</button>
           </div>
         </div>
         <div class="section-card-body">
@@ -396,7 +396,7 @@
       <!-- Candidatures -->
       <div class="section-card" id="candidatures">
         <div class="section-card-header">
-          <h2 class="section-card-title">Mes candidatures</h2>
+          <h2 class="section-card-title" data-i18n="cand.s.cands.title">Mes candidatures</h2>
           <span class="badge badge-info" id="candidatures-count">—</span>
         </div>
         <div class="section-card-body" id="candidatures-list">
@@ -407,8 +407,8 @@
       <!-- Alertes email -->
       <div class="section-card" id="alertes">
         <div class="section-card-header">
-          <h2 class="section-card-title">Alertes email</h2>
-          <a href="#" class="btn btn-outline btn-sm" id="btn-add-alert">+ Ajouter</a>
+          <h2 class="section-card-title" data-i18n="cand.s.alertes.title">Alertes email</h2>
+          <a href="#" class="btn btn-outline btn-sm" id="btn-add-alert" data-i18n="cand.s.alertes.add">+ Ajouter</a>
         </div>
         <div class="section-card-body" id="alertes-list">
           Chargement…
@@ -441,7 +441,7 @@
               </select>
             </div>
           </div>
-          <button class="btn btn-primary btn-sm" id="btn-save-alert">Créer l'alerte</button>
+          <button class="btn btn-primary btn-sm" id="btn-save-alert" data-i18n="cand.s.alertes.save">Créer l'alerte</button>
         </div>
       </div>
 
@@ -480,18 +480,18 @@
             #wa-resend-timer { font-size:12px; color:var(--text-muted); font-family:var(--font-mono); }
           </style>
           <div id="wa-section">
-            <h3>📱 Alertes WhatsApp</h3>
-            <p class="wa-desc">Recevez les nouvelles offres directement sur WhatsApp selon vos secteurs et villes préférés.</p>
+            <h3 data-i18n="cand.wa.title">📱 Alertes WhatsApp</h3>
+            <p class="wa-desc" data-i18n="cand.wa.desc">Recevez les nouvelles offres directement sur WhatsApp selon vos secteurs et villes préférés.</p>
             <div id="wa-step-subscribe">
               <div class="wa-field">
-                <label class="wa-label">Numéro WhatsApp</label>
+                <label class="wa-label" data-i18n="cand.wa.phone.label">Numéro WhatsApp</label>
                 <div class="wa-phone-row">
                   <span class="wa-phone-prefix">🇧🇯</span>
                   <input type="tel" id="wa-phone" class="wa-input" placeholder="+229 61 23 45 67" maxlength="18">
                 </div>
               </div>
               <div class="wa-field">
-                <label class="wa-label">Secteurs d'intérêt</label>
+                <label class="wa-label" data-i18n="cand.wa.secteurs.label">Secteurs d'intérêt</label>
                 <div class="wa-checks" id="wa-secteurs">
                   <span class="wa-check-btn" data-val="Tech">Tech</span>
                   <span class="wa-check-btn" data-val="Finance">Finance</span>
@@ -504,7 +504,7 @@
                 </div>
               </div>
               <div class="wa-field">
-                <label class="wa-label">Villes</label>
+                <label class="wa-label" data-i18n="cand.wa.villes.label">Villes</label>
                 <div class="wa-checks" id="wa-villes">
                   <span class="wa-check-btn" data-val="Cotonou">Cotonou</span>
                   <span class="wa-check-btn" data-val="Abomey-Calavi">Abomey-Calavi</span>
@@ -516,7 +516,7 @@
               </div>
               <button class="wa-btn" id="wa-btn-subscribe" type="button">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-                Recevoir les alertes sur WhatsApp
+                <span data-i18n="cand.wa.btn">Recevoir les alertes sur WhatsApp</span>
               </button>
               <div class="wa-msg" id="wa-sub-msg"></div>
             </div>
@@ -527,18 +527,18 @@
                 <button class="wa-btn" id="wa-btn-confirm" type="button" style="width:auto;padding:10px 20px;">Confirmer</button>
               </div>
               <div style="margin-top:12px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
-                <button class="wa-btn-secondary" id="wa-btn-resend" type="button" disabled>Renvoyer le code</button>
+                <button class="wa-btn-secondary" id="wa-btn-resend" type="button" disabled data-i18n="cand.wa.otp.resend">Renvoyer le code</button>
                 <span id="wa-resend-timer">Disponible dans 60s</span>
-                <button class="wa-btn-secondary" id="wa-btn-back" type="button">← Changer le numéro</button>
+                <button class="wa-btn-secondary" id="wa-btn-back" type="button" data-i18n="cand.wa.otp.back">← Changer le numéro</button>
               </div>
               <div class="wa-msg" id="wa-otp-msg"></div>
             </div>
             <div id="wa-step-active" style="display:none;">
-              <div class="wa-active-badge">✓ Alertes WhatsApp actives</div>
+              <div class="wa-active-badge" data-i18n="cand.wa.active">✓ Alertes WhatsApp actives</div>
               <p class="wa-active-phone" id="wa-active-phone-display"></p>
               <div class="wa-actions">
-                <button class="wa-btn-secondary" id="wa-btn-modify" type="button">✏️ Modifier</button>
-                <button class="wa-btn-secondary" id="wa-btn-deactivate" type="button" style="color:#ef4444;border-color:#fca5a5;">🔕 Désactiver</button>
+                <button class="wa-btn-secondary" id="wa-btn-modify" type="button" data-i18n="cand.wa.modify">✏️ Modifier</button>
+                <button class="wa-btn-secondary" id="wa-btn-deactivate" type="button" style="color:#ef4444;border-color:#fca5a5;" data-i18n="cand.wa.deactivate">🔕 Désactiver</button>
               </div>
               <div class="wa-msg" id="wa-active-msg"></div>
             </div>
@@ -557,15 +557,15 @@
         <div class="nav-logo-text">
           <span class="logo-primary">Talenco</span><span class="logo-dot">.</span><span class="logo-tld">bj</span>
         </div>
-        <div class="logo-tagline">Recrutement au Bénin</div>
+        <div class="logo-tagline" data-i18n="nav.tagline">Recrutement au Bénin</div>
       </div>
     </a>
     <ul class="footer-links">
-      <li><a href="/offres.html">Offres d'emploi</a></li>
-      <li><a href="/coach.html">Coach IA</a></li>
-      <li><a href="mailto:contact@talenco.bj">Contact</a></li>
+      <li><a href="/offres.html" data-i18n="cand.footer.jobs">Offres d'emploi</a></li>
+      <li><a href="/coach.html" data-i18n="cand.footer.coach">Coach IA</a></li>
+      <li><a href="mailto:contact@talenco.bj" data-i18n="cand.footer.contact">Contact</a></li>
     </ul>
-    <div class="footer-bottom">© 2025 Talenco.bj</div>
+    <div class="footer-bottom" data-i18n="cand.footer.copy">© 2025 Talenco.bj</div>
   </div>
 </footer>
 

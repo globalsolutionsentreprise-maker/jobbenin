@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" data-i18n-title="offres.title">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -113,21 +113,21 @@
       <div class="nav-logo-text">
         <span class="logo-primary">Talenco</span><span class="logo-dot">.</span><span class="logo-tld">bj</span>
       </div>
-      <div class="logo-tagline">Recrutement au Bénin</div>
+      <div class="logo-tagline" data-i18n="nav.tagline">Recrutement au Bénin</div>
     </div>
   </a>
 
   <ul class="navbar-links">
-    <li><a href="/index.html">Accueil</a></li>
-    <li><a href="/offres.html" class="active">Offres</a></li>
-    <li><a href="/entreprises.html">Recruteurs</a></li>
-    <li><a href="/cvtheque.html">CVthèque</a></li>
-    <li><a href="/coach.html">✨ Coach IA</a></li>
+    <li><a href="/index.html" data-i18n="nav.home">Accueil</a></li>
+    <li><a href="/offres.html" class="active" data-i18n="nav.jobs">Offres</a></li>
+    <li><a href="/entreprises.html" data-i18n="nav.recruiters">Recruteurs</a></li>
+    <li><a href="/cvtheque.html" data-i18n="nav.cvtheque">CVthèque</a></li>
+    <li><a href="/coach.html">✨ <span data-i18n="nav.coach">Coach IA</span></a></li>
   </ul>
 
   <div class="navbar-actions">
-    <a href="/candidat.html" class="btn btn-outline btn-sm">Mon profil</a>
-    <a href="/connexion.html" class="btn btn-dark btn-sm">Connexion</a>
+    <a href="/candidat.html" class="btn btn-outline btn-sm" data-i18n="nav.myprofile">Mon profil</a>
+    <a href="/connexion.html" class="btn btn-dark btn-sm" data-i18n="nav.login">Connexion</a>
   </div>
 
   <button class="navbar-toggle" id="nav-toggle" aria-label="Menu">
@@ -145,13 +145,13 @@
       </div>
     </div>
     <ul class="nav-drawer-links">
-      <li><a href="/index.html">Accueil</a></li>
-      <li><a href="/offres.html">Offres d'emploi</a></li>
-      <li><a href="/entreprises.html">Recruteurs</a></li>
-      <li><a href="/cvtheque.html">CVthèque</a></li>
-      <li><a href="/coach.html">✨ Coach IA</a></li>
-      <li><a href="/candidat.html">Mon profil</a></li>
-      <li><a href="/connexion.html">Connexion</a></li>
+      <li><a href="/index.html" data-i18n="nav.home">Accueil</a></li>
+      <li><a href="/offres.html" data-i18n="nav.jobs.full">Offres d'emploi</a></li>
+      <li><a href="/entreprises.html" data-i18n="nav.recruiters">Recruteurs</a></li>
+      <li><a href="/cvtheque.html" data-i18n="nav.cvtheque">CVthèque</a></li>
+      <li><a href="/coach.html">✨ <span data-i18n="nav.coach">Coach IA</span></a></li>
+      <li><a href="/candidat.html" data-i18n="nav.myprofile">Mon profil</a></li>
+      <li><a href="/connexion.html" data-i18n="nav.login">Connexion</a></li>
     </ul>
   </div>
 </div>
@@ -161,8 +161,8 @@
   <div style="border-bottom:1px solid var(--border);background:var(--bg);padding:16px 24px;">
     <div style="max-width:1140px;margin:0 auto;">
       <div class="ds-search">
-        <input type="search" id="search-input" class="ds-search-input" placeholder="Poste, entreprise, compétence…">
-        <button class="ds-search-btn" id="search-btn">Rechercher</button>
+        <input type="search" id="search-input" class="ds-search-input" placeholder="Poste, entreprise, compétence…" data-i18n-ph="offres.search.ph">
+        <button class="ds-search-btn" id="search-btn" data-i18n="offres.search.btn">Rechercher</button>
       </div>
     </div>
   </div>
@@ -170,10 +170,10 @@
   <div class="page-layout">
     <!-- ── Filtres ──────────────────────────────────────────────── -->
     <aside class="filters-panel">
-      <div class="filters-title">Filtres</div>
+      <div class="filters-title" data-i18n="offres.filters.title">Filtres</div>
 
       <div class="filter-group">
-        <span class="filter-group-label">Type de contrat</span>
+        <span class="filter-group-label" data-i18n="offres.filter.contrat">Type de contrat</span>
         <div class="filter-tags" id="filter-contrat">
           <span class="filter-tag" data-val="CDI">CDI</span>
           <span class="filter-tag" data-val="CDD">CDD</span>
@@ -184,7 +184,7 @@
       </div>
 
       <div class="filter-group">
-        <span class="filter-group-label">Ville</span>
+        <span class="filter-group-label" data-i18n="offres.filter.ville">Ville</span>
         <div class="filter-tags" id="filter-ville">
           <span class="filter-tag" data-val="Cotonou">Cotonou</span>
           <span class="filter-tag" data-val="Abomey-Calavi">Abomey-Calavi</span>
@@ -196,7 +196,7 @@
       </div>
 
       <div class="filter-group">
-        <span class="filter-group-label">Secteur</span>
+        <span class="filter-group-label" data-i18n="offres.filter.secteur">Secteur</span>
         <div class="filter-tags" id="filter-secteur">
           <span class="filter-tag" data-val="Tech">Tech</span>
           <span class="filter-tag" data-val="Finance">Finance</span>
@@ -210,23 +210,23 @@
       </div>
 
       <div class="filter-group">
-        <span class="filter-group-label">Ancienneté</span>
+        <span class="filter-group-label" data-i18n="offres.filter.date">Ancienneté</span>
         <div class="filter-tags" id="filter-date">
-          <span class="filter-tag filtre-nouveautes" data-val="24h">Moins de 24h</span>
-          <span class="filter-tag" data-val="7j">Cette semaine</span>
-          <span class="filter-tag" data-val="30j">Ce mois</span>
+          <span class="filter-tag filtre-nouveautes" data-val="24h" data-i18n="offres.filter.24h">Moins de 24h</span>
+          <span class="filter-tag" data-val="7j" data-i18n="offres.filter.week">Cette semaine</span>
+          <span class="filter-tag" data-val="30j" data-i18n="offres.filter.month">Ce mois</span>
         </div>
       </div>
 
       <div class="filter-group">
-        <span class="filter-group-label">Diaspora & Remote</span>
+        <span class="filter-group-label" data-i18n="offres.filter.special">Diaspora & Remote</span>
         <div class="filter-tags" id="filter-special">
           <span class="filter-tag" data-val="diaspora" style="border-color:rgba(139,69,19,.2);color:var(--accent);">Diaspora</span>
           <span class="filter-tag" data-val="remote" style="border-color:rgba(46,125,50,.2);color:#2E7D32;">Télétravail</span>
         </div>
       </div>
 
-      <button class="btn btn-ghost btn-sm" id="reset-filters" style="width:100%;margin-top:8px;">Réinitialiser</button>
+      <button class="btn btn-ghost btn-sm" id="reset-filters" style="width:100%;margin-top:8px;" data-i18n="offres.filter.reset">Réinitialiser</button>
     </aside>
 
     <!-- ── Liste des offres ────────────────────────────────────── -->
@@ -234,8 +234,8 @@
       <div class="content-top">
         <span class="results-count" id="results-count">Chargement…</span>
         <select class="sort-select" id="sort-select">
-          <option value="recent">Plus récentes</option>
-          <option value="score">Par score IA</option>
+          <option value="recent" data-i18n="offres.sort.recent">Plus récentes</option>
+          <option value="score" data-i18n="offres.sort.ai">Par score IA</option>
         </select>
       </div>
       <div class="jobs-grid" id="jobs-container">
@@ -251,8 +251,8 @@
 
 <section style="max-width:1140px;margin:40px auto;padding:0 24px;">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
-    <h2 style="font-family:var(--font-serif);font-style:italic;font-size:22px;margin:0;">Actualités des entreprises</h2>
-    <span style="font-family:var(--font-mono);font-size:9px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.1em;">Fil en direct</span>
+    <h2 style="font-family:var(--font-serif);font-style:italic;font-size:22px;margin:0;" data-i18n="offres.news.title">Actualités des entreprises</h2>
+    <span style="font-family:var(--font-mono);font-size:9px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.1em;" data-i18n="offres.news.live">Fil en direct</span>
   </div>
   <div id="fil-actualites" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;">
     <p class="text-muted">Chargement…</p>
@@ -261,8 +261,8 @@
 <section style="max-width:1140px;margin:40px auto;padding:0 24px;">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
     <div>
-      <h2 style="font-family:var(--font-serif);font-style:italic;font-size:22px;margin:0 0 4px;">Presse RH & Économie</h2>
-      <span style="font-family:var(--font-mono);font-size:9px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.1em;">Nos sources de référence</span>
+      <h2 style="font-family:var(--font-serif);font-style:italic;font-size:22px;margin:0 0 4px;" data-i18n="offres.press.title">Presse RH & Économie</h2>
+      <span style="font-family:var(--font-mono);font-size:9px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.1em;" data-i18n="offres.press.sub">Nos sources de référence</span>
     </div>
   </div>
   <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;">
@@ -275,13 +275,13 @@
       <div style="background:linear-gradient(135deg,#1a3a2a,#0d2018);padding:28px 24px;display:flex;align-items:center;gap:14px;">
         <div style="width:48px;height:48px;border-radius:10px;background:rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;">🌍</div>
         <div>
-          <div style="font-family:var(--font-mono);font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:rgba(255,255,255,.5);margin-bottom:4px;">Afrique · Économie</div>
+          <div style="font-family:var(--font-mono);font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:rgba(255,255,255,.5);margin-bottom:4px;" data-i18n="offres.press.ja.tag">Afrique · Économie</div>
           <div style="font-family:var(--font-serif);font-style:italic;font-size:18px;color:#fff;">Jeune Afrique</div>
         </div>
       </div>
       <div style="padding:18px 24px;flex:1;display:flex;flex-direction:column;gap:8px;">
-        <p style="font-size:13px;color:var(--text-muted);line-height:1.6;margin:0;">Actualités économiques, business et marchés du travail en Afrique — la référence continentale depuis 1960.</p>
-        <span style="font-size:11px;color:var(--accent);font-family:var(--font-mono);margin-top:auto;">Lire les articles →</span>
+        <p style="font-size:13px;color:var(--text-muted);line-height:1.6;margin:0;" data-i18n="offres.press.ja.desc">Actualités économiques, business et marchés du travail en Afrique — la référence continentale depuis 1960.</p>
+        <span style="font-size:11px;color:var(--accent);font-family:var(--font-mono);margin-top:auto;" data-i18n="offres.press.ja.link">Lire les articles →</span>
       </div>
     </a>
 
@@ -293,13 +293,13 @@
       <div style="background:linear-gradient(135deg,#0d1f3a,#071428);padding:28px 24px;display:flex;align-items:center;gap:14px;">
         <div style="width:48px;height:48px;border-radius:10px;background:rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;">🇺🇸</div>
         <div>
-          <div style="font-family:var(--font-mono);font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:rgba(255,255,255,.5);margin-bottom:4px;">USA · Leadership RH</div>
+          <div style="font-family:var(--font-mono);font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:rgba(255,255,255,.5);margin-bottom:4px;" data-i18n="offres.press.hr.tag">USA · Leadership RH</div>
           <div style="font-family:var(--font-serif);font-style:italic;font-size:18px;color:#fff;">HR Executive</div>
         </div>
       </div>
       <div style="padding:18px 24px;flex:1;display:flex;flex-direction:column;gap:8px;">
-        <p style="font-size:13px;color:var(--text-muted);line-height:1.6;margin:0;">Tendances RH mondiales, stratégie et gestion des talents — la voix des DRH et dirigeants RH aux États-Unis.</p>
-        <span style="font-size:11px;color:var(--accent);font-family:var(--font-mono);margin-top:auto;">Lire les articles →</span>
+        <p style="font-size:13px;color:var(--text-muted);line-height:1.6;margin:0;" data-i18n="offres.press.hr.desc">Tendances RH mondiales, stratégie et gestion des talents — la voix des DRH et dirigeants RH aux États-Unis.</p>
+        <span style="font-size:11px;color:var(--accent);font-family:var(--font-mono);margin-top:auto;" data-i18n="offres.press.hr.link">Lire les articles →</span>
       </div>
     </a>
 
@@ -313,18 +313,18 @@
         <div class="nav-logo-text">
           <span class="logo-primary">Talenco</span><span class="logo-dot">.</span><span class="logo-tld">bj</span>
         </div>
-        <div class="logo-tagline">Recrutement au Bénin</div>
+        <div class="logo-tagline" data-i18n="nav.tagline">Recrutement au Bénin</div>
       </div>
     </a>
     <ul class="footer-links">
-      <li><a href="/offres.html">Offres d'emploi</a></li>
-      <li><a href="/entreprises.html">Recruteurs</a></li>
-      <li><a href="/cvtheque.html">CVthèque</a></li>
-      <li><a href="/coach.html">Coach IA</a></li>
-      <li><a href="/a-propos.html">À propos</a></li>
-      <li><a href="/mentions-legales.html">Mentions légales</a></li>
+      <li><a href="/offres.html" data-i18n="offres.footer.jobs">Offres d'emploi</a></li>
+      <li><a href="/entreprises.html" data-i18n="offres.footer.recruiters">Recruteurs</a></li>
+      <li><a href="/cvtheque.html" data-i18n="offres.footer.cvtheque">CVthèque</a></li>
+      <li><a href="/coach.html" data-i18n="offres.footer.coach">Coach IA</a></li>
+      <li><a href="/a-propos.html" data-i18n="offres.footer.about">À propos</a></li>
+      <li><a href="/mentions-legales.html" data-i18n="offres.footer.legal">Mentions légales</a></li>
     </ul>
-    <div class="footer-bottom">© 2025 Talenco.bj</div>
+    <div class="footer-bottom" data-i18n="offres.footer.copy">© 2025 Talenco.bj</div>
   </div>
 </footer>
 
