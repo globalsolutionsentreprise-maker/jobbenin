@@ -19,18 +19,20 @@
 
   // ── Construire les liens du drawer depuis la navbar ──
   const existingLinks = Array.from(navbar.querySelectorAll('.navbar-links a'));
-  const drawerLinksHtml = existingLinks.map(a =>
-    `<li><a href="${a.getAttribute('href')}">${a.textContent.trim()}</a></li>`
-  ).join('');
+  const drawerLinksHtml = existingLinks.map(a => {
+    const i18n = a.getAttribute('data-i18n') ? ` data-i18n="${a.getAttribute('data-i18n')}"` : '';
+    return `<li><a href="${a.getAttribute('href')}"${i18n}>${a.textContent.trim()}</a></li>`;
+  }).join('');
 
   // ── Ajouter l'action principale (dernier bouton navbar-actions) ──
-  const actionBtn = navbar.querySelector('.navbar-actions a, .navbar-actions button');
+  const actionBtn = navbar.querySelector('.navbar-actions a:not(#i18n-toggle), .navbar-actions button:not(#i18n-toggle):not(.lang-btn)');
   let actionHtml = '';
   if (actionBtn) {
     const href  = actionBtn.getAttribute('href') || '#';
     const label = actionBtn.textContent.trim();
+    const i18n  = actionBtn.getAttribute('data-i18n') ? ` data-i18n="${actionBtn.getAttribute('data-i18n')}"` : '';
     actionHtml  = `<div style="margin-top:auto;padding-top:16px;border-top:1px solid var(--border);">
-      <a href="${href}" style="display:block;padding:12px;text-align:center;background:var(--text);color:var(--bg);border-radius:var(--radius-sm);font-size:13px;font-weight:600;font-family:var(--font-body);text-decoration:none;">${label}</a>
+      <a href="${href}"${i18n} style="display:block;padding:12px;text-align:center;background:var(--text);color:var(--bg);border-radius:var(--radius-sm);font-size:13px;font-weight:600;font-family:var(--font-body);text-decoration:none;">${label}</a>
     </div>`;
   }
 
