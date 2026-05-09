@@ -192,6 +192,32 @@ function debounce(fn, ms) {
 .kb-arrow-btn:hover { background: #e5e7eb; }
 .kb-arrow-btn:disabled { opacity: .3; cursor: default; }
 
+/* Score IA */
+.kb-score {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 99px;
+  border: 1px solid transparent;
+}
+.kb-score.score-high   { background: #dcfce7; color: #15803d; border-color: #bbf7d0; }
+.kb-score.score-mid    { background: #fef9c3; color: #854d0e; border-color: #fde68a; }
+.kb-score.score-low    { background: #ffedd5; color: #9a3412; border-color: #fed7aa; }
+.kb-score.score-poor   { background: #fee2e2; color: #991b1b; border-color: #fecaca; }
+.kb-score.score-pending { background: #f3f4f6; color: #9ca3af; border-color: #e5e7eb; font-weight: 400; }
+.kb-score-bar {
+  width: 36px; height: 4px; border-radius: 2px; background: #e5e7eb; overflow: hidden;
+}
+.kb-score-fill { height: 100%; border-radius: 2px; transition: width .3s; }
+.kb-score-tip {
+  font-size: 11px; color: #6b7280; margin-top: 4px; line-height: 1.5;
+  font-style: italic;
+}
+
 /* Loading overlay */
 .kb-loading {
   display: flex; align-items: center; justify-content: center;
@@ -236,16 +262,20 @@ async function loadApplications() {
   const { data } = await _sb.from('applications')
     .select(`
       id, job_id, user_id, statut, cv_path, message, note_recruteur, created_at,
+      match_score, match_explanation,
       users!applications_user_id_fkey ( email ),
       jobs ( id, titre, title, entreprise, company )
     `)
     .in('job_id', jobIds)
+    .order('match_score', { ascending: false, nullsFirst: false })
     .order('created_at', { ascending: false });
 
   _apps = (data ?? []).map(a => ({
     ...a,
-    email:    (a.users)?.email ?? '',
-    jobTitre: (a.jobs)?.titre ?? (a.jobs)?.title ?? '—',
+    email:             (a.users)?.email ?? '',
+    jobTitre:          (a.jobs)?.titre ?? (a.jobs)?.title ?? '—',
+    match_score:       a.match_score ?? null,
+    match_explanation: a.match_explanation ?? '',
   }));
 }
 
@@ -268,6 +298,24 @@ function renderToolbar() {
   `;
 }
 
+function renderScore(app) {
+  const s = app.match_score;
+  if (s === null || s === undefined) {
+    return `<div class="kb-score score-pending">⏳ Analyse en cours…</div>`;
+  }
+  const cls = s >= 80 ? 'score-high' : s >= 60 ? 'score-mid' : s >= 40 ? 'score-low' : 'score-poor';
+  const fillColor = s >= 80 ? '#16a34a' : s >= 60 ? '#d97706' : s >= 40 ? '#ea580c' : '#dc2626';
+  const tip = app.match_explanation
+    ? `<div class="kb-score-tip">${app.match_explanation}</div>`
+    : '';
+  return `
+    <div class="kb-score ${cls}">
+      <div class="kb-score-bar"><div class="kb-score-fill" style="width:${s}%;background:${fillColor}"></div></div>
+      ${s}%
+    </div>
+    ${tip}`;
+}
+
 function renderCard(app, colIndex) {
   const col     = COLONNES[colIndex];
   const color   = avatarColor(app.email);
@@ -288,6 +336,7 @@ function renderCard(app, colIndex) {
         </div>
       </div>
       <div class="kb-card-date">🕐 ${relDate(app.created_at)}</div>
+      ${renderScore(app)}
       ${hasCv
         ? `<button class="kb-cv-btn" data-cv="${app.cv_path}" data-appid="${app.id}">
              📄 Voir le CV
@@ -553,9 +602,11 @@ function setupRealtime() {
       const local = _apps.find(a => a.id === updated.id);
       if (!local || local.statut === updated.statut) return;
 
-      // Mise à jour distante (autre recruteur du même compte)
+      // Mise à jour distante (autre recruteur ou scoring IA)
       local.statut = updated.statut;
       if (updated.note_recruteur !== undefined) local.note_recruteur = updated.note_recruteur;
+      if (updated.match_score !== undefined) local.match_score = updated.match_score;
+      if (updated.match_explanation !== undefined) local.match_explanation = updated.match_explanation;
       _container.querySelector('.kb-board').innerHTML =
         COLONNES.map((_, i) => renderColumn(i)).join('');
       attachColumnEvents();

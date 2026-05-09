@@ -11,6 +11,7 @@
     "@supabase/supabase-js": "^2.43.0",
     "fedapay": "^1.2.5",
     "nodemailer": "^6.9.13",
+    "pdf-parse": "^2.4.5",
     "uuid": "^9.0.1"
   },
   "engines": {
