@@ -479,7 +479,7 @@
         }
       }
 
-      const res = await fetch('/api/agent-lettre-motivation', {
+      const res = await fetch('/api/agent?type=lettre', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

@@ -1567,7 +1567,7 @@
     history.push({ role: 'user', content: text });
     const typing = addMsg('…', 'bot typing');
     try {
-      const res = await fetch('/api/agent-onboarding', {
+      const res = await fetch('/api/agent?type=onboarding', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: text, history: history.slice(0, -1) }),

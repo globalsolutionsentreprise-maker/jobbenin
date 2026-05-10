@@ -363,7 +363,7 @@ document.getElementById('btn-step2').addEventListener('click', async () => {
   }
 
   // Notifier l'admin via API
-  fetch('/api/admin/company-verify', {
+  fetch('/api/admin', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ action: 'notify_admin', company_id: createdUserId }),

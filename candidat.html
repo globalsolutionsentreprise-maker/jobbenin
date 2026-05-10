@@ -1129,7 +1129,7 @@
       const cvText = await extrairePdf(urlData.signedUrl);
       if (!cvText || cvText.length < 50) throw new Error('Impossible de lire le PDF — vérifiez que votre CV n\'est pas une image scannée');
 
-      const res = await fetch('/api/agent-coach-cv', {
+      const res = await fetch('/api/agent?type=coach', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ cvText }),

@@ -763,7 +763,7 @@ async function supprimerCandidat(userId, nom) {
   if (!confirm(`Supprimer définitivement le compte de "${nom}" ? Cette action est irréversible.`)) return;
   try {
     const { data: { session } } = await sb.auth.getSession();
-    const res = await fetch('/api/admin/delete-user', {
+    const res = await fetch('/api/admin', {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
       body: JSON.stringify({ userId })
@@ -785,9 +785,10 @@ async function notifierSansCV() {
   btn.disabled = true; btn.textContent = '⏳ Envoi…';
   try {
     const { data: { session } } = await sb.auth.getSession();
-    const res = await fetch('/api/notify-missing-cv', {
+    const res = await fetch('/api/admin', {
       method: 'POST',
-      headers: { 'Authorization': `Bearer ${session.access_token}` }
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
+      body: JSON.stringify({ action: 'notify_missing_cv' }),
     });
     const data = await res.json();
     if (!res.ok) { alert('Erreur : ' + (data.error || 'Inconnue')); return; }
@@ -1115,7 +1116,7 @@ async function chargerVerifCompanies() {
 async function approuverDocs(companyId) {
   if (!confirm('Valider les documents RCCM/IFU de cette entreprise ?')) return;
   const { data:{ session } } = await sb.auth.getSession();
-  const res = await fetch('/api/admin/company-verify', {
+  const res = await fetch('/api/admin', {
     method:'POST',
     headers:{'Content-Type':'application/json','Authorization':`Bearer ${session.access_token}`},
     body: JSON.stringify({ action:'approve_docs', company_id: companyId }),
@@ -1130,7 +1131,7 @@ async function rejeterDocs(companyId) {
   const reason = prompt('Motif de refus (optionnel) :');
   if (reason === null) return;
   const { data:{ session } } = await sb.auth.getSession();
-  const res = await fetch('/api/admin/company-verify', {
+  const res = await fetch('/api/admin', {
     method:'POST',
     headers:{'Content-Type':'application/json','Authorization':`Bearer ${session.access_token}`},
     body: JSON.stringify({ action:'reject_docs', company_id: companyId, reason }),
@@ -1174,7 +1175,7 @@ async function envoyerEntretien() {
   const btn = document.getElementById('btn-send-interview');
   btn.disabled = true; btn.textContent = 'Envoi…';
   const { data:{ session } } = await sb.auth.getSession();
-  const res = await fetch('/api/admin/company-verify', {
+  const res = await fetch('/api/admin', {
     method:'POST',
     headers:{'Content-Type':'application/json','Authorization':`Bearer ${session.access_token}`},
     body: JSON.stringify({ action:'schedule', company_id:companyId, interview_date:date, format, link_or_contact:link, responsible }),
@@ -1191,7 +1192,7 @@ async function certifierEntreprise(companyId) {
   const notes = prompt('Notes sur l\'entretien (optionnel) :');
   if (notes === null) return;
   const { data:{ session } } = await sb.auth.getSession();
-  const res = await fetch('/api/admin/company-verify', {
+  const res = await fetch('/api/admin', {
     method:'POST',
     headers:{'Content-Type':'application/json','Authorization':`Bearer ${session.access_token}`},
     body: JSON.stringify({ action:'certify', company_id: companyId, notes }),
@@ -1206,7 +1207,7 @@ async function rejeterFinal(companyId) {
   const notes = prompt('Motif de refus :');
   if (notes === null) return;
   const { data:{ session } } = await sb.auth.getSession();
-  const res = await fetch('/api/admin/company-verify', {
+  const res = await fetch('/api/admin', {
     method:'POST',
     headers:{'Content-Type':'application/json','Authorization':`Bearer ${session.access_token}`},
     body: JSON.stringify({ action:'reject_final', company_id: companyId, notes }),
