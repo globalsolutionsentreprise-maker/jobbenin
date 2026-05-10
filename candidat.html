@@ -421,23 +421,13 @@
         <div class="section-card-body" id="alert-form" style="display:none;border-top:1px solid var(--border);">
           <div class="profile-grid">
             <div class="form-field">
-              <label class="form-label">Secteur</label>
-              <select id="alert-secteur">
-                <option value="">Tous</option>
-                <option>Tech</option>
-                <option>Finance</option>
-                <option>Santé</option>
-                <option>BTP</option>
-                <option>Agriculture</option>
-                <option>Marketing</option>
-                <option>RH</option>
-                <option>Stage</option>
-              </select>
+              <label class="form-label">Mots-clés</label>
+              <input type="text" id="alert-keywords" placeholder="ex : développeur web, comptable, stage…" style="width:100%;">
             </div>
             <div class="form-field">
-              <label class="form-label">Ville</label>
+              <label class="form-label">Ville (optionnel)</label>
               <select id="alert-ville">
-                <option value="">Toutes</option>
+                <option value="">Toutes les villes</option>
                 <option>Cotonou</option>
                 <option>Abomey-Calavi</option>
                 <option>Porto-Novo</option>
@@ -445,7 +435,8 @@
               </select>
             </div>
           </div>
-          <button class="btn btn-primary btn-sm" id="btn-save-alert" data-i18n="cand.s.alertes.save">Créer l'alerte</button>
+          <div id="alert-msg" class="alert" style="display:none;margin-bottom:10px;"></div>
+          <button class="btn btn-primary btn-sm" id="btn-save-alert">Créer l'alerte</button>
         </div>
       </div>
 
@@ -657,7 +648,7 @@
     chargerCandidatures(user.id);
 
     // Alertes
-    chargerAlertes(user.id);
+    chargerAlertes();
   }
 
   // Sauvegarder profil
@@ -804,13 +795,21 @@
     `).join('');
   }
 
-  async function chargerAlertes(userId) {
-    const { data: alertes } = await sb.from('alerts').select('id, secteur, ville').eq('user_id', userId);
+  async function chargerAlertes() {
+    const { data: { session } } = await sb.auth.getSession();
     const list = document.getElementById('alertes-list');
-    if (!alertes?.length) { list.innerHTML = '<p class="text-muted">Aucune alerte configurée.</p>'; return; }
-    list.innerHTML = alertes.map(a => `
+    if (!session) return;
+    const res  = await fetch('/api/jobs/alerts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
+      body: JSON.stringify({ action: 'list' }),
+    });
+    const { alerts } = await res.json();
+    if (!alerts?.length) { list.innerHTML = '<p class="text-muted">Aucune alerte configurée.</p>'; return; }
+    list.innerHTML = alerts.map(a => `
       <div class="alert-row">
-        <div class="alert-info">${a.secteur ? `<span class="tag tag-accent">${a.secteur}</span>` : ''}
+        <div class="alert-info">
+          <span class="tag tag-accent">${a.keywords}</span>
           ${a.ville ? `<span class="tag" style="margin-left:4px;">${a.ville}</span>` : ''}
         </div>
         <button class="btn btn-ghost btn-sm" onclick="supprimerAlerte('${a.id}')">✕</button>
@@ -825,19 +824,41 @@
   });
 
   document.getElementById('btn-save-alert').addEventListener('click', async () => {
-    const { data: { user } } = await sb.auth.getUser();
-    if (!user) return;
-    const secteur = document.getElementById('alert-secteur').value;
-    const ville   = document.getElementById('alert-ville').value;
-    await sb.from('alerts').insert({ user_id: user.id, secteur, ville });
-    document.getElementById('alert-form').style.display = 'none';
-    chargerAlertes(user.id);
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) return;
+    const keywords = document.getElementById('alert-keywords').value.trim();
+    const ville    = document.getElementById('alert-ville').value;
+    const msgEl    = document.getElementById('alert-msg');
+    if (!keywords) {
+      msgEl.textContent = 'Veuillez saisir des mots-clés.';
+      msgEl.className = 'alert alert-error'; msgEl.style.display = 'block'; return;
+    }
+    const res = await fetch('/api/jobs/alerts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
+      body: JSON.stringify({ action: 'subscribe', keywords, ville }),
+    });
+    if (res.ok) {
+      document.getElementById('alert-form').style.display = 'none';
+      document.getElementById('alert-keywords').value = '';
+      msgEl.style.display = 'none';
+      chargerAlertes();
+    } else {
+      const { error } = await res.json();
+      msgEl.textContent = error || 'Erreur.';
+      msgEl.className = 'alert alert-error'; msgEl.style.display = 'block';
+    }
   });
 
   async function supprimerAlerte(id) {
-    await sb.from('alerts').delete().eq('id', id);
-    const { data: { user } } = await sb.auth.getUser();
-    if (user) chargerAlertes(user.id);
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) return;
+    await fetch('/api/jobs/alerts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
+      body: JSON.stringify({ action: 'unsubscribe', alert_id: id }),
+    });
+    chargerAlertes();
   }
 
   // ── WhatsApp (script du snippet) ───────────────────────────────────
