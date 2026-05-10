@@ -212,6 +212,7 @@
       <button class="tab-btn" data-tab="offres" data-i18n="ent.tab.offres">Mes offres</button>
       <button class="tab-btn" data-tab="cvtheque-tab" data-i18n="ent.tab.cvtheque">CVthèque</button>
       <button class="tab-btn" data-tab="actualites" data-i18n="ent.tab.news">Actualités</button>
+      <button class="tab-btn" data-tab="equipe" id="tab-equipe-btn" style="display:none;">Mon équipe</button>
     </div>
 
     <div class="tab-panel active" id="tab-kanban">
@@ -232,6 +233,31 @@
       <div style="text-align:center;padding:40px 0;">
         <p class="text-muted" data-i18n="ent.cvth.desc">Accédez à la CVthèque complète avec votre abonnement.</p>
         <a href="/cvtheque.html" class="btn btn-primary" style="margin-top:12px;" data-i18n="ent.cvth.btn">Voir la CVthèque</a>
+      </div>
+    </div>
+
+    <div class="tab-panel" id="tab-equipe">
+      <div style="max-width:560px;">
+        <h3 style="font-family:var(--font-serif);font-style:italic;margin-bottom:4px;">Mon équipe</h3>
+        <p class="text-muted" style="font-size:13px;margin-bottom:24px;">Invitez des collègues à gérer les offres et candidatures avec vous. Ils partageront vos crédits.</p>
+
+        <!-- Inviter -->
+        <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:16px;margin-bottom:20px;">
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--text-muted);margin-bottom:10px;">Inviter un recruteur</div>
+          <div style="display:flex;gap:8px;">
+            <input type="email" id="invite-email-input" placeholder="email@entreprise.com" style="flex:1;padding:9px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;font-family:var(--font-body);color:var(--text);background:var(--bg);">
+            <button id="btn-inviter" style="padding:9px 16px;background:var(--accent);color:#fff;border:none;border-radius:var(--radius-sm);font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font-sans);white-space:nowrap;">Envoyer</button>
+          </div>
+          <div id="invite-msg" style="font-size:12px;margin-top:8px;"></div>
+        </div>
+
+        <!-- Membres actifs -->
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--text-muted);margin-bottom:10px;">Membres de l'équipe</div>
+        <div id="equipe-membres-list"><span class="text-muted" style="font-size:13px;">Chargement…</span></div>
+
+        <!-- Invitations en attente -->
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--text-muted);margin:16px 0 10px;">Invitations en attente</div>
+        <div id="equipe-invites-list"><span class="text-muted" style="font-size:13px;">Aucune.</span></div>
       </div>
     </div>
 
@@ -305,11 +331,14 @@
   });
 
   // ── Auth ────────────────────────────────────────────────────────────
-  sb.auth.getSession().then(({ data: { session } }) => {
+  let _session = null;
+
+  sb.auth.getSession().then(async ({ data: { session } }) => {
     if (!session) {
       document.getElementById('auth-wall').style.display = 'flex';
       return;
     }
+    _session = session;
     document.getElementById('recruiter-dashboard').style.display = 'block';
     document.getElementById('nav-actions').innerHTML = `
       <a href="/ajouter-offre.html" class="btn btn-primary btn-sm">+ Publier une offre</a>
@@ -317,12 +346,23 @@
     `;
     document.getElementById('recruiter-email').textContent = session.user.email;
 
-    // Kanban
-    kanban.init(sb, 'kanban', session.user.id);
+    // Résoudre l'ID "company" effectif (owner ou soi-même)
+    const { data: profil } = await sb.from('users')
+      .select('company_owner_id').eq('id', session.user.id).single();
+    const companyId = profil?.company_owner_id ?? session.user.id;
 
-    chargerStats(session.user.id);
-    chargerMesOffres(session.user.id);
-    chargerNews(session.user.id);
+    // Onglet équipe visible uniquement pour les owners (pas de company_owner_id)
+    if (!profil?.company_owner_id) {
+      document.getElementById('tab-equipe-btn').style.display = '';
+      chargerEquipe();
+    }
+
+    // Kanban
+    kanban.init(sb, 'kanban', companyId);
+
+    chargerStats(companyId);
+    chargerMesOffres(companyId);
+    chargerNews(companyId);
   });
 
   async function chargerStats(userId) {
@@ -373,6 +413,84 @@
         <div style="font-size:13px;color:var(--text-muted);margin-bottom:8px;">${n.content}</div>
         <div style="font-family:var(--font-mono);font-size:9px;color:var(--text-muted);">${new Date(n.created_at).toLocaleDateString('fr-FR')}</div>
       </div>`).join('');
+  }
+
+  // ── Équipe ───────────────────────────────────────────────────────────
+  async function chargerEquipe() {
+    if (!_session) return;
+    const res = await fetch('/api/entreprise', {
+      headers: { 'Authorization': `Bearer ${_session.access_token}` },
+    });
+    if (!res.ok) return;
+    const { membres, invites_en_attente } = await res.json();
+
+    const membresEl = document.getElementById('equipe-membres-list');
+    const invitesEl = document.getElementById('equipe-invites-list');
+
+    if (!membres.length) {
+      membresEl.innerHTML = '<p class="text-muted" style="font-size:13px;">Aucun membre pour l\'instant.</p>';
+    } else {
+      membresEl.innerHTML = membres.map(m => `
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-sm);margin-bottom:6px;">
+          <div>
+            <div style="font-size:13px;font-weight:600;">${m.full_name || m.email}</div>
+            <div style="font-size:11px;color:var(--text-muted);">${m.email}</div>
+          </div>
+          <button onclick="retirerMembre('${m.id}')" style="background:none;border:1px solid #fca5a5;color:#b91c1c;border-radius:var(--radius-sm);padding:4px 10px;font-size:11px;cursor:pointer;font-family:var(--font-sans);">Retirer</button>
+        </div>`).join('');
+    }
+
+    if (!invites_en_attente.length) {
+      invitesEl.innerHTML = '<p class="text-muted" style="font-size:13px;">Aucune invitation en attente.</p>';
+    } else {
+      invitesEl.innerHTML = invites_en_attente.map(inv => `
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 14px;background:#fffbeb;border:1px solid #fcd34d;border-radius:var(--radius-sm);margin-bottom:6px;">
+          <div style="font-size:12px;color:#92400e;">${inv.email}</div>
+          <div style="font-size:10px;color:var(--text-muted);">En attente</div>
+        </div>`).join('');
+    }
+
+    document.getElementById('btn-inviter').addEventListener('click', inviterMembre);
+  }
+
+  async function inviterMembre() {
+    if (!_session) return;
+    const email = document.getElementById('invite-email-input').value.trim();
+    const msgEl = document.getElementById('invite-msg');
+    if (!email) { msgEl.textContent = 'Saisissez un email.'; msgEl.style.color = '#b91c1c'; return; }
+
+    const btn = document.getElementById('btn-inviter');
+    btn.disabled = true; btn.textContent = 'Envoi…';
+    msgEl.textContent = '';
+
+    try {
+      const res = await fetch('/api/entreprise', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${_session.access_token}` },
+        body: JSON.stringify({ action: 'invite', email }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? 'Erreur');
+      msgEl.textContent = `Invitation envoyée à ${email}.`;
+      msgEl.style.color = '#15803d';
+      document.getElementById('invite-email-input').value = '';
+      chargerEquipe();
+    } catch (e) {
+      msgEl.textContent = e.message;
+      msgEl.style.color = '#b91c1c';
+    } finally {
+      btn.disabled = false; btn.textContent = 'Envoyer';
+    }
+  }
+
+  async function retirerMembre(memberId) {
+    if (!_session || !confirm('Retirer ce membre de l\'équipe ?')) return;
+    await fetch('/api/entreprise', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${_session.access_token}` },
+      body: JSON.stringify({ action: 'remove', member_id: memberId }),
+    });
+    chargerEquipe();
   }
 
   async function publierNews() {

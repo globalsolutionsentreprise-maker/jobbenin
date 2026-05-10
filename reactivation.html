@@ -63,7 +63,7 @@ async function submitReactivation(){
   document.getElementById('pay-btn').textContent='Connexion au paiement...';
   document.getElementById('error-msg').style.display='none';
   try{
-    const res=await fetch('/api/payment/candidat-reactivate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token})});
+    const res=await fetch('/api/payment/candidat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'reactivate',token})});
     const data=await res.json();
     if(data.payment_url){window.location.href=data.payment_url;}
     else{if(data.error&&data.error.includes('invalide')){document.getElementById('valid-content').style.display='none';document.getElementById('invalid-content').style.display='block';}else{const el=document.getElementById('error-msg');el.textContent=data.error||'Erreur.';el.style.display='block';}}

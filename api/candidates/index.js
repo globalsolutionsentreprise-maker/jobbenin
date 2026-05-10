@@ -21,9 +21,21 @@ async function getCompany(req) {
   const { data: { user }, error } = await supabaseAdmin.auth.getUser(token);
   if (error || !user) return null;
   const { data } = await supabaseAdmin.from('users')
-    .select('id, role, credits, company_name, full_name, email, status')
+    .select('id, role, credits, company_name, full_name, email, status, company_owner_id')
     .eq('id', user.id).single();
-  return data?.role === 'entreprise' ? data : null;
+  if (data?.role !== 'entreprise') return null;
+
+  // Si c'est un membre d'équipe, charger les crédits depuis l'owner
+  if (data.company_owner_id) {
+    const { data: owner } = await supabaseAdmin.from('users')
+      .select('id, credits, company_name, full_name, email')
+      .eq('id', data.company_owner_id).single();
+    if (owner) {
+      // Retourner un objet hybride : identité du membre + crédits/nom de l'owner
+      return { ...data, _owner_id: owner.id, credits: owner.credits, company_name: owner.company_name ?? data.company_name };
+    }
+  }
+  return { ...data, _owner_id: data.id };
 }
 
 // ── GET : recherche filtrée ───────────────────────────────────────────────────
@@ -83,10 +95,11 @@ async function handleContact(req, res) {
 
   if (!candidate) return res.status(404).json({ error: 'Candidat introuvable.' });
 
+  // Déduire depuis l'owner (ou l'utilisateur lui-même s'il est owner)
   const { error: creditErr } = await supabaseAdmin
     .from('users')
     .update({ credits: company.credits - 1 })
-    .eq('id', company.id)
+    .eq('id', company._owner_id)
     .gt('credits', 0);
 
   if (creditErr) return res.status(500).json({ error: 'Erreur déduction crédit.' });

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Invitation équipe — Talenco.bj</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/design-system.css">
+  <style>
+    body { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 20px; background: var(--bg); }
+    .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 40px; width: 100%; max-width: 460px; box-shadow: var(--shadow-card); text-align: center; }
+    .logo { font-family: var(--font-serif); font-style: italic; font-size: 22px; color: var(--accent); margin-bottom: 24px; }
+    .badge { display: inline-block; background: #f0fdf4; color: #15803d; border: 1px solid #86efac; border-radius: 99px; padding: 4px 12px; font-size: 11px; font-weight: 700; margin-bottom: 16px; }
+    .title { font-family: var(--font-serif); font-style: italic; font-size: 22px; margin-bottom: 8px; color: var(--text); }
+    .subtitle { font-size: 14px; color: var(--text-muted); line-height: 1.6; margin-bottom: 28px; }
+    .company-name { font-weight: 700; color: var(--text); }
+    .actions { display: flex; flex-direction: column; gap: 10px; }
+    .btn-join { background: var(--accent); color: #fff; border: none; border-radius: var(--radius-sm); padding: 13px 20px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: var(--font-sans); text-decoration: none; display: block; }
+    .btn-join:hover { opacity: .9; }
+    .btn-login { background: transparent; color: var(--text); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px 20px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: var(--font-sans); text-decoration: none; display: block; }
+    .msg { font-size: 13px; margin-top: 14px; padding: 10px 14px; border-radius: var(--radius-sm); }
+    .msg.ok   { background: #f0fdf4; color: #15803d; }
+    .msg.err  { background: #fef2f2; color: #b91c1c; }
+  </style>
+</head>
+<body>
+  <div class="card" id="card">
+    <div class="logo">Talenco.bj</div>
+    <div id="content">
+      <div style="color:var(--text-muted);font-size:13px;">Chargement de l'invitation…</div>
+    </div>
+  </div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+  const SUPABASE_URL      = 'https://ywteoxnkkdgdpbkrlkar.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl3dGVveG5ra2RnZHBia3Jsa2FyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1MjA1MjYsImV4cCI6MjA5MDA5NjUyNn0.jzgNVgYR6iCEV_GIpvBTs4aN3RzK3E3MJW9YtBmLI3c';
+  const { createClient } = supabase;
+  const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  const token = new URLSearchParams(location.search).get('token');
+
+  async function init() {
+    if (!token) {
+      document.getElementById('content').innerHTML = '<div class="msg err">Lien invalide.</div>';
+      return;
+    }
+
+    // Charger les détails de l'invitation
+    const res = await fetch(`/api/entreprise?token=${encodeURIComponent(token)}`);
+    if (!res.ok) {
+      const { error } = await res.json().catch(() => ({}));
+      document.getElementById('content').innerHTML = `<div class="msg err">${error ?? 'Invitation invalide ou expirée.'}</div>`;
+      return;
+    }
+    const { email, company_name, inviteur } = await res.json();
+
+    // Vérifier si l'utilisateur est déjà connecté
+    const { data: { session } } = await sb.auth.getSession();
+
+    document.getElementById('content').innerHTML = `
+      <div class="badge">Invitation recruteur</div>
+      <div class="title">Rejoignez l'équipe</div>
+      <div class="subtitle">
+        <span class="company-name">${inviteur ?? company_name}</span> vous invite à rejoindre l'espace recruteur de
+        <span class="company-name">${company_name}</span> sur Talenco.bj.<br><br>
+        Vous partagerez les offres, les candidatures et les crédits du compte principal.
+      </div>
+      <div style="font-size:12px;color:var(--text-muted);margin-bottom:20px;">
+        Invitation pour : <strong>${email}</strong>
+      </div>
+      <div class="actions" id="actions">
+        ${session
+          ? `<button class="btn-join" onclick="accepterInvitation()">Rejoindre l'équipe de ${company_name}</button>`
+          : `<a href="/inscription-entreprise.html?invite_token=${encodeURIComponent(token)}&email=${encodeURIComponent(email)}" class="btn-join">Créer mon compte recruteur</a>
+             <a href="/connexion.html?next=${encodeURIComponent(location.pathname + location.search)}" class="btn-login">J'ai déjà un compte — Se connecter</a>`
+        }
+      </div>
+      <div id="accept-msg"></div>`;
+  }
+
+  async function accepterInvitation() {
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) { location.href = '/connexion.html?next=' + encodeURIComponent(location.pathname + location.search); return; }
+
+    const btn = document.querySelector('.btn-join');
+    if (btn) { btn.disabled = true; btn.textContent = 'Connexion en cours…'; }
+
+    const res = await fetch('/api/entreprise', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
+      body: JSON.stringify({ action: 'accept', token }),
+    });
+    const data = await res.json();
+    const msgEl = document.getElementById('accept-msg');
+
+    if (res.ok) {
+      msgEl.innerHTML = `<div class="msg ok">Vous avez rejoint l'équipe de <strong>${data.company_name}</strong>. Redirection…</div>`;
+      setTimeout(() => location.href = '/entreprises.html', 2000);
+    } else {
+      msgEl.innerHTML = `<div class="msg err">${data.error ?? 'Erreur.'}</div>`;
+      if (btn) { btn.disabled = false; btn.textContent = 'Rejoindre l\'équipe'; }
+    }
+  }
+
+  init();
+</script>
+</body>
+</html>
