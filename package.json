@@ -5,7 +5,11 @@
   "private": true,
   "scripts": {
     "dev": "vercel dev",
-    "deploy": "vercel --prod"
+    "deploy": "vercel --prod",
+    "build": "node build.js"
+  },
+  "devDependencies": {
+    "javascript-obfuscator": "^4.1.1"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.43.0",

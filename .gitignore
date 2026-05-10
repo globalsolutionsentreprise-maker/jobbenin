@@ -1,3 +1,5 @@
 .vercel
 .env*.local
 .gstack/
+node_modules/
+dist/
