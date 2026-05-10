@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" data-i18n-title="ent.title">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -128,16 +128,16 @@
   </a>
 
   <ul class="navbar-links">
-    <li><a href="/index.html">Accueil</a></li>
-    <li><a href="/offres.html">Offres</a></li>
-    <li><a href="/entreprises.html" class="active">Recruteurs</a></li>
-    <li><a href="/cvtheque.html">CVthèque</a></li>
-    <li><a href="/coach.html">✨ Coach IA</a></li>
+    <li><a href="/index.html" data-i18n="nav.home">Accueil</a></li>
+    <li><a href="/offres.html" data-i18n="nav.jobs">Offres</a></li>
+    <li><a href="/entreprises.html" class="active" data-i18n="nav.recruiters">Recruteurs</a></li>
+    <li><a href="/cvtheque.html" data-i18n="nav.cvtheque">CVthèque</a></li>
+    <li><a href="/coach.html" data-i18n="nav.coach">✨ Coach IA</a></li>
   </ul>
 
   <div class="navbar-actions" id="nav-actions">
-    <a href="/ajouter-offre.html" class="btn btn-primary btn-sm">+ Publier une offre</a>
-    <a href="/connexion.html" class="btn btn-dark btn-sm">Connexion</a>
+    <a href="/ajouter-offre.html" class="btn btn-primary btn-sm" data-i18n="ent.nav.publish">+ Publier une offre</a>
+    <a href="/connexion.html" class="btn btn-dark btn-sm" data-i18n="nav.login">Connexion</a>
   </div>
 
   <button class="navbar-toggle" id="nav-toggle" aria-label="Menu">
@@ -155,12 +155,12 @@
       </div>
     </div>
     <ul class="nav-drawer-links">
-      <li><a href="/index.html">Accueil</a></li>
-      <li><a href="/offres.html">Offres d'emploi</a></li>
-      <li><a href="/entreprises.html">Espace Recruteurs</a></li>
-      <li><a href="/cvtheque.html">CVthèque</a></li>
-      <li><a href="/coach.html">✨ Coach IA</a></li>
-      <li><a href="/ajouter-offre.html">+ Publier une offre</a></li>
+      <li><a href="/index.html" data-i18n="nav.home">Accueil</a></li>
+      <li><a href="/offres.html" data-i18n="nav.jobs.full">Offres d'emploi</a></li>
+      <li><a href="/entreprises.html" data-i18n="ent.drawer.space">Espace Recruteurs</a></li>
+      <li><a href="/cvtheque.html" data-i18n="nav.cvtheque">CVthèque</a></li>
+      <li><a href="/coach.html" data-i18n="nav.coach">✨ Coach IA</a></li>
+      <li><a href="/ajouter-offre.html" data-i18n="ent.nav.publish">+ Publier une offre</a></li>
     </ul>
   </div>
 </div>
@@ -168,11 +168,11 @@
 <!-- ── Mur auth ──────────────────────────────────────────────────────── -->
 <div id="auth-wall" class="auth-wall" style="display:none;">
   <div style="font-size:40px;margin-bottom:16px;">🏢</div>
-  <h2 style="font-family:var(--font-serif);font-style:italic;margin-bottom:12px;">Espace recruteurs</h2>
-  <p class="text-muted" style="margin-bottom:24px;max-width:400px;">Connectez-vous pour gérer vos candidatures, consulter les CVs et publier des offres d'emploi.</p>
+  <h2 style="font-family:var(--font-serif);font-style:italic;margin-bottom:12px;" data-i18n="ent.authwall.h2">Espace recruteurs</h2>
+  <p class="text-muted" style="margin-bottom:24px;max-width:400px;" data-i18n="ent.authwall.p">Connectez-vous pour gérer vos candidatures, consulter les CVs et publier des offres d'emploi.</p>
   <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;">
-    <a href="/connexion.html" class="btn btn-primary">Se connecter</a>
-    <a href="/inscription.html" class="btn btn-outline">Créer un compte recruteur</a>
+    <a href="/connexion.html" class="btn btn-primary" data-i18n="ent.authwall.login">Se connecter</a>
+    <a href="/inscription.html" class="btn btn-outline" data-i18n="ent.authwall.signup">Créer un compte recruteur</a>
   </div>
 </div>
 
@@ -181,37 +181,37 @@
   <div class="recruiter-header">
     <div class="recruiter-header-inner">
       <div>
-        <div class="recruiter-eyebrow">Espace recruteur</div>
-        <h1 class="recruiter-title" id="recruiter-title">Tableau de bord</h1>
+        <div class="recruiter-eyebrow" data-i18n="ent.eyebrow">Espace recruteur</div>
+        <h1 class="recruiter-title" id="recruiter-title" data-i18n="ent.h1">Tableau de bord</h1>
         <p class="recruiter-meta" id="recruiter-email"></p>
       </div>
       <div class="recruiter-stats">
         <div class="recruiter-stat">
           <span class="recruiter-stat-num" id="stat-offres-actives">—</span>
-          <span class="recruiter-stat-label">offres</span>
+          <span class="recruiter-stat-label" data-i18n="ent.stat.offres">offres</span>
         </div>
         <div class="recruiter-stat">
           <span class="recruiter-stat-num" id="stat-candidatures">—</span>
-          <span class="recruiter-stat-label">candidatures</span>
+          <span class="recruiter-stat-label" data-i18n="ent.stat.candidatures">candidatures</span>
         </div>
         <div class="recruiter-stat">
           <span class="recruiter-stat-num" id="stat-nouveaux">—</span>
-          <span class="recruiter-stat-label">nouveaux</span>
+          <span class="recruiter-stat-label" data-i18n="ent.stat.nouveaux">nouveaux</span>
         </div>
       </div>
       <div style="display:flex;gap:8px;align-items:flex-start;">
-        <a href="/ajouter-offre.html" class="btn btn-primary">+ Publier une offre</a>
-        <a href="/entreprise-profil.html" class="btn btn-outline btn-sm">Mon profil entreprise</a>
+        <a href="/ajouter-offre.html" class="btn btn-primary" data-i18n="ent.nav.publish">+ Publier une offre</a>
+        <a href="/entreprise-profil.html" class="btn btn-outline btn-sm" data-i18n="ent.btn.profil">Mon profil entreprise</a>
       </div>
     </div>
   </div>
 
   <div class="recruiter-content">
     <div class="tab-bar">
-      <button class="tab-btn active" data-tab="kanban">Candidatures</button>
-      <button class="tab-btn" data-tab="offres">Mes offres</button>
-      <button class="tab-btn" data-tab="cvtheque-tab">CVthèque</button>
-      <button class="tab-btn" data-tab="actualites">Actualités</button>
+      <button class="tab-btn active" data-tab="kanban" data-i18n="ent.tab.kanban">Candidatures</button>
+      <button class="tab-btn" data-tab="offres" data-i18n="ent.tab.offres">Mes offres</button>
+      <button class="tab-btn" data-tab="cvtheque-tab" data-i18n="ent.tab.cvtheque">CVthèque</button>
+      <button class="tab-btn" data-tab="actualites" data-i18n="ent.tab.news">Actualités</button>
     </div>
 
     <div class="tab-panel active" id="tab-kanban">
@@ -222,37 +222,37 @@
 
     <div class="tab-panel" id="tab-offres">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
-        <h3 style="margin:0;font-family:var(--font-serif);font-style:italic;">Mes offres publiées</h3>
-        <a href="/ajouter-offre.html" class="btn btn-primary btn-sm">+ Nouvelle offre</a>
+        <h3 style="margin:0;font-family:var(--font-serif);font-style:italic;" data-i18n="ent.offres.h3">Mes offres publiées</h3>
+        <a href="/ajouter-offre.html" class="btn btn-primary btn-sm" data-i18n="ent.offres.btn">+ Nouvelle offre</a>
       </div>
       <div id="mes-offres-list">Chargement…</div>
     </div>
 
     <div class="tab-panel" id="tab-cvtheque-tab">
       <div style="text-align:center;padding:40px 0;">
-        <p class="text-muted">Accédez à la CVthèque complète avec votre abonnement.</p>
-        <a href="/cvtheque.html" class="btn btn-primary" style="margin-top:12px;">Voir la CVthèque</a>
+        <p class="text-muted" data-i18n="ent.cvth.desc">Accédez à la CVthèque complète avec votre abonnement.</p>
+        <a href="/cvtheque.html" class="btn btn-primary" style="margin-top:12px;" data-i18n="ent.cvth.btn">Voir la CVthèque</a>
       </div>
     </div>
 
     <div class="tab-panel" id="tab-actualites">
       <div id="news-plan-lock" style="display:none;text-align:center;padding:32px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);margin-bottom:24px;">
         <div style="font-size:32px;margin-bottom:12px;">🔒</div>
-        <p style="font-family:var(--font-serif);font-style:italic;font-size:16px;margin-bottom:8px;">Fonctionnalité réservée aux plans payants</p>
-        <p class="text-muted" style="margin-bottom:16px;">Passez en Standard ou Premium pour publier des actualités.</p>
-        <a href="/cvtheque.html" class="btn btn-primary">Voir les plans</a>
+        <p style="font-family:var(--font-serif);font-style:italic;font-size:16px;margin-bottom:8px;" data-i18n="ent.news.lock.title">Fonctionnalité réservée aux plans payants</p>
+        <p class="text-muted" style="margin-bottom:16px;" data-i18n="ent.news.lock.p">Passez en Standard ou Premium pour publier des actualités.</p>
+        <a href="/cvtheque.html" class="btn btn-primary" data-i18n="ent.news.lock.btn">Voir les plans</a>
       </div>
       <div id="news-form-wrapper" style="display:none;margin-bottom:32px;">
-        <h3 style="font-family:var(--font-serif);font-style:italic;margin-bottom:16px;">Publier une actualité</h3>
+        <h3 style="font-family:var(--font-serif);font-style:italic;margin-bottom:16px;" data-i18n="ent.news.form.h3">Publier une actualité</h3>
         <div style="display:flex;flex-direction:column;gap:12px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:20px;">
-          <input id="news-title" type="text" placeholder="Titre de l'actualité" style="padding:10px 14px;border:1px solid var(--border);border-radius:var(--radius-sm);font-family:var(--font-body);font-size:14px;background:var(--bg);">
-          <textarea id="news-content" rows="4" placeholder="Contenu de l'actualité…" style="padding:10px 14px;border:1px solid var(--border);border-radius:var(--radius-sm);font-family:var(--font-body);font-size:14px;background:var(--bg);resize:vertical;"></textarea>
-          <input id="news-image" type="url" placeholder="URL image (optionnel)" style="padding:10px 14px;border:1px solid var(--border);border-radius:var(--radius-sm);font-family:var(--font-body);font-size:14px;background:var(--bg);">
-          <button onclick="publierNews()" class="btn btn-primary" style="align-self:flex-start;">Publier</button>
+          <input id="news-title" type="text" placeholder="Titre de l'actualité" data-i18n-ph="ent.news.title.ph" style="padding:10px 14px;border:1px solid var(--border);border-radius:var(--radius-sm);font-family:var(--font-body);font-size:14px;background:var(--bg);">
+          <textarea id="news-content" rows="4" placeholder="Contenu de l'actualité…" data-i18n-ph="ent.news.content.ph" style="padding:10px 14px;border:1px solid var(--border);border-radius:var(--radius-sm);font-family:var(--font-body);font-size:14px;background:var(--bg);resize:vertical;"></textarea>
+          <input id="news-image" type="url" placeholder="URL image (optionnel)" data-i18n-ph="ent.news.image.ph" style="padding:10px 14px;border:1px solid var(--border);border-radius:var(--radius-sm);font-family:var(--font-body);font-size:14px;background:var(--bg);">
+          <button onclick="publierNews()" class="btn btn-primary" style="align-self:flex-start;" data-i18n="ent.news.btn">Publier</button>
           <p id="news-feedback" style="font-size:13px;color:var(--accent);display:none;"></p>
         </div>
       </div>
-      <h3 style="font-family:var(--font-serif);font-style:italic;margin-bottom:16px;">Mes actualités publiées</h3>
+      <h3 style="font-family:var(--font-serif);font-style:italic;margin-bottom:16px;" data-i18n="ent.news.list.h3">Mes actualités publiées</h3>
       <div id="mes-news-list"><p class="text-muted">Chargement…</p></div>
     </div>
 
@@ -266,16 +266,16 @@
         <div class="nav-logo-text">
           <span class="logo-primary">Talenco</span><span class="logo-dot">.</span><span class="logo-tld">bj</span>
         </div>
-        <div class="logo-tagline">Recrutement au Bénin</div>
+        <div class="logo-tagline" data-i18n="nav.tagline">Recrutement au Bénin</div>
       </div>
     </a>
     <ul class="footer-links">
-      <li><a href="/offres.html">Offres d'emploi</a></li>
-      <li><a href="/ajouter-offre.html">Publier une offre</a></li>
-      <li><a href="/cvtheque.html">CVthèque</a></li>
-      <li><a href="mailto:contact@talenco.bj">Contact</a></li>
+      <li><a href="/offres.html" data-i18n="ent.footer.jobs">Offres d'emploi</a></li>
+      <li><a href="/ajouter-offre.html" data-i18n="ent.footer.publish">Publier une offre</a></li>
+      <li><a href="/cvtheque.html" data-i18n="ent.footer.cvtheque">CVthèque</a></li>
+      <li><a href="mailto:contact@talenco.bj" data-i18n="ent.footer.contact">Contact</a></li>
     </ul>
-    <div class="footer-bottom">© 2025 Talenco.bj</div>
+    <div class="footer-bottom" data-i18n="ent.footer.copy">© 2025 Talenco.bj</div>
   </div>
 </footer>
 

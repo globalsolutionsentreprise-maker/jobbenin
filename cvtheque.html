@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" data-i18n-title="cvth.title">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -63,58 +63,37 @@
   <a href="/index.html" class="talenco-logo">
     <div class="nav-logo">
       <div class="nav-logo-text"><span class="logo-primary">Talenco</span><span class="logo-dot">.</span><span class="logo-tld">bj</span></div>
-      <div class="logo-tagline">Recrutement au Bénin</div>
+      <div class="logo-tagline" data-i18n="nav.tagline">Recrutement au Bénin</div>
     </div>
   </a>
   <ul class="navbar-links">
-    <li><a href="/index.html">Accueil</a></li>
-    <li><a href="/offres.html">Offres</a></li>
-    <li><a href="/entreprises.html">Recruteurs</a></li>
-    <li><a href="/cvtheque.html" class="active">CVthèque</a></li>
-    <li><a href="/coach.html">✨ Coach IA</a></li>
+    <li><a href="/index.html" data-i18n="nav.home">Accueil</a></li>
+    <li><a href="/offres.html" data-i18n="nav.jobs">Offres</a></li>
+    <li><a href="/entreprises.html" data-i18n="nav.recruiters">Recruteurs</a></li>
+    <li><a href="/cvtheque.html" class="active" data-i18n="nav.cvtheque">CVthèque</a></li>
+    <li><a href="/coach.html" data-i18n="nav.coach">✨ Coach IA</a></li>
   </ul>
   <div class="navbar-actions" id="nav-actions">
-    <a href="/connexion.html" class="btn btn-outline btn-sm">Connexion</a>
+    <a href="/connexion.html" class="btn btn-outline btn-sm" data-i18n="nav.login">Connexion</a>
   </div>
-  <button class="navbar-toggle" id="nav-toggle" aria-label="Menu">
-    <span></span><span></span><span></span>
-  </button>
 </nav>
-
-<div class="nav-drawer" id="nav-drawer">
-  <div class="nav-drawer-overlay" id="nav-overlay"></div>
-  <div class="nav-drawer-panel">
-    <button class="nav-drawer-close" id="nav-close">✕</button>
-    <div class="nav-logo">
-      <div class="nav-logo-text"><span class="logo-primary">Talenco</span><span class="logo-dot">.</span><span class="logo-tld">bj</span></div>
-    </div>
-    <ul class="nav-drawer-links">
-      <li><a href="/index.html">Accueil</a></li>
-      <li><a href="/offres.html">Offres d'emploi</a></li>
-      <li><a href="/entreprises.html">Recruteurs</a></li>
-      <li><a href="/cvtheque.html">CVthèque</a></li>
-      <li><a href="/coach.html">✨ Coach IA</a></li>
-      <li><a href="/connexion.html">Connexion</a></li>
-    </ul>
-  </div>
-</div>
 
 <!-- Header -->
 <div style="background:var(--bg-card);border-bottom:1px solid var(--border);padding:20px 24px;">
   <div style="max-width:1200px;margin:0 auto;">
-    <h1 style="font-family:'Instrument Serif',serif;font-style:italic;font-size:28px;margin:0 0 4px;">CVthèque Talenco.bj</h1>
-    <p style="font-size:13px;color:var(--text-muted);margin:0;">Sourcez les meilleurs profils béninois — certifiés et disponibles</p>
+    <h1 style="font-family:'Instrument Serif',serif;font-style:italic;font-size:28px;margin:0 0 4px;" data-i18n="cvth.h1">CVthèque Talenco.bj</h1>
+    <p style="font-size:13px;color:var(--text-muted);margin:0;" data-i18n="cvth.sub">Sourcez les meilleurs profils béninois — certifiés et disponibles</p>
   </div>
 </div>
 
 <!-- Lock banner pour non-connectés -->
 <div id="lock-banner" style="display:none;max-width:1200px;margin:20px auto;padding:0 24px;">
   <div class="lock-banner">
-    <h3>Accès réservé aux recruteurs</h3>
-    <p>Créez un compte recruteur gratuit pour accéder aux profils complets et contacter les candidats.</p>
+    <h3 data-i18n="cvth.lock.h3">Accès réservé aux recruteurs</h3>
+    <p data-i18n="cvth.lock.p">Créez un compte recruteur gratuit pour accéder aux profils complets et contacter les candidats.</p>
     <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
-      <a href="/inscription.html?type=company" class="btn btn-primary">Créer un compte recruteur</a>
-      <a href="/connexion.html" class="btn btn-outline" style="color:#fff;border-color:rgba(255,255,255,.3);">Se connecter</a>
+      <a href="/inscription.html?type=company" class="btn btn-primary" data-i18n="cvth.lock.signup">Créer un compte recruteur</a>
+      <a href="/connexion.html" class="btn btn-outline" style="color:#fff;border-color:rgba(255,255,255,.3);" data-i18n="cvth.lock.login">Se connecter</a>
     </div>
   </div>
 </div>
@@ -123,18 +102,18 @@
   <!-- Filtres -->
   <aside class="filters-panel">
     <div class="filter-card">
-      <div class="filter-title">Filtres</div>
+      <div class="filter-title" data-i18n="cvth.filter.title">Filtres</div>
 
       <div class="filter-group">
-        <div class="filter-title">Recherche</div>
+        <div class="filter-title" data-i18n="cvth.filter.search">Recherche</div>
         <div style="position:relative;display:flex;align-items:center;">
           <span data-icon="search" data-size="14" data-color="var(--text-muted)" style="position:absolute;left:10px;pointer-events:none;"></span>
-          <input class="filter-search" id="f-search" placeholder="Poste, compétence…" oninput="filtrer()" style="padding-left:34px;">
+          <input class="filter-search" id="f-search" placeholder="Poste, compétence…" oninput="filtrer()" style="padding-left:34px;" data-i18n-ph="cvth.filter.search.ph">
         </div>
       </div>
 
       <div class="filter-group">
-        <div class="filter-title">Secteur</div>
+        <div class="filter-title" data-i18n="cvth.filter.secteur">Secteur</div>
         <select class="filter-select" id="f-secteur" onchange="filtrer()">
           <option value="">Tous</option>
           <option>Tech</option><option>Finance</option><option>Santé</option>
@@ -145,7 +124,7 @@
       </div>
 
       <div class="filter-group">
-        <div class="filter-title">Niveau</div>
+        <div class="filter-title" data-i18n="cvth.filter.niveau">Niveau</div>
         <select class="filter-select" id="f-niveau" onchange="filtrer()">
           <option value="">Tous</option>
           <option value="junior">Junior (0-2 ans)</option>
@@ -155,7 +134,7 @@
       </div>
 
       <div class="filter-group">
-        <div class="filter-title">Disponibilité</div>
+        <div class="filter-title" data-i18n="cvth.filter.dispo">Disponibilité</div>
         <select class="filter-select" id="f-dispo" onchange="filtrer()">
           <option value="">Toutes</option>
           <option value="immediate">Disponible immédiatement</option>
@@ -165,7 +144,7 @@
       </div>
 
       <div class="filter-group">
-        <div class="filter-title">Ville</div>
+        <div class="filter-title" data-i18n="cvth.filter.ville">Ville</div>
         <select class="filter-select" id="f-ville" onchange="filtrer()">
           <option value="">Toutes</option>
           <option>Cotonou</option><option>Abomey-Calavi</option>
@@ -175,29 +154,29 @@
       </div>
 
       <div class="filter-group">
-        <div class="filter-title">Certification</div>
+        <div class="filter-title" data-i18n="cvth.filter.certif">Certification</div>
         <select class="filter-select" id="f-certif" onchange="filtrer()">
           <option value="">Tous les profils</option>
           <option value="certified">✓ Certifiés Talenco uniquement</option>
         </select>
       </div>
 
-      <button class="filter-btn btn-reset" onclick="resetFiltres()">Réinitialiser</button>
+      <button class="filter-btn btn-reset" onclick="resetFiltres()" data-i18n="cvth.filter.reset">Réinitialiser</button>
     </div>
 
     <!-- Stats rapides -->
     <div class="filter-card" style="margin-top:12px;">
       <div style="display:flex;flex-direction:column;gap:8px;">
         <div style="display:flex;justify-content:space-between;font-size:12px;">
-          <span style="color:var(--text-muted);">Profils actifs</span>
+          <span style="color:var(--text-muted);" data-i18n="cvth.stat.total">Profils actifs</span>
           <span id="stat-total" style="font-weight:700;">—</span>
         </div>
         <div style="display:flex;justify-content:space-between;font-size:12px;">
-          <span style="color:var(--text-muted);">✓ Certifiés</span>
+          <span style="color:var(--text-muted);" data-i18n="cvth.stat.certif">✓ Certifiés</span>
           <span id="stat-certif" style="font-weight:700;color:#15803d;">—</span>
         </div>
         <div style="display:flex;justify-content:space-between;font-size:12px;">
-          <span style="color:var(--text-muted);">Dispos immédiatement</span>
+          <span style="color:var(--text-muted);" data-i18n="cvth.stat.dispo">Dispos immédiatement</span>
           <span id="stat-dispo" style="font-weight:700;color:#854d0e;">—</span>
         </div>
       </div>
@@ -209,9 +188,9 @@
     <div class="results-header">
       <span class="results-count" id="results-count">Chargement…</span>
       <select class="sort-select" id="sort" onchange="filtrer()">
-        <option value="certif">Certifiés en premier</option>
-        <option value="recent">Plus récents</option>
-        <option value="dispo">Disponibles immédiatement</option>
+        <option value="certif" data-i18n="cvth.sort.certif">Certifiés en premier</option>
+        <option value="recent" data-i18n="cvth.sort.recent">Plus récents</option>
+        <option value="dispo" data-i18n="cvth.sort.dispo">Disponibles immédiatement</option>
       </select>
     </div>
     <div id="cv-grid" class="cv-grid"></div>
@@ -219,32 +198,32 @@
     <!-- Bannière premium pour utilisateurs connectés sans abonnement -->
     <div id="premium-banner" style="display:none;margin-top:20px;background:#0d1f3a;border-radius:var(--radius-md);padding:32px 24px;text-align:center;color:#fff;">
       <div style="font-size:28px;margin-bottom:8px;">🏢</div>
-      <h3 style="font-family:'Instrument Serif',serif;font-style:italic;font-size:22px;margin:0 0 8px;">Accédez à la CVthèque</h3>
-      <p style="font-size:13px;color:rgba(255,255,255,.6);margin:0 0 24px;max-width:400px;margin-left:auto;margin-right:auto;">Sourcez et contactez directement les meilleurs profils béninois.</p>
+      <h3 style="font-family:'Instrument Serif',serif;font-style:italic;font-size:22px;margin:0 0 8px;" data-i18n="cvth.premium.h3">Accédez à la CVthèque</h3>
+      <p style="font-size:13px;color:rgba(255,255,255,.6);margin:0 0 24px;max-width:400px;margin-left:auto;margin-right:auto;" data-i18n="cvth.premium.p">Sourcez et contactez directement les meilleurs profils béninois.</p>
 
       <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-bottom:28px;">
 
         <!-- Plan Starter -->
         <div style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:20px 24px;min-width:160px;text-align:center;">
-          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.4);margin-bottom:10px;">Starter</div>
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.4);margin-bottom:10px;" data-i18n="cvth.premium.starter.name">Starter</div>
           <div style="font-size:28px;font-weight:900;color:#fff;">5 000</div>
-          <div style="font-size:10px;color:rgba(255,255,255,.4);margin-bottom:12px;">FCFA / mois</div>
-          <div style="font-size:11px;color:rgba(255,255,255,.6);line-height:1.7;">5 offres actives<br>10 contacts CVthèque/mois</div>
-          <button onclick="ouvrirPaiement('starter')" style="margin-top:16px;width:100%;background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.25);border-radius:8px;padding:9px 0;font-size:12px;font-weight:600;cursor:pointer;">Choisir Starter</button>
+          <div style="font-size:10px;color:rgba(255,255,255,.4);margin-bottom:12px;" data-i18n="cvth.premium.starter.period">FCFA / mois</div>
+          <div style="font-size:11px;color:rgba(255,255,255,.6);line-height:1.7;" data-i18n-html="cvth.premium.starter.features">5 offres actives<br>10 contacts CVthèque/mois</div>
+          <button onclick="ouvrirPaiement('starter')" style="margin-top:16px;width:100%;background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.25);border-radius:8px;padding:9px 0;font-size:12px;font-weight:600;cursor:pointer;" data-i18n="cvth.premium.starter.btn">Choisir Starter</button>
         </div>
 
         <!-- Plan Pro -->
         <div style="background:linear-gradient(135deg,rgba(201,168,76,.15),rgba(240,208,128,.08));border:1px solid rgba(201,168,76,.4);border-radius:12px;padding:20px 24px;min-width:160px;text-align:center;position:relative;">
-          <div style="position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#c9a84c,#f0d080);color:#7a5c00;font-size:9px;font-weight:800;padding:3px 12px;border-radius:20px;text-transform:uppercase;letter-spacing:.08em;white-space:nowrap;">Recommandé</div>
-          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#f0d080;margin-bottom:10px;">Pro ⭐</div>
+          <div style="position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#c9a84c,#f0d080);color:#7a5c00;font-size:9px;font-weight:800;padding:3px 12px;border-radius:20px;text-transform:uppercase;letter-spacing:.08em;white-space:nowrap;" data-i18n="cvth.premium.pro.badge">Recommandé</div>
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#f0d080;margin-bottom:10px;" data-i18n="cvth.premium.pro.name">Pro ⭐</div>
           <div style="font-size:28px;font-weight:900;color:#f0d080;">15 000</div>
-          <div style="font-size:10px;color:rgba(255,255,255,.4);margin-bottom:12px;">FCFA / mois</div>
-          <div style="font-size:11px;color:rgba(255,255,255,.6);line-height:1.7;">Offres illimitées<br>Contacts illimités<br>Badge recruteur vérifié ✓</div>
-          <button onclick="ouvrirPaiement('pro')" style="margin-top:16px;width:100%;background:linear-gradient(135deg,#c9a84c,#f0d080);color:#7a5c00;border:none;border-radius:8px;padding:9px 0;font-size:12px;font-weight:700;cursor:pointer;">Choisir Pro</button>
+          <div style="font-size:10px;color:rgba(255,255,255,.4);margin-bottom:12px;" data-i18n="cvth.premium.pro.period">FCFA / mois</div>
+          <div style="font-size:11px;color:rgba(255,255,255,.6);line-height:1.7;" data-i18n-html="cvth.premium.pro.features">Offres illimitées<br>Contacts illimités<br>Badge recruteur vérifié ✓</div>
+          <button onclick="ouvrirPaiement('pro')" style="margin-top:16px;width:100%;background:linear-gradient(135deg,#c9a84c,#f0d080);color:#7a5c00;border:none;border-radius:8px;padding:9px 0;font-size:12px;font-weight:700;cursor:pointer;" data-i18n="cvth.premium.pro.btn">Choisir Pro</button>
         </div>
 
       </div>
-      <p style="font-size:11px;color:rgba(255,255,255,.3);margin:0;">Paiement sécurisé via FedaPay · MoMo & carte · Sans engagement</p>
+      <p style="font-size:11px;color:rgba(255,255,255,.3);margin:0;" data-i18n="cvth.premium.secure">Paiement sécurisé via FedaPay · MoMo & carte · Sans engagement</p>
     </div>
 
   </main>
@@ -254,25 +233,25 @@
 <div class="modal-overlay" id="modal-contact">
   <div class="modal">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
-      <h3 style="margin:0;">Contacter ce candidat</h3>
+      <h3 style="margin:0;" data-i18n="cvth.modal.h3">Contacter ce candidat</h3>
       <button onclick="fermerModal()" style="border:none;background:none;font-size:20px;cursor:pointer;color:var(--text-muted);">×</button>
     </div>
-    <p style="font-size:12px;color:var(--text-muted);margin-bottom:16px;">Votre message sera transmis au candidat. Il vous répondra directement.</p>
+    <p style="font-size:12px;color:var(--text-muted);margin-bottom:16px;" data-i18n="cvth.modal.p">Votre message sera transmis au candidat. Il vous répondra directement.</p>
     <div class="modal-field">
-      <label>Votre entreprise</label>
-      <input type="text" id="contact-company" placeholder="Nom de votre entreprise">
+      <label data-i18n="cvth.modal.company.label">Votre entreprise</label>
+      <input type="text" id="contact-company" placeholder="Nom de votre entreprise" data-i18n-ph="cvth.modal.company.ph">
     </div>
     <div class="modal-field">
-      <label>Votre email</label>
+      <label data-i18n="cvth.modal.email.label">Votre email</label>
       <input type="email" id="contact-email" placeholder="votre@email.com">
     </div>
     <div class="modal-field">
-      <label>Message</label>
-      <textarea id="contact-msg" rows="3" placeholder="Bonjour, nous avons un poste qui correspond à votre profil…"></textarea>
+      <label data-i18n="cvth.modal.msg.label">Message</label>
+      <textarea id="contact-msg" rows="3" placeholder="Bonjour, nous avons un poste qui correspond à votre profil…" data-i18n-ph="cvth.modal.msg.ph"></textarea>
     </div>
     <div style="display:flex;gap:10px;margin-top:16px;">
-      <button onclick="fermerModal()" class="btn btn-outline btn-sm">Annuler</button>
-      <button onclick="envoyerContact()" class="btn btn-primary btn-sm">Envoyer le message</button>
+      <button onclick="fermerModal()" class="btn btn-outline btn-sm" data-i18n="cvth.modal.cancel">Annuler</button>
+      <button onclick="envoyerContact()" class="btn btn-primary btn-sm" data-i18n="cvth.modal.send">Envoyer le message</button>
     </div>
     <div id="contact-result" style="margin-top:10px;font-size:13px;display:none;"></div>
   </div>
@@ -282,11 +261,11 @@
   <div style="max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;">
     <div class="nav-logo-text" style="font-size:16px;"><span class="logo-primary">Talenco</span><span class="logo-dot">.</span><span class="logo-tld">bj</span></div>
     <div style="display:flex;gap:24px;font-size:12px;color:rgba(255,255,255,.5);">
-      <a href="/offres.html" style="color:inherit;text-decoration:none;">Offres</a>
-      <a href="/inscription.html" style="color:inherit;text-decoration:none;">Créer un compte</a>
-      <a href="mailto:contact@talenco.bj" style="color:inherit;text-decoration:none;">Contact</a>
+      <a href="/offres.html" style="color:inherit;text-decoration:none;" data-i18n="cvth.footer.jobs">Offres</a>
+      <a href="/inscription.html" style="color:inherit;text-decoration:none;" data-i18n="cvth.footer.signup">Créer un compte</a>
+      <a href="mailto:contact@talenco.bj" style="color:inherit;text-decoration:none;" data-i18n="cvth.footer.contact">Contact</a>
     </div>
-    <span style="font-size:11px;color:rgba(255,255,255,.3);">© 2025 Talenco.bj</span>
+    <span style="font-size:11px;color:rgba(255,255,255,.3);" data-i18n="cvth.footer.copy">© 2025 Talenco.bj</span>
   </div>
 </footer>
 
