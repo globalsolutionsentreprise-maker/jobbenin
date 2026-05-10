@@ -236,22 +236,14 @@
       <h3 style="margin:0;" data-i18n="cvth.modal.h3">Contacter ce candidat</h3>
       <button onclick="fermerModal()" style="border:none;background:none;font-size:20px;cursor:pointer;color:var(--text-muted);">×</button>
     </div>
-    <p style="font-size:12px;color:var(--text-muted);margin-bottom:16px;" data-i18n="cvth.modal.p">Votre message sera transmis au candidat. Il vous répondra directement.</p>
+    <p style="font-size:12px;color:var(--text-muted);margin-bottom:16px;">Votre message sera transmis au candidat par email. Coût : <strong>1 crédit</strong>.</p>
     <div class="modal-field">
-      <label data-i18n="cvth.modal.company.label">Votre entreprise</label>
-      <input type="text" id="contact-company" placeholder="Nom de votre entreprise" data-i18n-ph="cvth.modal.company.ph">
-    </div>
-    <div class="modal-field">
-      <label data-i18n="cvth.modal.email.label">Votre email</label>
-      <input type="email" id="contact-email" placeholder="votre@email.com">
-    </div>
-    <div class="modal-field">
-      <label data-i18n="cvth.modal.msg.label">Message</label>
-      <textarea id="contact-msg" rows="3" placeholder="Bonjour, nous avons un poste qui correspond à votre profil…" data-i18n-ph="cvth.modal.msg.ph"></textarea>
+      <label>Message</label>
+      <textarea id="contact-msg" rows="4" placeholder="Bonjour, nous avons un poste qui correspond à votre profil…"></textarea>
     </div>
     <div style="display:flex;gap:10px;margin-top:16px;">
-      <button onclick="fermerModal()" class="btn btn-outline btn-sm" data-i18n="cvth.modal.cancel">Annuler</button>
-      <button onclick="envoyerContact()" class="btn btn-primary btn-sm" data-i18n="cvth.modal.send">Envoyer le message</button>
+      <button onclick="fermerModal()" class="btn btn-outline btn-sm">Annuler</button>
+      <button id="btn-envoyer-contact" onclick="envoyerContact()" class="btn btn-primary btn-sm">Envoyer (1 crédit)</button>
     </div>
     <div id="contact-result" style="margin-top:10px;font-size:13px;display:none;"></div>
   </div>
@@ -283,6 +275,10 @@ let allProfiles = [];
 let isConnected = false;
 let contactCandidateId = null;
 let userEmail = '';
+let sessionToken = '';
+let companyCredits = 0;
+let currentPage = 0;
+let totalPages = 1;
 
 const dispoLabel = { immediate: '● Disponible immédiatement', '1mois': '◐ Disponible sous 1 mois', '3mois': '◑ Disponible sous 3 mois', non_disponible: '○ Non disponible' };
 const dispoClass = { immediate: 'dispo-immediate', '1mois': 'dispo-1mois', '3mois': 'dispo-3mois', non_disponible: 'dispo-non' };
@@ -293,6 +289,7 @@ sb.auth.getSession().then(async ({ data: { session } }) => {
   if (session) {
     isConnected = true;
     userEmail = session.user.email || '';
+    sessionToken = session.access_token;
     document.getElementById('nav-actions').innerHTML = `
       <a href="/entreprises.html" class="btn btn-outline btn-sm">Mon espace</a>
       <button class="btn btn-dark btn-sm" onclick="sb.auth.signOut().then(()=>location.reload())">Déconnexion</button>
@@ -304,61 +301,117 @@ sb.auth.getSession().then(async ({ data: { session } }) => {
   if (session) verifierPremium(session);
 });
 
-// ── Chargement profils ──────────────────────────────────
-async function chargerProfils() {
+// ── Chargement profils (API server-side si connecté, sinon Supabase direct) ──
+async function chargerProfils(page) {
+  page = page ?? currentPage;
+  const grid = document.getElementById('cv-grid');
+  grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1;"><p>Chargement…</p></div>';
+
+  if (isConnected && sessionToken) {
+    const q       = document.getElementById('f-search').value.trim();
+    const secteur = document.getElementById('f-secteur').value;
+    const niveau  = document.getElementById('f-niveau').value;
+    const dispo   = document.getElementById('f-dispo').value;
+    const ville   = document.getElementById('f-ville').value;
+    const certif  = document.getElementById('f-certif').value === 'certified' ? '1' : '';
+    const params  = new URLSearchParams({ page });
+    if (q)      params.set('q',       q);
+    if (secteur) params.set('secteur', secteur);
+    if (niveau)  params.set('niveau',  niveau);
+    if (dispo)   params.set('dispo',   dispo);
+    if (ville)   params.set('ville',   ville);
+    if (certif)  params.set('certif',  certif);
+
+    const res = await fetch(`/api/candidates/search?${params}`, {
+      headers: { 'Authorization': `Bearer ${sessionToken}` },
+    });
+
+    if (!res.ok) {
+      const { error } = await res.json().catch(() => ({}));
+      grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;"><p>Erreur : ${error || res.status}</p></div>`;
+      return;
+    }
+
+    const json = await res.json();
+    allProfiles  = json.candidates ?? [];
+    currentPage  = json.page;
+    totalPages   = json.pages;
+    companyCredits = json.credits ?? companyCredits;
+
+    document.getElementById('stat-total').textContent = json.total ?? allProfiles.length;
+    document.getElementById('stat-certif').textContent = allProfiles.filter(p => p.is_certified).length;
+    document.getElementById('stat-dispo').textContent  = allProfiles.filter(p => p.availability === 'immediate').length;
+    document.getElementById('results-count').textContent =
+      `${json.total} profil${json.total > 1 ? 's' : ''} • ${companyCredits} crédit${companyCredits > 1 ? 's' : ''}`;
+
+    afficherProfils(allProfiles);
+    afficherPagination(json.total, json.pages);
+    return;
+  }
+
+  // Non connecté : chargement public limité via Supabase direct
   const { data, error } = await sb.from('users')
     .select('id, full_name, job_title, level, availability, city, skills, bio, is_certified, certified_at, created_at, sector, linkedin_url')
     .eq('role', 'candidate')
     .not('job_title', 'is', null)
     .order('is_certified', { ascending: false })
-    .order('created_at', { ascending: false })
-    .limit(100);
+    .order('created_at',   { ascending: false })
+    .limit(50);
 
-  if (error && error.message.includes('sector')) {
-    // Fallback sans sector si la colonne n'existe pas encore
-    const { data: d2, error: e2 } = await sb.from('users')
-      .select('id, full_name, job_title, level, availability, city, skills, bio, is_certified, certified_at, created_at')
-      .eq('role', 'candidate')
-      .not('job_title', 'is', null)
-      .order('created_at', { ascending: false })
-      .limit(100);
-    if (e2) { document.getElementById('cv-grid').innerHTML = '<div class="empty-state"><p>Erreur : ' + e2.message + '</p></div>'; return; }
-    allProfiles = d2 || [];
-  } else if (error) {
-    document.getElementById('cv-grid').innerHTML = '<div class="empty-state"><p>Erreur : ' + error.message + '</p></div>'; return;
-  } else {
-    allProfiles = data || [];
-  }
-
-  // Stats
-  document.getElementById('stat-total').textContent = allProfiles.length;
+  if (error) { grid.innerHTML = '<div class="empty-state"><p>Erreur : ' + error.message + '</p></div>'; return; }
+  allProfiles = data || [];
+  document.getElementById('stat-total').textContent  = allProfiles.length + '+';
   document.getElementById('stat-certif').textContent = allProfiles.filter(p => p.is_certified).length;
-  document.getElementById('stat-dispo').textContent = allProfiles.filter(p => p.availability === 'immediate').length;
-
+  document.getElementById('stat-dispo').textContent  = allProfiles.filter(p => p.availability === 'immediate').length;
   filtrer();
 }
 
+function afficherPagination(total, pages) {
+  let el = document.getElementById('pagination');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'pagination';
+    el.style.cssText = 'display:flex;gap:8px;justify-content:center;margin-top:24px;flex-wrap:wrap;';
+    document.getElementById('cv-grid').after(el);
+  }
+  if (pages <= 1) { el.innerHTML = ''; return; }
+  let html = '';
+  for (let i = 0; i < pages; i++) {
+    const active = i === currentPage ? 'background:var(--accent);color:#fff;border-color:var(--accent);' : '';
+    html += `<button onclick="chargerProfils(${i})" style="padding:5px 12px;border:1px solid var(--border);border-radius:6px;font-size:12px;cursor:pointer;${active}">${i + 1}</button>`;
+  }
+  el.innerHTML = html;
+}
+
 // ── Filtres ─────────────────────────────────────────────
+let _filterTimer;
 function filtrer() {
+  currentPage = 0;
+  if (isConnected && sessionToken) {
+    // Server-side : debounce pour éviter trop d'appels sur la frappe
+    clearTimeout(_filterTimer);
+    _filterTimer = setTimeout(() => chargerProfils(0), 350);
+    return;
+  }
+  // Client-side (non connecté)
   const q = document.getElementById('f-search').value.toLowerCase();
   const secteur = document.getElementById('f-secteur').value;
-  const niveau = document.getElementById('f-niveau').value;
-  const dispo = document.getElementById('f-dispo').value;
-  const ville = document.getElementById('f-ville').value;
-  const certif = document.getElementById('f-certif').value;
-  const sort = document.getElementById('sort').value;
+  const niveau  = document.getElementById('f-niveau').value;
+  const dispo   = document.getElementById('f-dispo').value;
+  const ville   = document.getElementById('f-ville').value;
+  const certif  = document.getElementById('f-certif').value;
+  const sort    = document.getElementById('sort').value;
 
   let filtered = allProfiles.filter(p => {
-    if (q && !( (p.job_title||'').toLowerCase().includes(q) || (p.skills||[]).join(' ').toLowerCase().includes(q) || (p.bio||'').toLowerCase().includes(q) )) return false;
+    if (q && !((p.job_title||'').toLowerCase().includes(q) || (p.skills||[]).join(' ').toLowerCase().includes(q) || (p.bio||'').toLowerCase().includes(q))) return false;
     if (secteur && p.sector !== secteur) return false;
-    if (niveau && p.level !== niveau) return false;
-    if (dispo && p.availability !== dispo) return false;
-    if (ville && p.city !== ville) return false;
+    if (niveau  && p.level !== niveau)   return false;
+    if (dispo   && p.availability !== dispo) return false;
+    if (ville   && p.city !== ville)     return false;
     if (certif === 'certified' && !p.is_certified) return false;
     return true;
   });
 
-  // Tri
   if (sort === 'certif') filtered.sort((a,b) => (b.is_certified ? 1 : 0) - (a.is_certified ? 1 : 0));
   else if (sort === 'recent') filtered.sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
   else if (sort === 'dispo') filtered.sort((a,b) => (a.availability === 'immediate' ? -1 : 1));
@@ -369,8 +422,7 @@ function filtrer() {
 
 function resetFiltres() {
   ['f-search','f-secteur','f-niveau','f-dispo','f-ville','f-certif'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el.tagName === 'INPUT') el.value = ''; else el.value = '';
+    document.getElementById(id).value = '';
   });
   filtrer();
 }
@@ -449,26 +501,38 @@ function fermerModal() {
 }
 
 async function envoyerContact() {
-  const company = document.getElementById('contact-company').value.trim();
-  const email   = document.getElementById('contact-email').value.trim();
-  const msg     = document.getElementById('contact-msg').value.trim();
-  const result  = document.getElementById('contact-result');
-  if (!company || !email || !msg) { result.style.display='block'; result.style.color='#b91c1c'; result.textContent='⚠️ Remplissez tous les champs.'; return; }
+  const msg    = document.getElementById('contact-msg').value.trim();
+  const result = document.getElementById('contact-result');
+  const btn    = document.getElementById('btn-envoyer-contact');
 
-  // Insérer la mise en relation en base
-  const { error } = await sb.from('contact_requests').insert({
-    candidate_id: contactCandidateId,
-    company_name: company,
-    recruiter_email: email,
-    message: msg,
-  }).select();
+  if (!msg) { result.style.display='block'; result.style.color='#b91c1c'; result.textContent='⚠️ Saisissez un message.'; return; }
+  if (!sessionToken) { window.location.href = '/connexion.html'; return; }
 
-  if (error && !error.message.includes('does not exist')) {
-    result.style.display='block'; result.style.color='#b91c1c'; result.textContent='❌ Erreur : ' + error.message; return;
+  btn.disabled = true; btn.textContent = 'Envoi…';
+
+  const res = await fetch('/api/candidates/contact', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${sessionToken}` },
+    body: JSON.stringify({ candidate_id: contactCandidateId, message: msg }),
+  });
+
+  const data = await res.json();
+  btn.disabled = false; btn.textContent = 'Envoyer (1 crédit)';
+
+  if (!res.ok) {
+    result.style.display='block'; result.style.color='#b91c1c';
+    result.textContent = res.status === 402
+      ? '❌ Crédits insuffisants — achetez un pack pour continuer.'
+      : '❌ ' + (data.error || 'Erreur.');
+    return;
   }
 
-  result.style.display='block'; result.style.color='#15803d'; result.textContent='✅ Message envoyé ! Le candidat sera notifié.';
-  setTimeout(() => fermerModal(), 2000);
+  companyCredits = data.credits_remaining ?? companyCredits;
+  result.style.display='block'; result.style.color='#15803d';
+  result.textContent = `✅ Message envoyé ! Crédits restants : ${companyCredits}`;
+  document.getElementById('results-count').textContent =
+    document.getElementById('results-count').textContent.replace(/\d+ crédit.*$/, `${companyCredits} crédit${companyCredits > 1 ? 's' : ''}`);
+  setTimeout(() => fermerModal(), 2500);
 }
 
 // Fermer modal au clic extérieur
