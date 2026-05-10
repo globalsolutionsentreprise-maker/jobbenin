@@ -228,6 +228,21 @@ a:hover { opacity: .8; }
   color: var(--accent);
 }
 
+/* ── Footer texte simple (pres-footer-brand) ── */
+.pres-footer-brand {
+  cursor: default;
+  transition: opacity .2s ease;
+}
+.pres-footer-brand span {
+  display: inline-block;
+}
+.pres-footer-brand:hover {
+  opacity: .72;
+}
+.pres-footer-brand:hover span {
+  animation: dot-pop .45s cubic-bezier(.22,1,.36,1);
+}
+
 /* Liens nav */
 .ds-nav-links {
   display: flex;
