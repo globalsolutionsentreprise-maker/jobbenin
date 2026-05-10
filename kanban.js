@@ -508,7 +508,7 @@ async function moveCard(appId, fromStatut, toStatut) {
   }
 
   // Notification email candidat (fire-and-forget)
-  if (['entretien', 'refusée'].includes(toStatut)) {
+  if (['vue', 'entretien', 'refusée'].includes(toStatut)) {
     fetch(`${SUPABASE_URL}/functions/v1/notify-statut-change`, {
       method: 'POST',
       headers: {

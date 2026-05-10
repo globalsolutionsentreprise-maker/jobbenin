@@ -85,6 +85,68 @@ function buildEmailEntretien(params: {
   };
 }
 
+function buildEmailVue(params: {
+  candidatEmail: string;
+  entreprise: string;
+  jobTitre: string;
+  jobId: string;
+}): { subject: string; html: string } {
+  const { entreprise, jobTitre, jobId } = params;
+  const offreUrl = `${SITE_URL}/offre-detail.html?id=${jobId}`;
+
+  return {
+    subject: `Votre candidature a été vue — ${esc(jobTitre)}`,
+    html: `<!DOCTYPE html>
+<html lang="fr"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Candidature consultée</title></head>
+<body style="margin:0;padding:0;background:#f3f4f6;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f3f4f6;padding:32px 16px;">
+  <tr><td align="center">
+  <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;">
+    <tr><td style="background:#f59e0b;border-radius:12px 12px 0 0;padding:24px 32px;text-align:center;">
+      <p style="margin:0;font-size:20px;font-weight:700;color:#fff;">Talenco.bj 🇧🇯</p>
+      <p style="margin:6px 0 0;font-size:13px;color:#fef3c7;">Votre candidature avance !</p>
+    </td></tr>
+    <tr><td style="background:#fff;padding:28px 32px;">
+      <p style="font-size:22px;margin:0 0 16px;text-align:center;">👀</p>
+      <p style="font-size:15px;font-weight:600;color:#111827;margin:0 0 12px;">Bonne nouvelle !</p>
+      <p style="font-size:14px;color:#374151;line-height:1.6;margin:0 0 16px;">
+        <strong>${esc(entreprise)}</strong> a consulté votre candidature pour le poste de
+        <strong>${esc(jobTitre)}</strong>. Votre profil a retenu leur attention !
+      </p>
+      <table width="100%" cellpadding="0" cellspacing="0"
+             style="background:#fffbeb;border:1px solid #fcd34d;border-radius:10px;margin-bottom:20px;">
+        <tr><td style="padding:14px 18px;">
+          <p style="margin:0;font-size:13px;color:#92400e;font-weight:600;">
+            💡 C'est le bon moment pour peaufiner votre CV avec notre Coach IA.
+          </p>
+        </td></tr>
+      </table>
+      <table width="100%" cellpadding="0" cellspacing="0"><tr>
+        <td style="padding-right:8px;">
+          <a href="${offreUrl}" style="display:block;text-align:center;background:#f59e0b;
+             color:#fff;text-decoration:none;padding:10px;border-radius:8px;
+             font-size:13px;font-weight:600;">Revoir l'offre</a>
+        </td>
+        <td>
+          <a href="${SITE_URL}/coach.html" style="display:block;text-align:center;
+             background:#7c3aed;color:#fff;text-decoration:none;padding:10px;border-radius:8px;
+             font-size:13px;font-weight:600;">✨ Optimiser mon CV</a>
+        </td>
+      </tr></table>
+    </td></tr>
+    <tr><td style="background:#f3f4f6;border-top:1px solid #e5e7eb;border-radius:0 0 12px 12px;
+        padding:14px 24px;text-align:center;">
+      <p style="margin:0;font-size:11px;color:#9ca3af;">Talenco.bj — Recrutement au Bénin</p>
+    </td></tr>
+  </table>
+  </td></tr>
+</table>
+</body></html>`,
+  };
+}
+
 function buildEmailRefus(params: {
   candidatEmail: string;
   entreprise: string;
@@ -146,8 +208,8 @@ Deno.serve(async (req) => {
   try {
     const { application_id, nouveau_statut } = await req.json();
 
-    // On ne notifie que pour entretien et refusée
-    if (!['entretien', 'refusée'].includes(nouveau_statut)) {
+    // On ne notifie que pour vue, entretien et refusée
+    if (!['vue', 'entretien', 'refusée'].includes(nouveau_statut)) {
       return new Response(JSON.stringify({ success: true, sent: false, reason: 'Statut non notifiable' }), {
         headers: { ...CORS, 'Content-Type': 'application/json' },
       });
@@ -181,9 +243,12 @@ Deno.serve(async (req) => {
       });
     }
 
-    const { subject, html } = nouveau_statut === 'entretien'
-      ? buildEmailEntretien({ candidatEmail, entreprise, jobTitre, jobId: job.id })
-      : buildEmailRefus({ candidatEmail, entreprise, jobTitre });
+    const { subject, html } =
+      nouveau_statut === 'vue'
+        ? buildEmailVue({ candidatEmail, entreprise, jobTitre, jobId: job.id })
+        : nouveau_statut === 'entretien'
+          ? buildEmailEntretien({ candidatEmail, entreprise, jobTitre, jobId: job.id })
+          : buildEmailRefus({ candidatEmail, entreprise, jobTitre });
 
     const mailRes = await fetch('https://api.resend.com/emails', {
       method: 'POST',
