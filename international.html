@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="fr" data-i18n-title="intl.title">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Emplois en France & USA — Talenco.bj</title>
+  <meta name="description" content="Recherchez des offres d'emploi en France et aux États-Unis directement depuis Talenco.bj. Offres France Travail et milliers d'entreprises américaines.">
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/design-system.css">
+  <style>
+    /* ── Hero ── */
+    .intl-hero {
+      padding: 90px 24px 48px;
+      max-width: 760px;
+      margin: 0 auto;
+    }
+    .intl-hero-flags { font-size: 28px; margin-bottom: 14px; letter-spacing: 6px; }
+    .intl-hero-title {
+      font-family: var(--font-serif);
+      font-style: italic;
+      font-size: clamp(28px, 5vw, 46px);
+      line-height: 1.1;
+      letter-spacing: -.02em;
+      margin-bottom: 14px;
+    }
+    .intl-hero-title em { color: var(--accent); font-style: inherit; }
+    .intl-hero-sub { font-size: 15px; color: var(--text-mid); line-height: 1.7; max-width: 540px; }
+
+    /* ── Search block ── */
+    .intl-search-wrap {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 0 24px 40px;
+    }
+    .country-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+    .country-tab {
+      padding: 9px 20px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: none;
+      font-family: var(--font-body);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      color: var(--text-muted);
+      transition: background .15s, color .15s, border-color .15s;
+    }
+    .country-tab.active {
+      background: var(--text);
+      color: var(--bg);
+      border-color: var(--text);
+    }
+    .intl-form {
+      display: grid;
+      grid-template-columns: 1fr 1fr auto;
+      gap: 10px;
+    }
+    @media (max-width: 600px) {
+      .intl-form { grid-template-columns: 1fr; }
+    }
+    .intl-form input {
+      padding: 11px 14px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-family: var(--font-body);
+      font-size: 13px;
+      background: var(--bg-card);
+      color: var(--text);
+      width: 100%;
+    }
+    .intl-form input:focus { outline: none; border-color: var(--accent); }
+
+    /* ── Info banner ── */
+    .intl-info {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 0 24px 32px;
+    }
+    .intl-info-inner {
+      background: var(--bg-soft);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 12px 16px;
+      font-size: 12px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+    .intl-info-inner span { flex-shrink: 0; }
+
+    /* ── Results ── */
+    .intl-results-wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 24px 80px;
+    }
+    .intl-meta {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: .06em;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+    .intl-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 16px;
+    }
+
+    /* ── Job card ── */
+    .job-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    .job-card:hover { border-color: var(--accent); box-shadow: 0 2px 16px rgba(0,0,0,.06); }
+    .job-card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+    .job-card-title {
+      font-family: var(--font-serif);
+      font-style: italic;
+      font-size: 17px;
+      line-height: 1.25;
+      color: var(--text);
+      flex: 1;
+    }
+    .job-card-source {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: var(--accent-bg);
+      padding: 3px 8px;
+      border-radius: 3px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .job-card-company {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-mid);
+    }
+    .job-card-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .job-card-tag {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 3px;
+      background: var(--bg-soft);
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+    }
+    .job-card-desc {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.7;
+      flex: 1;
+    }
+    .job-card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 4px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+    }
+    .job-card-date {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--text-muted);
+    }
+    .job-card-link {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: .06em;
+      color: var(--accent);
+      text-transform: uppercase;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: gap .15s;
+    }
+    .job-card-link:hover { gap: 8px; }
+    .job-card-link svg { transition: transform .15s; }
+    .job-card-link:hover svg { transform: translateX(2px); }
+
+    /* ── States ── */
+    .intl-state {
+      text-align: center;
+      padding: 60px 24px;
+      color: var(--text-muted);
+      font-size: 14px;
+      grid-column: 1 / -1;
+    }
+    .intl-state-icon { font-size: 32px; margin-bottom: 10px; }
+    .intl-state-title { font-weight: 600; margin-bottom: 6px; color: var(--text); }
+    .intl-loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 60px;
+      color: var(--text-muted);
+      font-size: 13px;
+      grid-column: 1/-1;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .intl-spinner {
+      width: 18px; height: 18px;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+    }
+
+    /* ── Visa notice ── */
+    .intl-visa {
+      max-width: 760px;
+      margin: 0 auto 48px;
+      padding: 0 24px;
+    }
+    .intl-visa-inner {
+      background: #fefce8;
+      border: 1px solid #fde68a;
+      border-radius: var(--radius-sm);
+      padding: 14px 18px;
+      font-size: 12px;
+      color: #92400e;
+      line-height: 1.7;
+    }
+    .intl-visa-inner strong { font-weight: 600; }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <a href="/presentation.html" class="talenco-logo">
+    <div class="nav-logo">
+      <div class="nav-logo-text">
+        <span class="logo-primary">Talenco</span><span class="logo-dot">.</span><span class="logo-tld">bj</span>
+      </div>
+      <div class="logo-tagline" data-i18n="nav.tagline">Recrutement au Bénin</div>
+    </div>
+  </a>
+  <ul class="navbar-links">
+    <li><a href="/index.html" data-i18n="nav.home">Accueil</a></li>
+    <li><a href="/offres.html" data-i18n="nav.jobs">Offres</a></li>
+    <li><a href="/international.html" class="active" data-i18n="nav.international">International</a></li>
+    <li><a href="/coach.html">✨ <span data-i18n="nav.coach">Coach IA</span></a></li>
+    <li><a href="/blog.html" data-i18n="nav.blog">Blog</a></li>
+  </ul>
+  <div class="navbar-actions" id="nav-actions">
+    <a href="/connexion.html" class="btn btn-dark btn-sm" data-i18n="nav.login">Connexion</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="intl-hero">
+  <div class="intl-hero-flags">🇧🇯 → 🇫🇷 🇺🇸</div>
+  <div class="section-label" data-i18n="intl.label">Talenco · International</div>
+  <h1 class="intl-hero-title" data-i18n-html="intl.h1">Emplois en <em>France</em><br>et aux <em>États-Unis</em></h1>
+  <p class="intl-hero-sub" data-i18n="intl.sub">Offres en direct depuis France Travail (ex-Pôle Emploi) et des milliers d'entreprises américaines. Cherchez par métier et par ville.</p>
+</div>
+
+<!-- SEARCH -->
+<div class="intl-search-wrap">
+  <div class="country-tabs">
+    <button class="country-tab active" data-pays="fr" data-i18n="intl.tab.fr">🇫🇷 France</button>
+    <button class="country-tab" data-pays="us" data-i18n="intl.tab.us">🇺🇸 États-Unis</button>
+  </div>
+  <div class="intl-form">
+    <input type="text" id="intl-q" placeholder="Développeur, Comptable, Infirmier…" data-i18n-ph="intl.q.ph">
+    <input type="text" id="intl-ville" placeholder="Paris, Lyon, Bordeaux…" data-i18n-ph="intl.ville.ph.fr">
+    <button class="btn btn-dark" id="intl-btn" data-i18n="intl.btn">Rechercher</button>
+  </div>
+</div>
+
+<!-- VISA NOTICE -->
+<div class="intl-visa">
+  <div class="intl-visa-inner" id="intl-visa-fr">
+    <strong>🇫🇷 Travailler en France :</strong> Si vous n'êtes pas ressortissant de l'UE, vous aurez besoin d'un visa de travail. Renseignez-vous auprès de l'ambassade de France au Bénin ou sur <a href="https://www.service-public.fr" target="_blank" rel="noopener" style="color:inherit;">service-public.fr</a>.
+  </div>
+  <div class="intl-visa-inner" id="intl-visa-us" style="display:none;">
+    <strong>🇺🇸 Travailler aux États-Unis :</strong> La plupart des offres nécessitent un visa de travail (H-1B, O-1, L-1). Certaines entreprises sponsorisent le visa — cherchez "visa sponsorship" dans votre recherche.
+  </div>
+</div>
+
+<!-- RESULTS -->
+<div class="intl-results-wrap">
+  <div id="intl-meta" class="intl-meta" style="display:none;"></div>
+  <div class="intl-grid" id="intl-grid"></div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div style="border-top:1px solid var(--border);padding:32px 24px;display:flex;align-items:center;justify-content:space-between;max-width:1100px;margin:0 auto;flex-wrap:wrap;gap:12px;">
+    <div style="font-family:var(--font-serif);font-style:italic;font-size:18px;">Talenco<span style="color:var(--accent)">.</span>bj</div>
+    <div style="font-size:12px;color:var(--text-muted);" data-i18n="intl.footer.copy">© 2026 Talenco.bj — Tous droits réservés</div>
+    <div style="display:flex;gap:16px;">
+      <a href="/offres.html" style="font-size:12px;color:var(--text-muted);text-decoration:none;" data-i18n="nav.jobs">Offres Bénin</a>
+      <a href="/blog.html" style="font-size:12px;color:var(--text-muted);text-decoration:none;" data-i18n="nav.blog">Blog</a>
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+  var SUPABASE_URL      = 'https://ywteoxnkkdgdpbkrlkar.supabase.co';
+  var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl3dGVveG5ra2RnZHBia3Jsa2FyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1MjA1MjYsImV4cCI6MjA5MDA5NjUyNn0.jzgNVgYR6iCEV_GIpvBTs4aN3RzK3E3MJW9YtBmLI3c';
+  const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  let pays = 'fr';
+
+  // ── Auth navbar ──
+  (async () => {
+    const { data: { session } } = await sb.auth.getSession();
+    if (session) {
+      document.getElementById('nav-actions').innerHTML = `
+        <a href="/candidat.html" class="btn btn-outline btn-sm" data-i18n="nav.myprofile">Mon profil</a>
+        <button onclick="sb.auth.signOut().then(()=>location.reload())" class="btn btn-dark btn-sm" data-i18n="nav.logout">Déconnexion</button>`;
+    }
+  })();
+
+  // ── Country tabs ──
+  document.querySelectorAll('.country-tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.country-tab').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      pays = btn.dataset.pays;
+      const villeInput = document.getElementById('intl-ville');
+      villeInput.placeholder = pays === 'fr' ? 'Paris, Lyon, Bordeaux…' : 'New York, Miami, Houston…';
+      document.getElementById('intl-visa-fr').style.display = pays === 'fr' ? 'block' : 'none';
+      document.getElementById('intl-visa-us').style.display = pays === 'us' ? 'block' : 'none';
+      const grid = document.getElementById('intl-grid');
+      grid.innerHTML = '';
+      document.getElementById('intl-meta').style.display = 'none';
+    });
+  });
+
+  // ── Relative date ──
+  function relDate(iso) {
+    const d = new Date(iso);
+    const now = new Date();
+    const diff = Math.floor((now - d) / 86400000);
+    if (diff === 0) return "Aujourd'hui";
+    if (diff === 1) return 'Hier';
+    if (diff < 7)  return `Il y a ${diff} jours`;
+    if (diff < 30) return `Il y a ${Math.floor(diff/7)} sem.`;
+    return d.toLocaleDateString('fr-FR', { day:'numeric', month:'short' });
+  }
+
+  // ── Render card ──
+  function renderCard(j) {
+    const tags = [j.contract, j.salary].filter(Boolean).map(t =>
+      `<span class="job-card-tag">${t}</span>`).join('');
+    return `
+      <div class="job-card">
+        <div class="job-card-header">
+          <div class="job-card-title">${j.title}</div>
+          <div class="job-card-source">${j.source}</div>
+        </div>
+        ${j.company ? `<div class="job-card-company">${j.company}</div>` : ''}
+        <div class="job-card-meta">
+          ${j.location ? `<span class="job-card-tag">📍 ${j.location}</span>` : ''}
+          ${tags}
+        </div>
+        ${j.description ? `<div class="job-card-desc">${j.description}…</div>` : ''}
+        <div class="job-card-footer">
+          <div class="job-card-date">${j.date ? relDate(j.date) : ''}</div>
+          <a href="${j.url}" target="_blank" rel="noopener" class="job-card-link" data-i18n="intl.read">
+            Voir l'offre
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </a>
+        </div>
+      </div>`;
+  }
+
+  // ── Render states ──
+  function renderLoading() {
+    return `<div class="intl-loading"><div class="intl-spinner"></div> Recherche en cours…</div>`;
+  }
+
+  function renderEmpty() {
+    return `<div class="intl-state">
+      <div class="intl-state-icon">🔍</div>
+      <div class="intl-state-title">Aucune offre trouvée</div>
+      <div>Essayez d'autres mots-clés ou une ville différente.</div>
+    </div>`;
+  }
+
+  function renderError(msg) {
+    const isConfig = msg.includes('non configurés');
+    return `<div class="intl-state">
+      <div class="intl-state-icon">⚠️</div>
+      <div class="intl-state-title">${isConfig ? 'Fonctionnalité en cours d\'activation' : 'Erreur de chargement'}</div>
+      <div style="max-width:400px;margin:0 auto;">${isConfig ? 'Les clés API ne sont pas encore configurées. Revenez bientôt !' : msg}</div>
+    </div>`;
+  }
+
+  // ── Search ──
+  async function doSearch() {
+    const q     = document.getElementById('intl-q').value.trim();
+    const ville = document.getElementById('intl-ville').value.trim();
+    const grid  = document.getElementById('intl-grid');
+    const meta  = document.getElementById('intl-meta');
+
+    if (!q && !ville) return;
+
+    grid.innerHTML = renderLoading();
+    meta.style.display = 'none';
+    document.getElementById('intl-btn').disabled = true;
+
+    try {
+      const params = new URLSearchParams({ pays });
+      if (q)     params.set('q',     q);
+      if (ville) params.set('ville', ville);
+      const res  = await fetch(`/api/jobs/international?${params}`);
+      const data = await res.json();
+
+      if (!res.ok) {
+        grid.innerHTML = renderError(data.error || 'Erreur inconnue');
+        return;
+      }
+      if (!data.jobs || data.jobs.length === 0) {
+        grid.innerHTML = renderEmpty();
+        return;
+      }
+
+      meta.textContent = `${data.total} offre${data.total > 1 ? 's' : ''} trouvée${data.total > 1 ? 's' : ''}`;
+      meta.style.display = 'block';
+      grid.innerHTML = data.jobs.map(renderCard).join('');
+    } catch (e) {
+      grid.innerHTML = renderError('Impossible de contacter le serveur.');
+    } finally {
+      document.getElementById('intl-btn').disabled = false;
+    }
+  }
+
+  document.getElementById('intl-btn').addEventListener('click', doSearch);
+  document.getElementById('intl-q').addEventListener('keydown', e => { if (e.key === 'Enter') doSearch(); });
+  document.getElementById('intl-ville').addEventListener('keydown', e => { if (e.key === 'Enter') doSearch(); });
+</script>
+
+<script src="/nav-mobile.js"></script>
+<script src="/i18n.js"></script>
+</body>
+</html>
