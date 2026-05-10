@@ -4,6 +4,7 @@
 //   GET  /api/jobs?type=international&pays=fr|us  → offres internationales
 //   POST /api/jobs  action=score                  → scoring IA candidature (post-candidature)
 //   POST /api/jobs  action=match                  → score compatibilité candidat ↔ offre (pré-candidature)
+//   POST /api/jobs  action=simulate               → simulation d'entretien (questions + évaluation)
 //   POST /api/jobs  action=subscribe|…            → alertes emploi
 
 const { createClient } = require('@supabase/supabase-js');
@@ -385,6 +386,135 @@ Règles : score = moyenne pondérée des 3 sous-scores. Sois précis et honnête
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
+// SIMULATION D'ENTRETIEN
+// ══════════════════════════════════════════════════════════════════════════════
+
+async function handleSimulate(req, res) {
+  const token = req.headers.authorization?.replace('Bearer ', '');
+  if (!token) return res.status(401).json({ error: 'Connexion requise.' });
+
+  const { data: { user } } = await supabaseAdmin.auth.getUser(token);
+  if (!user) return res.status(401).json({ error: 'Token invalide.' });
+
+  const { job_id, phase, answers } = req.body ?? {};
+  if (!job_id) return res.status(400).json({ error: 'job_id requis.' });
+
+  const { data: job } = await supabaseAdmin
+    .from('jobs')
+    .select('title, description, requirements, sector')
+    .eq('id', job_id).single();
+  if (!job) return res.status(404).json({ error: 'Offre introuvable.' });
+
+  const { data: profile } = await supabaseAdmin
+    .from('users')
+    .select('job_title, skills, bio, level, sector')
+    .eq('id', user.id).single();
+
+  const skills = Array.isArray(profile?.skills) ? profile.skills.join(', ') : (profile?.skills ?? '');
+
+  // ── Phase 1 : générer 5 questions ciblées ──
+  if (phase === 'questions') {
+    const prompt = `Tu es un recruteur RH expérimenté. Génère exactement 5 questions d'entretien pour ce poste.
+Réponds UNIQUEMENT avec du JSON valide.
+
+=== POSTE ===
+Titre : ${job.title}
+Secteur : ${job.sector ?? ''}
+Description : ${(job.description ?? '').substring(0, 600)}
+Profil recherché : ${(job.requirements ?? '').substring(0, 400)}
+
+=== FORMAT ATTENDU ===
+{"questions":["Question 1","Question 2","Question 3","Question 4","Question 5"]}
+
+Règles : mélange questions comportementales (méthode STAR), techniques et motivationnelles. Questions précises et adaptées au poste. En français.`;
+
+    try {
+      const groqRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${process.env.GROQ_API_KEY}` },
+        body: JSON.stringify({
+          model: 'llama-3.3-70b-versatile',
+          max_tokens: 512, temperature: 0.7,
+          response_format: { type: 'json_object' },
+          messages: [
+            { role: 'system', content: 'Recruteur RH. JSON uniquement. Français.' },
+            { role: 'user', content: prompt },
+          ],
+        }),
+      });
+      if (!groqRes.ok) throw new Error(`Groq ${groqRes.status}`);
+      const raw = (await groqRes.json()).choices?.[0]?.message?.content ?? '{}';
+      const data = JSON.parse(raw);
+      return res.status(200).json({ questions: data.questions ?? [] });
+    } catch (e) {
+      console.error('simulate questions:', e.message);
+      return res.status(500).json({ error: 'Erreur génération questions.' });
+    }
+  }
+
+  // ── Phase 2 : évaluer les réponses ──
+  if (phase === 'evaluation') {
+    if (!Array.isArray(answers) || answers.length === 0) {
+      return res.status(400).json({ error: 'Réponses requises.' });
+    }
+
+    const qa = answers.map((a, i) =>
+      `Q${i + 1} : ${a.question}\nRéponse : ${(a.answer || '(sans réponse)').substring(0, 500)}`
+    ).join('\n\n');
+
+    const prompt = `Tu es un recruteur RH senior. Évalue ces réponses d'entretien pour un poste de "${job.title}".
+Réponds UNIQUEMENT avec du JSON valide.
+
+=== POSTE ===
+${(job.description ?? '').substring(0, 400)}
+
+=== RÉPONSES ===
+${qa}
+
+=== PROFIL CANDIDAT ===
+Titre : ${profile?.job_title ?? 'non précisé'} | Niveau : ${profile?.level ?? 'non précisé'} | Compétences : ${skills || 'non précisées'}
+
+=== FORMAT ATTENDU ===
+{
+  "score_global": <0-100>,
+  "mention": "<Excellent|Bien|À améliorer>",
+  "feedbacks": [
+    {"note": <0-10>, "point_fort": "...", "conseil": "..."},
+    {"note": <0-10>, "point_fort": "...", "conseil": "..."},
+    {"note": <0-10>, "point_fort": "...", "conseil": "..."},
+    {"note": <0-10>, "point_fort": "...", "conseil": "..."},
+    {"note": <0-10>, "point_fort": "...", "conseil": "..."}
+  ],
+  "conseil_global": "<1-2 phrases de conseil global pour améliorer ses chances>"
+}`;
+
+    try {
+      const groqRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${process.env.GROQ_API_KEY}` },
+        body: JSON.stringify({
+          model: 'llama-3.3-70b-versatile',
+          max_tokens: 1024, temperature: 0.3,
+          response_format: { type: 'json_object' },
+          messages: [
+            { role: 'system', content: 'Recruteur RH senior. JSON uniquement. Français.' },
+            { role: 'user', content: prompt },
+          ],
+        }),
+      });
+      if (!groqRes.ok) throw new Error(`Groq ${groqRes.status}`);
+      const raw = (await groqRes.json()).choices?.[0]?.message?.content ?? '{}';
+      return res.status(200).json(JSON.parse(raw));
+    } catch (e) {
+      console.error('simulate eval:', e.message);
+      return res.status(500).json({ error: 'Erreur évaluation.' });
+    }
+  }
+
+  return res.status(400).json({ error: 'Phase invalide (questions|evaluation).' });
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
 // ROUTER PRINCIPAL
 // ══════════════════════════════════════════════════════════════════════════════
 
@@ -399,8 +529,9 @@ module.exports = async (req, res) => {
   // POST → dispatcher sur action
   if (req.method === 'POST') {
     const { action } = req.body ?? {};
-    if (action === 'score') return handleScore(req, res);
-    if (action === 'match') return handleMatch(req, res);
+    if (action === 'score')    return handleScore(req, res);
+    if (action === 'match')    return handleMatch(req, res);
+    if (action === 'simulate') return handleSimulate(req, res);
     return handleAlerts(req, res);
   }
 

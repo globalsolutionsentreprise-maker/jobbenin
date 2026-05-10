@@ -332,6 +332,8 @@
         <div class="detail-sidebar-sticky">
           <!-- Score de compatibilité (candidats connectés) -->
           <div id="match-score-zone"></div>
+          <!-- Simulation d'entretien (candidats connectés) -->
+          <div id="simulation-zone"></div>
           <!-- Lettre de motivation IA -->
           <div id="lettre-zone"></div>
           <!-- Boutons candidature (injectés par candidature.js) -->
@@ -366,6 +368,9 @@
 
     // Score de compatibilité (candidats connectés uniquement)
     if (session) chargerMatchScore(session.access_token, jobId);
+
+    // Simulation d'entretien (candidats connectés uniquement)
+    if (session) initSimulation(session.access_token, jobId, job.title);
 
     // Offres similaires
     chargerSimilaires(job.sector, job.id);
@@ -427,6 +432,172 @@
       zone.innerHTML = '';
     }
   }
+
+  function initSimulation(token, jobId, jobTitre) {
+    const zone = document.getElementById('simulation-zone');
+    if (!zone) return;
+    zone.innerHTML = `
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:16px;margin-bottom:12px;">
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--text-muted);margin-bottom:6px;">Simulation d'entretien</div>
+        <div style="font-size:11px;color:var(--text-muted);margin-bottom:12px;line-height:1.5;">
+          5 questions ciblées sur ce poste + feedback IA personnalisé.
+        </div>
+        <button id="btn-simuler" style="width:100%;background:var(--accent);color:#fff;border:none;border-radius:var(--radius-sm);padding:10px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font-sans);">
+          Simuler l'entretien
+        </button>
+      </div>`;
+
+    window._sim = { token, jobId, jobTitre, questions: [], answers: [], currentQ: 0 };
+    document.getElementById('btn-simuler').addEventListener('click', demarrerSimulation);
+  }
+
+  async function demarrerSimulation() {
+    ouvrirModalSim(loadingHTML('Génération des questions pour ce poste…'));
+    try {
+      const res = await fetch('/api/jobs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${window._sim.token}` },
+        body: JSON.stringify({ action: 'simulate', phase: 'questions', job_id: window._sim.jobId }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.questions?.length) throw new Error(data.error ?? 'Erreur');
+      window._sim.questions = data.questions;
+      window._sim.answers   = data.questions.map(q => ({ question: q, answer: '' }));
+      window._sim.currentQ  = 0;
+      afficherQuestion();
+    } catch (e) {
+      fermerModalSim();
+      alert('Impossible de générer les questions : ' + e.message);
+    }
+  }
+
+  function afficherQuestion() {
+    const { questions, answers, currentQ, jobTitre } = window._sim;
+    const q   = questions[currentQ];
+    const ans = answers[currentQ].answer;
+    const isLast = currentQ === questions.length - 1;
+
+    document.getElementById('sim-modal-body').innerHTML = `
+      <div style="margin-bottom:20px;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;">
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--text-muted);">
+            Question ${currentQ + 1} / ${questions.length}
+          </div>
+          <div style="flex:1;height:3px;background:var(--border);border-radius:2px;">
+            <div style="height:3px;width:${((currentQ + 1) / questions.length) * 100}%;background:var(--accent);border-radius:2px;transition:width .3s;"></div>
+          </div>
+        </div>
+        <div style="font-size:15px;font-weight:600;color:var(--text);line-height:1.5;margin-bottom:16px;font-family:var(--font-serif);">${q}</div>
+        <textarea id="sim-answer" placeholder="Votre réponse…" style="width:100%;box-sizing:border-box;min-height:120px;padding:12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;font-family:var(--font-body);color:var(--text);background:var(--bg);resize:vertical;line-height:1.6;">${ans}</textarea>
+        <div style="font-size:10px;color:var(--text-muted);margin-top:4px;">Conseil : soyez précis, donnez des exemples concrets.</div>
+      </div>
+      <div style="display:flex;gap:8px;">
+        ${currentQ > 0 ? `<button onclick="naviguerQuestion(-1)" style="flex:1;padding:10px;background:transparent;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:12px;font-weight:600;cursor:pointer;color:var(--text);font-family:var(--font-sans);">← Précédent</button>` : ''}
+        <button onclick="naviguerQuestion(1)" style="flex:2;padding:10px;background:var(--accent);color:#fff;border:none;border-radius:var(--radius-sm);font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font-sans);">
+          ${isLast ? 'Voir mon feedback →' : 'Suivant →'}
+        </button>
+      </div>`;
+
+    const ta = document.getElementById('sim-answer');
+    if (ta) ta.focus();
+  }
+
+  window.naviguerQuestion = function(dir) {
+    const ta = document.getElementById('sim-answer');
+    if (ta) window._sim.answers[window._sim.currentQ].answer = ta.value.trim();
+
+    if (dir === 1 && window._sim.currentQ === window._sim.questions.length - 1) {
+      evaluerSimulation();
+      return;
+    }
+    window._sim.currentQ = Math.max(0, Math.min(window._sim.questions.length - 1, window._sim.currentQ + dir));
+    afficherQuestion();
+  };
+
+  async function evaluerSimulation() {
+    document.getElementById('sim-modal-body').innerHTML = loadingHTML('Évaluation de vos réponses…');
+    try {
+      const res = await fetch('/api/jobs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${window._sim.token}` },
+        body: JSON.stringify({
+          action: 'simulate',
+          phase:  'evaluation',
+          job_id:  window._sim.jobId,
+          answers: window._sim.answers,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? 'Erreur');
+      afficherResultats(data);
+    } catch (e) {
+      document.getElementById('sim-modal-body').innerHTML = `<p style="color:#b91c1c;">Erreur : ${e.message}</p>`;
+    }
+  }
+
+  function afficherResultats(data) {
+    const { score_global = 0, mention = '', feedbacks = [], conseil_global = '' } = data;
+    const color  = score_global >= 70 ? '#15803d' : score_global >= 45 ? '#92400e' : '#b91c1c';
+    const bg     = score_global >= 70 ? '#f0fdf4' : score_global >= 45 ? '#fffbeb' : '#fef2f2';
+    const border = score_global >= 70 ? '#86efac' : score_global >= 45 ? '#fcd34d' : '#fca5a5';
+
+    const fbHTML = feedbacks.map((fb, i) => `
+      <div style="border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px;margin-bottom:8px;">
+        <div style="display:flex;align-items:start;justify-content:space-between;gap:8px;margin-bottom:6px;">
+          <div style="font-size:12px;font-weight:600;color:var(--text);line-height:1.4;flex:1;">${window._sim.questions[i]}</div>
+          <div style="font-size:16px;font-weight:900;color:${fb.note >= 7 ? '#15803d' : fb.note >= 5 ? '#92400e' : '#b91c1c'};flex-shrink:0;">${fb.note}<span style="font-size:10px;font-weight:400;">/10</span></div>
+        </div>
+        ${fb.point_fort ? `<div style="font-size:11px;color:#15803d;margin-bottom:3px;">✓ ${fb.point_fort}</div>` : ''}
+        ${fb.conseil    ? `<div style="font-size:11px;color:#92400e;">→ ${fb.conseil}</div>` : ''}
+      </div>`).join('');
+
+    document.getElementById('sim-modal-body').innerHTML = `
+      <div style="background:${bg};border:1px solid ${border};border-radius:var(--radius-md);padding:16px;margin-bottom:16px;display:flex;align-items:center;gap:16px;">
+        <div style="font-size:40px;font-weight:900;color:${color};line-height:1;">${score_global}%</div>
+        <div>
+          <div style="font-size:14px;font-weight:700;color:${color};">${mention}</div>
+          ${conseil_global ? `<div style="font-size:12px;color:var(--text-muted);line-height:1.4;margin-top:4px;">${conseil_global}</div>` : ''}
+        </div>
+      </div>
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);margin-bottom:8px;">Détail par question</div>
+      ${fbHTML}
+      <button onclick="fermerModalSim()" style="width:100%;margin-top:8px;padding:10px;background:var(--accent);color:#fff;border:none;border-radius:var(--radius-sm);font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font-sans);">Fermer</button>`;
+  }
+
+  function loadingHTML(msg) {
+    return `<div style="display:flex;align-items:center;gap:10px;color:var(--text-muted);font-size:13px;padding:24px 0;">
+      <div style="width:16px;height:16px;border:2px solid rgba(139,69,19,.3);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0;"></div>
+      ${msg}
+    </div>`;
+  }
+
+  function ouvrirModalSim(bodyHTML) {
+    let overlay = document.getElementById('sim-overlay');
+    if (!overlay) {
+      overlay = document.createElement('div');
+      overlay.id = 'sim-overlay';
+      overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;display:flex;align-items:center;justify-content:center;padding:16px;';
+      overlay.addEventListener('click', e => { if (e.target === overlay) fermerModalSim(); });
+      document.body.appendChild(overlay);
+    }
+    overlay.innerHTML = `
+      <div style="background:var(--bg);border-radius:var(--radius-md);width:100%;max-width:560px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2);">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border);">
+          <div>
+            <div style="font-size:12px;font-weight:700;color:var(--text);">Simulation d'entretien</div>
+            <div style="font-size:11px;color:var(--text-muted);">${window._sim?.jobTitre ?? ''}</div>
+          </div>
+          <button onclick="fermerModalSim()" style="background:none;border:none;cursor:pointer;font-size:18px;color:var(--text-muted);padding:4px;">×</button>
+        </div>
+        <div id="sim-modal-body" style="padding:20px;">${bodyHTML}</div>
+      </div>`;
+    overlay.style.display = 'flex';
+  }
+
+  window.fermerModalSim = function() {
+    const overlay = document.getElementById('sim-overlay');
+    if (overlay) overlay.style.display = 'none';
+  };
 
   async function chargerSimilaires(secteur, excludeId) {
     if (!secteur) return;
