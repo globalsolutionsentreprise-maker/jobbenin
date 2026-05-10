@@ -307,7 +307,7 @@ sb.auth.getSession().then(async ({ data: { session } }) => {
 // ── Chargement profils ──────────────────────────────────
 async function chargerProfils() {
   const { data, error } = await sb.from('users')
-    .select('id, full_name, job_title, level, availability, city, skills, bio, is_certified, certified_at, created_at, sector')
+    .select('id, full_name, job_title, level, availability, city, skills, bio, is_certified, certified_at, created_at, sector, linkedin_url')
     .eq('role', 'candidate')
     .not('job_title', 'is', null)
     .order('is_certified', { ascending: false })
@@ -413,10 +413,13 @@ function afficherProfils(profils) {
           ${p.level ? `<div class="cv-level"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg> ${niveauLabel[p.level] || p.level}</div>` : ''}
           ${p.availability ? `<div class="cv-dispo ${dispoClass[p.availability] || ''}"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> ${dispoLabel[p.availability] || p.availability}</div>` : ''}
         </div>
-        ${isConnected
-          ? `<button class="btn-contact" onclick="ouvrirModal('${p.id}','${(p.full_name||'').replace(/'/g,"\\'")}')">Contacter <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></button>`
-          : `<a href="/connexion.html" class="btn-contact">Voir le profil <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a>`
-        }
+        <div style="display:flex;align-items:center;gap:8px;">
+          ${isConnected && p.linkedin_url ? `<a href="${p.linkedin_url}" target="_blank" rel="noopener" title="Voir le profil LinkedIn" style="display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border:1px solid var(--border);border-radius:4px;color:var(--text-muted);transition:color .15s,border-color .15s;" onmouseover="this.style.color='#0077b5';this.style.borderColor='#0077b5'" onmouseout="this.style.color='';this.style.borderColor=''"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z"/><circle cx="4" cy="4" r="2"/></svg></a>` : ''}
+          ${isConnected
+            ? `<button class="btn-contact" onclick="ouvrirModal('${p.id}','${(p.full_name||'').replace(/'/g,"\\'")}')">Contacter <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></button>`
+            : `<a href="/connexion.html" class="btn-contact">Voir le profil <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a>`
+          }
+        </div>
       </div>
     </div>`;
   }).join('');

@@ -311,6 +311,10 @@
               <label class="form-label" data-i18n="cand.f.bio">Bio</label>
               <textarea id="pro-bio" rows="3" placeholder="Décrivez votre profil en quelques mots. Ex: Développeur avec 4 ans d'expérience en fintech, passionné par les solutions mobiles…" style="resize:vertical;" data-i18n-ph="cand.f.bio.ph"></textarea>
             </div>
+            <div class="form-field" style="grid-column:1/-1;">
+              <label class="form-label" data-i18n="cand.f.linkedin">LinkedIn <span style="font-size:11px;font-weight:400;color:var(--text-muted);" data-i18n="cand.f.linkedin.opt">(optionnel)</span></label>
+              <input type="url" id="pro-linkedin" placeholder="https://linkedin.com/in/votre-profil" data-i18n-ph="cand.f.linkedin.ph">
+            </div>
           </div>
           <div id="pro-msg" class="alert" style="display:none;margin-top:12px;"></div>
         </div>
@@ -691,6 +695,7 @@
       salary_expectation: document.getElementById('pro-salaire').value.trim(),
       skills:            document.getElementById('pro-competences').value.split(',').map(s=>s.trim()).filter(Boolean),
       bio:               document.getElementById('pro-bio').value.trim(),
+      linkedin_url:      document.getElementById('pro-linkedin').value.trim() || null,
     }).eq('id', user.id);
     const msgEl = document.getElementById('pro-msg');
     if (error) {
@@ -753,7 +758,7 @@
 
   // ── Remplissage du profil pro au chargement ───────────
   async function remplirProfilPro(userId) {
-    const { data } = await sb.from('users').select('job_title,sector,level,experience_years,availability,city,salary_expectation,skills,bio,is_certified').eq('id',userId).maybeSingle();
+    const { data } = await sb.from('users').select('job_title,sector,level,experience_years,availability,city,salary_expectation,skills,bio,is_certified,linkedin_url').eq('id',userId).maybeSingle();
     if (!data) return;
     if (data.job_title) document.getElementById('pro-titre').value = data.job_title;
     if (data.sector) document.getElementById('pro-secteur').value = data.sector;
@@ -764,6 +769,11 @@
     if (data.salary_expectation) document.getElementById('pro-salaire').value = data.salary_expectation;
     if (data.skills?.length) document.getElementById('pro-competences').value = data.skills.join(', ');
     if (data.bio) document.getElementById('pro-bio').value = data.bio;
+    if (data.linkedin_url) {
+      document.getElementById('pro-linkedin').value = data.linkedin_url;
+      const certifLi = document.getElementById('certif-linkedin');
+      if (certifLi && !certifLi.value) certifLi.value = data.linkedin_url;
+    }
     if (data.is_certified) { document.getElementById('badge-verifie').style.display='inline-flex'; }
     chargerStatutCertif(userId);
   }
