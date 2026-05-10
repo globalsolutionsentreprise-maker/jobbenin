@@ -799,7 +799,7 @@
     const { data: { session } } = await sb.auth.getSession();
     const list = document.getElementById('alertes-list');
     if (!session) return;
-    const res  = await fetch('/api/jobs/alerts', {
+    const res  = await fetch('/api/jobs', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
       body: JSON.stringify({ action: 'list' }),
@@ -833,7 +833,7 @@
       msgEl.textContent = 'Veuillez saisir des mots-clés.';
       msgEl.className = 'alert alert-error'; msgEl.style.display = 'block'; return;
     }
-    const res = await fetch('/api/jobs/alerts', {
+    const res = await fetch('/api/jobs', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
       body: JSON.stringify({ action: 'subscribe', keywords, ville }),
@@ -853,7 +853,7 @@
   async function supprimerAlerte(id) {
     const { data: { session } } = await sb.auth.getSession();
     if (!session) return;
-    await fetch('/api/jobs/alerts', {
+    await fetch('/api/jobs', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
       body: JSON.stringify({ action: 'unsubscribe', alert_id: id }),

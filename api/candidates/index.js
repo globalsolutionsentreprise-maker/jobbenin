@@ -1,38 +1,74 @@
 'use strict';
 
-// POST /api/candidates/contact
-// Contacter un candidat — coûte 1 crédit à l'entreprise
+// Dispatche :
+//   GET  /api/candidates        → search (filtrée, entreprises connectées)
+//   POST /api/candidates        → contact (déduit 1 crédit)
 
 const { createClient } = require('@supabase/supabase-js');
 const { sendMail }     = require('../../lib/mailer');
 
 const SITE_URL = process.env.SITE_URL || 'https://talenco-bj.vercel.app';
+const PAGE_SIZE = 20;
 
 const supabaseAdmin = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_SERVICE_KEY
 );
 
-module.exports = async (req, res) => {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  if (req.method === 'OPTIONS') return res.status(200).end();
-  if (req.method !== 'POST') return res.status(405).end();
-
-  // Auth
+async function getCompany(req) {
   const token = req.headers.authorization?.replace('Bearer ', '');
-  if (!token) return res.status(401).json({ error: 'Connexion requise.' });
-
-  const { data: { user }, error: authErr } = await supabaseAdmin.auth.getUser(token);
-  if (authErr || !user) return res.status(401).json({ error: 'Token invalide.' });
-
-  const { data: company } = await supabaseAdmin
-    .from('users')
-    .select('id, role, credits, company_name, full_name, email')
+  if (!token) return null;
+  const { data: { user }, error } = await supabaseAdmin.auth.getUser(token);
+  if (error || !user) return null;
+  const { data } = await supabaseAdmin.from('users')
+    .select('id, role, credits, company_name, full_name, email, status')
     .eq('id', user.id).single();
+  return data?.role === 'entreprise' ? data : null;
+}
 
-  if (!company || company.role !== 'entreprise')
-    return res.status(403).json({ error: 'Réservé aux entreprises.' });
+// ── GET : recherche filtrée ───────────────────────────────────────────────────
+async function handleSearch(req, res) {
+  const company = await getCompany(req);
+  if (!company) return res.status(403).json({ error: 'Réservé aux entreprises connectées.' });
+
+  const { q, secteur, niveau, dispo, ville, certif, page = '0' } = req.query;
+  const offset = parseInt(page, 10) * PAGE_SIZE;
+
+  let query = supabaseAdmin
+    .from('users')
+    .select('id, full_name, job_title, level, availability, city, skills, bio, is_certified, certified_at, created_at, sector, linkedin_url', { count: 'exact' })
+    .eq('role', 'candidate')
+    .eq('is_active', true)
+    .not('job_title', 'is', null)
+    .range(offset, offset + PAGE_SIZE - 1);
+
+  if (secteur)        query = query.eq('sector', secteur);
+  if (niveau)         query = query.eq('level', niveau);
+  if (dispo)          query = query.eq('availability', dispo);
+  if (ville)          query = query.eq('city', ville);
+  if (certif === '1') query = query.eq('is_certified', true);
+  if (q)              query = query.ilike('job_title', `%${q}%`);
+
+  query = query
+    .order('is_certified', { ascending: false })
+    .order('created_at',   { ascending: false });
+
+  const { data, error, count } = await query;
+  if (error) return res.status(500).json({ error: error.message });
+
+  return res.status(200).json({
+    candidates: data ?? [],
+    total:   count ?? 0,
+    page:    parseInt(page, 10),
+    pages:   Math.ceil((count ?? 0) / PAGE_SIZE),
+    credits: company.credits ?? 0,
+  });
+}
+
+// ── POST : contact avec déduction crédit ─────────────────────────────────────
+async function handleContact(req, res) {
+  const company = await getCompany(req);
+  if (!company) return res.status(403).json({ error: 'Réservé aux entreprises connectées.' });
 
   if ((company.credits ?? 0) < 1)
     return res.status(402).json({ error: 'Crédits insuffisants. Achetez un pack pour continuer.', credits: 0 });
@@ -40,7 +76,6 @@ module.exports = async (req, res) => {
   const { candidate_id, message } = req.body ?? {};
   if (!candidate_id) return res.status(400).json({ error: 'candidate_id requis.' });
 
-  // Vérifier que le candidat existe
   const { data: candidate } = await supabaseAdmin
     .from('users')
     .select('id, full_name, email, job_title')
@@ -48,25 +83,20 @@ module.exports = async (req, res) => {
 
   if (!candidate) return res.status(404).json({ error: 'Candidat introuvable.' });
 
-  // Déduire 1 crédit (opération atomique via RPC ou update conditionnel)
   const { error: creditErr } = await supabaseAdmin
     .from('users')
-    .update({ credits: (company.credits - 1) })
+    .update({ credits: company.credits - 1 })
     .eq('id', company.id)
-    .gt('credits', 0);  // sécurité : n'update que si credits > 0
+    .gt('credits', 0);
 
   if (creditErr) return res.status(500).json({ error: 'Erreur déduction crédit.' });
 
-  // Enregistrer le contact
   await supabaseAdmin.from('candidate_contacts').insert({
-    company_id:   company.id,
-    candidate_id: candidate.id,
-    message:      message || null,
-  }).catch(() => {});  // non-bloquant si la table n'existe pas encore
+    company_id: company.id, candidate_id: candidate.id, message: message || null,
+  }).catch(() => {});
 
   const companyName = company.company_name || company.full_name || company.email;
 
-  // Email au candidat
   try {
     await sendMail({
       to: candidate.email,
@@ -108,4 +138,14 @@ module.exports = async (req, res) => {
     credits_remaining: newCredits,
     message: `Contact envoyé. Il vous reste ${newCredits} crédit(s).`,
   });
+}
+
+// ── Router ────────────────────────────────────────────────────────────────────
+module.exports = async (req, res) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  if (req.method === 'OPTIONS') return res.status(200).end();
+  if (req.method === 'GET')  return handleSearch(req, res);
+  if (req.method === 'POST') return handleContact(req, res);
+  return res.status(405).end();
 };

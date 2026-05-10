@@ -385,7 +385,7 @@ async function _soumettreCandidature(supabase, user, jobId, cvPath, container, m
   }).catch((err) => console.warn('Notification recruteur non critique:', err));
 
   // 2b. Déclencher le scoring IA (fire-and-forget — résultat visible dans le kanban)
-  fetch(`${SITE_URL}/api/jobs/score-application`, {
+  fetch(`${SITE_URL}/api/jobs`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ application_id: app.id }),

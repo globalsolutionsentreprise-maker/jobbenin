@@ -322,7 +322,7 @@ async function chargerProfils(page) {
     if (ville)   params.set('ville',   ville);
     if (certif)  params.set('certif',  certif);
 
-    const res = await fetch(`/api/candidates/search?${params}`, {
+    const res = await fetch(`/api/candidates?${params}`, {
       headers: { 'Authorization': `Bearer ${sessionToken}` },
     });
 
@@ -510,7 +510,7 @@ async function envoyerContact() {
 
   btn.disabled = true; btn.textContent = 'Envoi…';
 
-  const res = await fetch('/api/candidates/contact', {
+  const res = await fetch('/api/candidates', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${sessionToken}` },
     body: JSON.stringify({ candidate_id: contactCandidateId, message: msg }),

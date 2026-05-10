@@ -433,7 +433,7 @@
       const params = new URLSearchParams({ pays });
       if (q)     params.set('q',     q);
       if (ville) params.set('ville', ville);
-      const res  = await fetch(`/api/jobs/international?${params}`);
+      const res  = await fetch(`/api/jobs?${params}`);
       const data = await res.json();
 
       if (!res.ok) {

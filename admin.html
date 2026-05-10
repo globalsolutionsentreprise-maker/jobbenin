@@ -518,7 +518,7 @@ async function actionOffre(id, newStatus) {
   if (error) { toast('Erreur : ' + error.message, false); return; }
   toast(newStatus === 'published' ? '✅ Offre publiée !' : '❌ Offre rejetée');
   if (newStatus === 'published') {
-    fetch('/api/jobs/alerts', {
+    fetch('/api/jobs', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${currentSession.access_token}` },
       body: JSON.stringify({ action: 'notify', job_id: id }),
