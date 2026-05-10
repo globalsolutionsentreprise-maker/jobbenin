@@ -2,7 +2,8 @@
 
 // Dispatche :
 //   GET  /api/jobs?type=international&pays=fr|us  → offres internationales
-//   POST /api/jobs  action=score                  → scoring IA candidature
+//   POST /api/jobs  action=score                  → scoring IA candidature (post-candidature)
+//   POST /api/jobs  action=match                  → score compatibilité candidat ↔ offre (pré-candidature)
 //   POST /api/jobs  action=subscribe|…            → alertes emploi
 
 const { createClient } = require('@supabase/supabase-js');
@@ -280,6 +281,110 @@ async function handleAlerts(req, res) {
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
+// SCORE COMPATIBILITÉ (pré-candidature, basé sur le profil candidat)
+// ══════════════════════════════════════════════════════════════════════════════
+
+async function handleMatch(req, res) {
+  const token = req.headers.authorization?.replace('Bearer ', '');
+  if (!token) return res.status(401).json({ error: 'Connexion requise.' });
+
+  const { data: { user } } = await supabaseAdmin.auth.getUser(token);
+  if (!user) return res.status(401).json({ error: 'Token invalide.' });
+
+  const { job_id } = req.body ?? {};
+  if (!job_id) return res.status(400).json({ error: 'job_id requis.' });
+
+  // Vérifier le cache
+  const { data: cached } = await supabaseAdmin
+    .from('job_match_scores')
+    .select('score, breakdown, explanation')
+    .eq('user_id', user.id).eq('job_id', job_id).maybeSingle();
+
+  if (cached) return res.status(200).json({ ...cached, cached: true });
+
+  // Charger profil candidat
+  const { data: profile } = await supabaseAdmin
+    .from('users')
+    .select('job_title, skills, bio, level, sector')
+    .eq('id', user.id).single();
+
+  if (!profile) return res.status(404).json({ error: 'Profil introuvable.' });
+
+  // Charger l'offre
+  const { data: job } = await supabaseAdmin
+    .from('jobs')
+    .select('title, description, requirements, sector, city')
+    .eq('id', job_id).single();
+
+  if (!job) return res.status(404).json({ error: 'Offre introuvable.' });
+
+  const skills = Array.isArray(profile.skills) ? profile.skills.join(', ') : (profile.skills ?? '');
+
+  const prompt = `Tu es un expert RH. Évalue la compatibilité entre ce candidat et ce poste.
+Réponds UNIQUEMENT avec du JSON valide.
+
+=== POSTE ===
+Titre : ${job.title}
+Secteur : ${job.sector ?? ''}
+Description : ${(job.description ?? '').substring(0, 800)}
+Profil recherché : ${(job.requirements ?? '').substring(0, 500)}
+
+=== CANDIDAT ===
+Titre actuel : ${profile.job_title ?? 'non précisé'}
+Niveau : ${profile.level ?? 'non précisé'}
+Secteur : ${profile.sector ?? 'non précisé'}
+Compétences : ${skills || 'non précisées'}
+Bio : ${(profile.bio ?? '').substring(0, 400)}
+
+=== FORMAT ATTENDU ===
+{
+  "score": <entier 0-100>,
+  "breakdown": {
+    "competences": <0-100>,
+    "experience": <0-100>,
+    "secteur": <0-100>
+  },
+  "explication": "<1-2 phrases : pourquoi ce score, point fort et lacune principale>"
+}
+
+Règles : score = moyenne pondérée des 3 sous-scores. Sois précis et honnête.`;
+
+  let result;
+  try {
+    const groqRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${process.env.GROQ_API_KEY}` },
+      body: JSON.stringify({
+        model: 'llama-3.3-70b-versatile',
+        max_tokens: 256, temperature: 0.2,
+        response_format: { type: 'json_object' },
+        messages: [
+          { role: 'system', content: 'Expert RH. JSON uniquement.' },
+          { role: 'user', content: prompt },
+        ],
+      }),
+    });
+    if (!groqRes.ok) throw new Error(`Groq ${groqRes.status}`);
+    const raw = (await groqRes.json()).choices?.[0]?.message?.content ?? '{}';
+    result = JSON.parse(raw);
+  } catch (e) {
+    console.error('match score:', e.message);
+    return res.status(500).json({ error: 'Erreur calcul score.' });
+  }
+
+  const score = Math.min(100, Math.max(0, parseInt(result.score, 10) || 0));
+  const breakdown = result.breakdown ?? {};
+  const explanation = result.explication ?? '';
+
+  // Mettre en cache
+  await supabaseAdmin.from('job_match_scores').upsert({
+    user_id: user.id, job_id, score, breakdown, explanation,
+  }, { onConflict: 'user_id,job_id' }).catch(() => {});
+
+  return res.status(200).json({ score, breakdown, explanation, cached: false });
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
 // ROUTER PRINCIPAL
 // ══════════════════════════════════════════════════════════════════════════════
 
@@ -295,6 +400,7 @@ module.exports = async (req, res) => {
   if (req.method === 'POST') {
     const { action } = req.body ?? {};
     if (action === 'score') return handleScore(req, res);
+    if (action === 'match') return handleMatch(req, res);
     return handleAlerts(req, res);
   }
 

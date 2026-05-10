@@ -330,6 +330,8 @@
         </div>
 
         <div class="detail-sidebar-sticky">
+          <!-- Score de compatibilité (candidats connectés) -->
+          <div id="match-score-zone"></div>
           <!-- Lettre de motivation IA -->
           <div id="lettre-zone"></div>
           <!-- Boutons candidature (injectés par candidature.js) -->
@@ -362,8 +364,68 @@
     // Initialiser le générateur de lettre
     initLettreZone(job);
 
+    // Score de compatibilité (candidats connectés uniquement)
+    if (session) chargerMatchScore(session.access_token, jobId);
+
     // Offres similaires
     chargerSimilaires(job.sector, job.id);
+  }
+
+  async function chargerMatchScore(token, jobId) {
+    const zone = document.getElementById('match-score-zone');
+    if (!zone) return;
+
+    zone.innerHTML = `<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:16px;margin-bottom:12px;">
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--text-muted);margin-bottom:10px;">Score de compatibilité</div>
+      <div style="display:flex;align-items:center;gap:8px;color:var(--text-muted);font-size:12px;">
+        <div style="width:14px;height:14px;border:2px solid rgba(139,69,19,.3);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0;"></div>
+        Analyse en cours…
+      </div>
+    </div>`;
+
+    try {
+      const res = await fetch('/api/jobs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ action: 'match', job_id: jobId }),
+      });
+      if (!res.ok) { zone.innerHTML = ''; return; }
+      const { score, breakdown, explanation } = await res.json();
+
+      const color = score >= 70 ? '#15803d' : score >= 45 ? '#92400e' : '#b91c1c';
+      const bg    = score >= 70 ? '#f0fdf4' : score >= 45 ? '#fffbeb' : '#fef2f2';
+      const border= score >= 70 ? '#86efac' : score >= 45 ? '#fcd34d' : '#fca5a5';
+      const label = score >= 70 ? 'Bon profil' : score >= 45 ? 'Profil partiel' : 'Faible correspondance';
+
+      const bar = (val, label) => `
+        <div style="margin-bottom:8px;">
+          <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text-muted);margin-bottom:3px;">
+            <span>${label}</span><span style="font-weight:700;color:var(--text);">${val}%</span>
+          </div>
+          <div style="height:4px;background:var(--border);border-radius:2px;">
+            <div style="height:4px;width:${val}%;background:${color};border-radius:2px;transition:width .6s ease;"></div>
+          </div>
+        </div>`;
+
+      zone.innerHTML = `
+        <div style="background:${bg};border:1px solid ${border};border-radius:var(--radius-md);padding:16px;margin-bottom:12px;">
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--text-muted);margin-bottom:10px;">Score de compatibilité</div>
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+            <div style="font-size:36px;font-weight:900;color:${color};line-height:1;">${score}%</div>
+            <div>
+              <div style="font-size:12px;font-weight:700;color:${color};">${label}</div>
+              ${explanation ? `<div style="font-size:11px;color:var(--text-muted);line-height:1.4;margin-top:2px;">${explanation}</div>` : ''}
+            </div>
+          </div>
+          ${breakdown ? `
+            ${bar(breakdown.competences ?? 0, 'Compétences')}
+            ${bar(breakdown.experience  ?? 0, 'Expérience')}
+            ${bar(breakdown.secteur     ?? 0, 'Secteur')}
+          ` : ''}
+        </div>`;
+    } catch (e) {
+      zone.innerHTML = '';
+    }
   }
 
   async function chargerSimilaires(secteur, excludeId) {
