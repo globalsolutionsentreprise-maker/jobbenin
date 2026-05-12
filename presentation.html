@@ -388,6 +388,27 @@
     }
     .wa-btn:hover { opacity: .88; }
 
+    /* ── COUNTDOWN ── */
+    .countdown-band {
+      background: var(--bg-soft);
+      border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+      padding: 24px; text-align: center;
+    }
+    .countdown-label {
+      font-family: var(--font-mono); font-size: 11px; letter-spacing: .1em;
+      color: var(--text-muted); text-transform: uppercase; margin-bottom: 14px;
+    }
+    .countdown-timers { display: flex; justify-content: center; gap: 36px; }
+    .countdown-unit { text-align: center; }
+    .countdown-number {
+      font-family: var(--font-serif); font-style: italic;
+      font-size: 38px; line-height: 1; color: var(--accent); display: block;
+    }
+    .countdown-name {
+      font-size: 10px; color: var(--text-muted); font-family: var(--font-mono);
+      letter-spacing: .06em; text-transform: uppercase; margin-top: 4px;
+    }
+
     /* ── MOBILE ── */
     @media(max-width:640px) {
       .hero { padding: 72px 20px 48px; }
@@ -421,14 +442,14 @@
 <section class="hero">
   <div class="platform-badge">
     <span class="platform-dot"></span>
-    Plateforme de recrutement béninoise
+    Phase bêta ouverte — accès 100 % gratuit
   </div>
   <h1 class="hero-title">
     Le recrutement,<br>
     <em>enfin pensé pour le Bénin</em>
   </h1>
   <p class="hero-sub">
-    CVthèque 100 % vérifiée, offres structurées, Coach IA, matching candidat↔offre, alertes WhatsApp — une plateforme construite pour la réalité du marché béninois.
+    CVthèque 100 % vérifiée, offres structurées, Coach IA, matching candidat↔offre, alertes WhatsApp — une plateforme construite pour la réalité du marché béninois. <strong>Gratuit pendant toute la phase bêta.</strong>
   </p>
   <div class="hero-ctas-split">
     <div class="hero-cta-block">
@@ -461,8 +482,27 @@
     </div>
     <div class="stat-sep"></div>
     <div class="stat-item">
-      <span class="stat-value">0 arnaque</span>
-      <span class="stat-label">Entreprises certifiées RCCM/IFU</span>
+      <span class="stat-value">100 % gratuit</span>
+      <span class="stat-label">Pendant toute la phase bêta</span>
+    </div>
+  </div>
+</div>
+
+<!-- COUNTDOWN BÊTA -->
+<div class="countdown-band">
+  <div class="countdown-label">Fin de la phase bêta dans</div>
+  <div class="countdown-timers">
+    <div class="countdown-unit">
+      <span class="countdown-number" id="cd-days">--</span>
+      <div class="countdown-name">Jours</div>
+    </div>
+    <div class="countdown-unit">
+      <span class="countdown-number" id="cd-hours">--</span>
+      <div class="countdown-name">Heures</div>
+    </div>
+    <div class="countdown-unit">
+      <span class="countdown-number" id="cd-minutes">--</span>
+      <div class="countdown-name">Minutes</div>
     </div>
   </div>
 </div>
@@ -987,72 +1027,6 @@
 <hr class="section-divider">
 
 <!-- ════════════════════════════════
-     TARIFS
-     ════════════════════════════════ -->
-<section class="section" id="tarifs">
-  <div class="section-label">Tarifs</div>
-  <h2 class="section-title">Simple, transparent, béninois</h2>
-  <p class="section-sub">Des prix adaptés au marché local. Les crédits entreprises n'expirent jamais.</p>
-
-  <div class="pricing-grid">
-
-    <!-- CANDIDATS -->
-    <div class="price-card featured">
-      <div class="price-card-label">Candidats</div>
-      <div class="price-card-amount">
-        <span class="price-big">1 000 FCFA</span>
-        <span class="price-period">/ mois</span>
-      </div>
-      <div class="price-card-after">Accès complet à toutes les fonctionnalités. Compte suspendu après 3 mois d'inactivité — réactivation 2 000 FCFA.</div>
-      <ul class="price-features">
-        <li><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>Profil + CV visible par les recruteurs</span></li>
-        <li><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>Coach IA illimité — analyse CV, lettre, conseils</span></li>
-        <li><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>Simulation d'entretien sur chaque offre</span></li>
-        <li><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>Score de compatibilité IA sur chaque offre</span></li>
-        <li><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>Postulations illimitées + suivi en temps réel</span></li>
-        <li><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>Alertes email + WhatsApp</span></li>
-        <li><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>Accès aux offres France et USA</span></li>
-      </ul>
-      <a href="/inscription.html" class="btn btn-dark" style="display:block;text-align:center;padding:11px;">Créer mon profil</a>
-    </div>
-
-    <!-- ENTREPRISES -->
-    <div class="price-card">
-      <div class="price-card-label">Entreprises — Packs crédits</div>
-      <div class="price-packs">
-        <div class="pack-row">
-          <span class="pack-name">Starter</span>
-          <span class="pack-credits">10 crédits — CVthèque + offres</span>
-          <span class="pack-price">25 000 FCFA</span>
-        </div>
-        <div class="pack-row highlight">
-          <span class="pack-name">Growth</span>
-          <span class="pack-credits">30 crédits — équipe 2 recruteurs</span>
-          <span class="pack-price popular">60 000 FCFA</span>
-        </div>
-        <div class="pack-row">
-          <span class="pack-name">Business</span>
-          <span class="pack-credits">100 crédits — équipe illimitée</span>
-          <span class="pack-price">150 000 FCFA</span>
-        </div>
-      </div>
-      <div class="price-card-after">1 crédit = 1 contact CVthèque. Les crédits n'expirent jamais. La publication d'offres est gratuite.</div>
-      <ul class="price-features">
-        <li><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>Publication d'offres illimitée (gratuite)</span></li>
-        <li><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>CVthèque 100 % vérifiée + matching IA</span></li>
-        <li><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>Pipeline Kanban + statistiques par offre</span></li>
-        <li><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>Multi-comptes recruteurs — crédits partagés</span></li>
-        <li><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>Vérification éthique IA sur chaque offre</span></li>
-      </ul>
-      <a href="/inscription-entreprise.html" class="btn btn-outline" style="display:block;text-align:center;padding:11px;">Demander l'accès recruteur</a>
-    </div>
-
-  </div>
-</section>
-
-<hr class="section-divider">
-
-<!-- ════════════════════════════════
      CTA FINAL
      ════════════════════════════════ -->
 <section class="cta-section">
@@ -1104,6 +1078,27 @@ function switchTab(id, btn) {
   btn.classList.add('active');
   document.getElementById('panel-' + id).classList.add('active');
 }
+
+/* ── COUNTDOWN BÊTA ── */
+(function() {
+  const end = new Date('2026-07-12T00:00:00');
+  function tick() {
+    const diff = end - Date.now();
+    if (diff <= 0) {
+      ['cd-days','cd-hours','cd-minutes'].forEach(id => { const el = document.getElementById(id); if(el) el.textContent = '0'; });
+      return;
+    }
+    const d = Math.floor(diff / 86400000);
+    const h = Math.floor((diff % 86400000) / 3600000);
+    const m = Math.floor((diff % 3600000) / 60000);
+    const el = (id) => document.getElementById(id);
+    if(el('cd-days'))    el('cd-days').textContent    = String(d).padStart(2,'0');
+    if(el('cd-hours'))   el('cd-hours').textContent   = String(h).padStart(2,'0');
+    if(el('cd-minutes')) el('cd-minutes').textContent = String(m).padStart(2,'0');
+  }
+  tick();
+  setInterval(tick, 30000);
+})();
 </script>
 
 </body>
