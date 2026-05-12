@@ -1,978 +1,442 @@
 <!DOCTYPE html>
-<html lang="fr" data-i18n-title="pres.title">
+<html lang="fr">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Talenco.bj — Phase bêta ouverte</title>
-  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Hanken+Grotesk:wght@300;400;500;700;900&family=Space+Grotesk:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <title>Talenco.bj — La plateforme de recrutement du Bénin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/design-system.css">
   <style>
     /* ── HERO ── */
     .hero {
-      padding: 120px 24px 80px;
+      padding: 100px 24px 72px;
       text-align: center;
-      max-width: 760px;
+      max-width: 800px;
       margin: 0 auto;
     }
-    .beta-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      border: 1px solid var(--accent);
-      color: var(--accent);
-      font-family: var(--font-mono);
-      font-size: 11px;
-      letter-spacing: .08em;
-      padding: 5px 14px;
-      border-radius: 999px;
-      margin-bottom: 32px;
+    .platform-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      border: 1px solid var(--accent); color: var(--accent);
+      font-family: var(--font-mono); font-size: 11px; letter-spacing: .08em;
+      padding: 5px 14px; border-radius: 999px; margin-bottom: 32px;
     }
-    .beta-dot {
-      width: 7px; height: 7px;
-      border-radius: 50%;
-      background: var(--accent);
+    .platform-dot {
+      width: 6px; height: 6px; border-radius: 50%; background: var(--accent);
       animation: pulse 1.6s ease-in-out infinite;
     }
-    @keyframes pulse {
-      0%,100% { opacity: 1; transform: scale(1); }
-      50%      { opacity: .4; transform: scale(.7); }
-    }
+    @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(.7)} }
     .hero-title {
-      font-family: var(--font-serif);
-      font-style: italic;
-      font-size: clamp(36px, 6vw, 58px);
-      line-height: 1.12;
-      letter-spacing: -.02em;
-      margin-bottom: 20px;
+      font-family: var(--font-serif); font-style: italic;
+      font-size: clamp(36px, 6vw, 62px); line-height: 1.1;
+      letter-spacing: -.02em; margin-bottom: 22px;
     }
     .hero-title em { color: var(--accent); font-style: italic; }
     .hero-sub {
-      font-size: 16px;
-      color: var(--text-mid);
-      line-height: 1.7;
-      max-width: 560px;
-      margin: 0 auto 40px;
+      font-size: 16px; color: var(--text-mid); line-height: 1.72;
+      max-width: 580px; margin: 0 auto 44px;
     }
     .hero-ctas {
-      display: flex;
-      gap: 12px;
-      justify-content: center;
-      flex-wrap: wrap;
+      display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;
+    }
+    .hero-ctas-split {
+      display: flex; gap: 28px; justify-content: center; flex-wrap: wrap;
+    }
+    .hero-cta-block { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+    .hero-cta-label {
+      font-family: var(--font-mono); font-size: 10px; letter-spacing: .1em;
+      text-transform: uppercase; color: var(--text-muted);
     }
     .btn-hero-primary {
-      background: var(--text);
-      color: var(--bg);
-      font-family: var(--font-body);
-      font-size: 14px;
-      font-weight: 500;
-      padding: 13px 28px;
-      border-radius: var(--radius-sm);
-      border: none;
-      cursor: pointer;
-      text-decoration: none;
-      transition: var(--transition-btn);
+      background: var(--text); color: var(--bg);
+      font-family: var(--font-body); font-size: 14px; font-weight: 500;
+      padding: 13px 28px; border-radius: var(--radius-sm); border: none;
+      cursor: pointer; text-decoration: none; transition: var(--transition-btn);
+      display: inline-block;
     }
     .btn-hero-primary:hover { transform: translateY(-1px); }
     .btn-hero-outline {
-      background: transparent;
-      color: var(--text);
-      font-family: var(--font-body);
-      font-size: 14px;
-      font-weight: 500;
-      padding: 12px 28px;
-      border-radius: var(--radius-sm);
+      background: transparent; color: var(--text);
+      font-family: var(--font-body); font-size: 14px; font-weight: 500;
+      padding: 12px 28px; border-radius: var(--radius-sm);
       border: 1px solid var(--border-strong);
-      cursor: pointer;
-      text-decoration: none;
-      transition: var(--transition-btn);
+      cursor: pointer; text-decoration: none; transition: var(--transition-btn);
+      display: inline-block;
     }
     .btn-hero-outline:hover { background: var(--bg-soft); }
 
-    /* ── COUNTDOWN ── */
-    .countdown-band {
-      background: var(--bg-soft);
-      border-top: 1px solid var(--border);
-      border-bottom: 1px solid var(--border);
-      padding: 24px;
-      text-align: center;
+    /* ── STATS BAR ── */
+    .stats-bar {
+      background: var(--text); padding: 0;
     }
-    .countdown-label {
-      font-family: var(--font-mono);
-      font-size: 11px;
-      letter-spacing: .1em;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      margin-bottom: 12px;
+    .stats-inner {
+      max-width: 1100px; margin: 0 auto;
+      display: flex; align-items: stretch;
     }
-    .countdown-timers {
-      display: flex;
-      justify-content: center;
-      gap: 32px;
+    .stat-item {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 22px 20px; text-align: center;
     }
-    .countdown-unit { text-align: center; }
-    .countdown-number {
-      font-family: var(--font-serif);
-      font-size: 36px;
-      line-height: 1;
-      color: var(--accent);
-      display: block;
-      font-style: italic;
+    .stat-value {
+      font-family: var(--font-serif); font-style: italic;
+      font-size: 28px; color: #F9F6F1; line-height: 1;
+      margin-bottom: 6px; display: block;
     }
-    .countdown-name {
-      font-size: 11px;
-      color: var(--text-muted);
-      font-family: var(--font-mono);
-      letter-spacing: .06em;
-      text-transform: uppercase;
-      margin-top: 4px;
+    .stat-label {
+      font-size: 11px; color: rgba(249,246,241,.5);
+      font-family: var(--font-mono); letter-spacing: .05em;
+    }
+    .stat-sep { width: 1px; background: rgba(249,246,241,.1); flex-shrink: 0; }
+    @media(max-width:640px) {
+      .stats-inner { flex-wrap: wrap; }
+      .stat-item { flex: 1 1 50%; }
+      .stat-sep { display: none; }
     }
 
-    /* ── SECTION ── */
+    /* ── SECTION BASE ── */
     .section { padding: 80px 24px; max-width: 1100px; margin: 0 auto; }
     .section-label {
-      font-family: var(--font-mono);
-      font-size: 11px;
-      letter-spacing: .1em;
-      text-transform: uppercase;
-      color: var(--text-muted);
-      margin-bottom: 12px;
+      font-family: var(--font-mono); font-size: 11px; letter-spacing: .1em;
+      text-transform: uppercase; color: var(--text-muted); margin-bottom: 12px;
     }
     .section-title {
-      font-family: var(--font-serif);
-      font-style: italic;
-      font-size: clamp(24px, 4vw, 36px);
-      line-height: 1.18;
-      margin-bottom: 16px;
+      font-family: var(--font-serif); font-style: italic;
+      font-size: clamp(26px, 4vw, 40px); line-height: 1.15; margin-bottom: 16px;
     }
     .section-sub {
-      font-size: 15px;
-      color: var(--text-mid);
-      max-width: 520px;
-      line-height: 1.7;
-      margin-bottom: 48px;
+      font-size: 15px; color: var(--text-mid); line-height: 1.72;
+      max-width: 540px; margin-bottom: 52px;
+    }
+    .section-divider {
+      border: none; border-top: 1px solid var(--border); margin: 0;
     }
 
-    /* ── AUDIENCE GRID ── */
-    .audience-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 2px;
-      border: 1px solid var(--border);
-      border-radius: var(--radius-md);
-      overflow: hidden;
+    /* ── AUDIENCE TABS ── */
+    .audience-switch {
+      display: flex; gap: 0; border: 1px solid var(--border);
+      border-radius: var(--radius-sm); overflow: hidden;
+      width: fit-content; margin-bottom: 52px;
     }
-    @media (max-width: 640px) { .audience-grid { grid-template-columns: 1fr; } }
-    .audience-card {
-      background: var(--bg-card);
-      padding: 40px 36px;
+    .audience-tab {
+      font-family: var(--font-body); font-size: 13px; font-weight: 500;
+      padding: 10px 24px; background: transparent; border: none; cursor: pointer;
+      color: var(--text-muted); transition: background .15s, color .15s;
     }
-    .audience-card:first-child { border-right: 1px solid var(--border); }
-    .audience-icon {
-      width: 40px; height: 40px;
-      border: 1px solid var(--border);
+    .audience-tab.active { background: var(--text); color: var(--bg); }
+    .audience-tab:not(.active):hover { background: var(--bg-soft); color: var(--text); }
+
+    /* ── FEATURE PANELS ── */
+    .feature-panel { display: none; }
+    .feature-panel.active { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; }
+    @media(max-width:860px) { .feature-panel.active { grid-template-columns: 1fr; } }
+    .fp-col { display: flex; flex-direction: column; gap: 2px; }
+
+    /* Feature card */
+    .feat-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius-md); padding: 28px 28px 24px;
+    }
+    .feat-card.accent-top { border-top: 2px solid var(--accent); }
+    .feat-icon {
+      width: 38px; height: 38px;
+      background: var(--accent-bg); border: 1px solid var(--border);
       border-radius: var(--radius-sm);
       display: flex; align-items: center; justify-content: center;
-      margin-bottom: 20px;
+      color: var(--accent); margin-bottom: 16px;
     }
-    .audience-type {
-      font-family: var(--font-mono);
-      font-size: 11px;
-      letter-spacing: .08em;
-      text-transform: uppercase;
-      color: var(--text-muted);
-      margin-bottom: 8px;
+    .feat-title { font-weight: 600; font-size: 14px; margin-bottom: 8px; }
+    .feat-desc { font-size: 13px; color: var(--text-mid); line-height: 1.65; }
+    .feat-chips {
+      display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px;
     }
-    .audience-name {
-      font-family: var(--font-serif);
-      font-style: italic;
-      font-size: 22px;
-      margin-bottom: 14px;
+    .feat-chip {
+      font-family: var(--font-mono); font-size: 10px; letter-spacing: .04em;
+      padding: 3px 9px; border-radius: var(--radius-sm);
+      background: var(--bg-soft); color: var(--text-mid); border: 1px solid var(--border);
     }
-    .audience-desc {
-      font-size: 14px;
-      color: var(--text-mid);
-      line-height: 1.7;
-      margin-bottom: 24px;
-    }
-    .feature-list {
-      list-style: none;
-      padding: 0; margin: 0 0 28px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-    .feature-list li {
-      display: flex;
-      align-items: flex-start;
-      gap: 10px;
-      font-size: 13px;
-      color: var(--text-mid);
-    }
-    .feature-list li svg { flex-shrink: 0; margin-top: 1px; color: var(--accent); }
+    .feat-chip.ai { background: var(--accent-bg); color: var(--accent); border-color: var(--accent); }
 
-    /* ── FREE BADGE ── */
-    .free-tag {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: var(--accent-bg);
-      color: var(--accent);
-      font-family: var(--font-mono);
-      font-size: 11px;
-      letter-spacing: .06em;
-      padding: 5px 12px;
-      border-radius: var(--radius-sm);
-      margin-bottom: 28px;
+    /* Mini visual inside feat-card */
+    .feat-visual {
+      margin-top: 16px; background: var(--bg-soft);
+      border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px;
+      display: flex; flex-direction: column; gap: 8px;
     }
-
-    /* ── HOW IT WORKS ── */
-    .steps-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 32px;
+    .mini-row {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); padding: 10px 14px;
+      display: flex; align-items: center; gap: 10px;
     }
-    .step { }
-    .step-num {
-      font-family: var(--font-serif);
-      font-style: italic;
-      font-size: 40px;
-      color: var(--border);
-      line-height: 1;
-      margin-bottom: 12px;
-    }
-    .step-title {
-      font-weight: 600;
-      font-size: 14px;
-      margin-bottom: 8px;
-    }
-    .step-desc { font-size: 13px; color: var(--text-mid); line-height: 1.65; }
-
-    /* ── SPLIT FEATURE ── */
-    .feature-split {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 64px;
-      align-items: center;
-    }
-    @media (max-width: 700px) { .feature-split { grid-template-columns: 1fr; gap: 32px; } }
-    .feature-visual {
-      background: var(--bg-soft);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-md);
-      padding: 32px;
-      min-height: 260px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-    .mini-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      padding: 14px 16px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-    .mini-avatar {
-      width: 32px; height: 32px;
-      border-radius: 50%;
-      background: var(--bg-soft);
-      border: 1px solid var(--border);
-      flex-shrink: 0;
-      overflow: hidden;
-      display: flex; align-items: center; justify-content: center;
+    .mini-ava {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--bg-soft); border: 1px solid var(--border);
+      flex-shrink: 0; display: flex; align-items: center; justify-content: center;
     }
     .mini-info { flex: 1; }
-    .mini-name { font-size: 12px; font-weight: 600; line-height: 1.3; }
-    .mini-role { font-size: 11px; color: var(--text-muted); }
-    .mini-tag {
-      font-family: var(--font-mono);
-      font-size: 10px;
-      padding: 3px 8px;
-      border-radius: 999px;
-      background: var(--accent-bg);
-      color: var(--accent);
+    .mini-name { font-size: 12px; font-weight: 600; }
+    .mini-sub { font-size: 11px; color: var(--text-muted); }
+    .mini-badge {
+      font-family: var(--font-mono); font-size: 10px; padding: 2px 8px;
+      border-radius: 999px; background: var(--accent-bg); color: var(--accent);
+    }
+    .mini-badge.green { background: #dcfce7; color: #15803d; }
+    .mini-score {
+      font-family: var(--font-serif); font-style: italic;
+      font-size: 20px; color: var(--accent);
+    }
+    .mini-label { font-size: 11px; color: var(--text-muted); }
+
+    /* Checklist inside feat-card */
+    .feat-list { list-style: none; padding: 0; margin: 12px 0 0; display: flex; flex-direction: column; gap: 9px; }
+    .feat-list li { display: flex; align-items: flex-start; gap: 9px; font-size: 13px; color: var(--text-mid); }
+    .feat-list li svg { flex-shrink: 0; margin-top: 1px; color: var(--accent); }
+
+    /* ── IA HIGHLIGHT SECTION ── */
+    .ia-section {
+      background: var(--text); padding: 72px 24px;
+    }
+    .ia-inner { max-width: 1100px; margin: 0 auto; }
+    .ia-header { text-align: center; margin-bottom: 52px; }
+    .ia-eyebrow {
+      font-family: var(--font-mono); font-size: 11px; letter-spacing: .1em;
+      text-transform: uppercase; color: rgba(249,246,241,.45);
+      margin-bottom: 14px; display: block;
+    }
+    .ia-title {
+      font-family: var(--font-serif); font-style: italic;
+      font-size: clamp(26px, 4vw, 40px); color: #F9F6F1; line-height: 1.15;
+      margin-bottom: 14px;
+    }
+    .ia-title em { color: #C8892A; font-style: italic; }
+    .ia-sub { font-size: 15px; color: rgba(249,246,241,.6); line-height: 1.7; max-width: 500px; margin: 0 auto; }
+    .ia-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+    }
+    .ia-card {
+      background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08);
+      border-radius: var(--radius-md); padding: 28px 24px;
+    }
+    .ia-card-icon {
+      width: 36px; height: 36px;
+      background: rgba(200,137,42,.15); border: 1px solid rgba(200,137,42,.2);
+      border-radius: var(--radius-sm);
+      display: flex; align-items: center; justify-content: center;
+      color: #C8892A; margin-bottom: 14px;
+    }
+    .ia-card-title { font-size: 14px; font-weight: 600; color: #F9F6F1; margin-bottom: 8px; }
+    .ia-card-desc { font-size: 13px; color: rgba(249,246,241,.55); line-height: 1.65; }
+    .ia-tag {
+      display: inline-block; margin-top: 12px;
+      font-family: var(--font-mono); font-size: 10px; letter-spacing: .04em;
+      padding: 3px 9px; border-radius: var(--radius-sm);
+      background: rgba(200,137,42,.15); color: #C8892A; border: 1px solid rgba(200,137,42,.2);
     }
 
-    /* ── DIVIDER — motif géométrique Fon ── */
-    .section-divider {
-      border: none;
-      height: 20px;
-      margin: 0;
-      background-image: url("data:image/svg+xml,%3Csvg width='40' height='20' viewBox='0 0 40 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 10 L10 1 L20 10 L30 1 L40 10 L30 19 L20 10 L10 19 Z' fill='none' stroke='%238B4513' stroke-width='0.5' opacity='0.18'/%3E%3C/svg%3E");
-      background-repeat: repeat-x;
-      background-position: center;
+    /* ── CONFIANCE ── */
+    .trust-section {
+      background: var(--bg-soft);
+      border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
     }
+    .trust-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;
+    }
+    @media(max-width:700px) { .trust-grid { grid-template-columns: 1fr; } }
+    .trust-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius-md); padding: 28px 24px;
+    }
+    .trust-icon {
+      width: 40px; height: 40px; background: var(--accent-bg);
+      border: 1px solid var(--border); border-radius: var(--radius-sm);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--accent); margin-bottom: 16px;
+    }
+    .trust-title { font-weight: 600; font-size: 14px; margin-bottom: 8px; }
+    .trust-desc { font-size: 13px; color: var(--text-mid); line-height: 1.7; }
+
+    /* ── PARCOURS ── */
+    .parcours-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 48px;
+    }
+    @media(max-width:700px) { .parcours-grid { grid-template-columns: 1fr; gap: 36px; } }
+    .parcours-track-label {
+      font-family: var(--font-mono); font-size: 10px; letter-spacing: .1em;
+      text-transform: uppercase; color: var(--text-muted); margin-bottom: 20px;
+      padding-bottom: 10px; border-bottom: 1px solid var(--border);
+    }
+    .parcours-steps { display: flex; flex-direction: column; gap: 0; }
+    .parcours-step { display: flex; gap: 14px; padding-bottom: 24px; position: relative; }
+    .parcours-step:last-child { padding-bottom: 0; }
+    .parcours-step:not(:last-child)::after {
+      content: ''; position: absolute; left: 14px; top: 30px;
+      width: 1px; bottom: 0; background: var(--border);
+    }
+    .parcours-dot {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--accent-bg); border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; color: var(--accent); z-index: 1;
+    }
+    .parcours-body { flex: 1; }
+    .parcours-step-title { font-weight: 600; font-size: 13px; margin-bottom: 4px; }
+    .parcours-step-desc { font-size: 12px; color: var(--text-mid); line-height: 1.6; }
+
+    /* ── INTERNATIONAL ── */
+    .intl-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
+      max-width: 760px;
+    }
+    @media(max-width:640px) { .intl-grid { grid-template-columns: 1fr; } }
+    .intl-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius-md); padding: 28px 24px;
+    }
+    .intl-flag { font-size: 28px; margin-bottom: 12px; display: block; }
+    .intl-title { font-weight: 600; font-size: 14px; margin-bottom: 8px; }
+    .intl-desc { font-size: 13px; color: var(--text-mid); line-height: 1.65; }
+
+    /* ── TARIFS ── */
+    .pricing-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 24px;
+    }
+    @media(max-width:700px) { .pricing-grid { grid-template-columns: 1fr; } }
+    .price-card {
+      border: 1px solid var(--border); border-radius: var(--radius-md);
+      padding: 32px 28px; background: var(--bg-card);
+    }
+    .price-card.featured { border-color: var(--accent); background: var(--accent-bg); }
+    .price-card-label {
+      font-family: var(--font-mono); font-size: 11px; letter-spacing: .08em;
+      text-transform: uppercase; color: var(--text-muted); margin-bottom: 16px;
+    }
+    .price-card-amount { display: flex; align-items: baseline; gap: 8px; margin-bottom: 6px; }
+    .price-big {
+      font-family: var(--font-serif); font-style: italic;
+      font-size: 36px; color: var(--accent); line-height: 1;
+    }
+    .price-period { font-size: 13px; color: var(--text-muted); }
+    .price-card-after { font-size: 12px; color: var(--text-muted); margin-bottom: 24px; line-height: 1.6; }
+    .price-features { list-style: none; padding: 0; margin: 0 0 24px; display: flex; flex-direction: column; gap: 9px; }
+    .price-features li { display: flex; align-items: flex-start; gap: 9px; font-size: 13px; color: var(--text-mid); }
+    .price-features li svg { flex-shrink: 0; margin-top: 1px; color: var(--accent); }
+    .price-packs { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+    .pack-row {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 14px; border: 1px solid var(--border);
+      border-radius: var(--radius-sm); background: var(--bg);
+    }
+    .pack-row.highlight { border-color: var(--accent); background: var(--accent-bg); }
+    .pack-name { font-weight: 600; font-size: 13px; min-width: 66px; }
+    .pack-credits { font-size: 12px; color: var(--text-mid); flex: 1; }
+    .pack-price { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); }
+    .pack-row.highlight .pack-price { color: var(--accent); }
 
     /* ── CTA FINAL ── */
     .cta-section {
-      padding: 100px 24px;
+      background: var(--text); padding: 80px 24px;
       text-align: center;
-      max-width: 600px;
-      margin: 0 auto;
     }
     .cta-title {
-      font-family: var(--font-serif);
-      font-style: italic;
-      font-size: clamp(26px, 4vw, 36px);
-      line-height: 1.14;
-      margin-bottom: 18px;
+      font-family: var(--font-serif); font-style: italic;
+      font-size: clamp(28px, 5vw, 46px); color: #F9F6F1;
+      line-height: 1.15; margin-bottom: 16px;
     }
-    .cta-sub {
-      font-size: 15px;
-      color: var(--text-mid);
-      line-height: 1.7;
-      margin-bottom: 36px;
+    .cta-title em { color: #C8892A; font-style: italic; }
+    .cta-sub { font-size: 15px; color: rgba(249,246,241,.6); margin-bottom: 40px; }
+    .cta-btns { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+    .btn-cta-primary {
+      background: #F9F6F1; color: #1A1A1A;
+      font-family: var(--font-body); font-size: 14px; font-weight: 500;
+      padding: 13px 28px; border-radius: var(--radius-sm); border: none;
+      cursor: pointer; text-decoration: none; transition: opacity .15s;
+      display: inline-block;
     }
-    .cta-split {
-      display: flex;
-      gap: 16px;
-      justify-content: center;
-      flex-wrap: wrap;
+    .btn-cta-primary:hover { opacity: .9; }
+    .btn-cta-outline {
+      background: transparent; color: rgba(249,246,241,.75);
+      font-family: var(--font-body); font-size: 14px; font-weight: 500;
+      padding: 12px 28px; border-radius: var(--radius-sm);
+      border: 1px solid rgba(249,246,241,.2);
+      cursor: pointer; text-decoration: none; transition: border-color .15s;
+      display: inline-block;
     }
-    .cta-box {
-      flex: 1;
-      min-width: 200px;
-      max-width: 260px;
-      border: 1px solid var(--border);
-      border-radius: var(--radius-md);
-      padding: 28px 24px;
-      text-align: center;
-    }
-    .cta-box-icon {
-      margin-bottom: 12px;
-      color: var(--accent);
-    }
-    .cta-box-title { font-weight: 600; font-size: 14px; margin-bottom: 6px; }
-    .cta-box-sub { font-size: 12px; color: var(--text-muted); margin-bottom: 16px; }
-    .cta-box a {
-      display: block;
-      padding: 10px;
-      border-radius: var(--radius-sm);
-      font-size: 13px;
-      font-weight: 500;
-      text-decoration: none;
-      transition: var(--transition-btn);
-    }
-    .cta-box.dark a { background: var(--text); color: var(--bg); }
-    .cta-box.dark a:hover { opacity: .88; }
-    .cta-box.light a { background: var(--bg-soft); color: var(--text); border: 1px solid var(--border); }
-    .cta-box.light a:hover { background: var(--border); }
+    .btn-cta-outline:hover { border-color: rgba(249,246,241,.5); color: #F9F6F1; }
 
-    /* ── FOOTER ── */
-    .pres-footer {
-      border-top: 1px solid var(--border);
-      padding: 32px 24px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      max-width: 1100px;
-      margin: 0 auto;
-      flex-wrap: wrap;
-      gap: 12px;
-    }
-    .pres-footer-brand {
-      font-family: var(--font-serif);
-      font-style: italic;
-      font-size: 18px;
-    }
-    .pres-footer-brand span { color: var(--accent); }
-    .pres-footer-copy {
-      font-size: 12px;
-      color: var(--text-muted);
-    }
-
-    /* ── HERO CTAs SPLIT ── */
-    .hero-ctas-split {
-      display: flex;
-      gap: 12px;
-      justify-content: center;
-      flex-wrap: wrap;
-      margin-top: 8px;
-    }
-    .hero-cta-block {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 5px;
-    }
-    .hero-cta-label {
-      font-family: var(--font-mono);
-      font-size: 10px;
-      letter-spacing: .08em;
-      text-transform: uppercase;
-      color: var(--text-muted);
-    }
-
-    /* ── CERTIFICATION ── */
-    .certif-section {
-      background: var(--bg-soft);
-      border-top: 1px solid var(--border);
-      border-bottom: 1px solid var(--border);
-      padding: 60px 24px;
-    }
-    .certif-inner {
-      max-width: 900px;
-      margin: 0 auto;
-    }
-    .certif-header {
-      text-align: center;
-      margin-bottom: 48px;
-    }
-    .certif-header .section-label { margin-bottom: 10px; }
-    .certif-header h2 {
-      font-family: var(--font-serif);
-      font-style: italic;
-      font-size: clamp(22px, 3.5vw, 32px);
-      margin-bottom: 10px;
-    }
-    .certif-header p {
-      font-size: 14px;
-      color: var(--text-mid);
-      max-width: 480px;
-      margin: 0 auto;
-      line-height: 1.7;
-    }
-    .certif-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 24px;
-    }
-    @media (max-width: 640px) { .certif-grid { grid-template-columns: 1fr; } }
-    .certif-track {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-md);
-      padding: 28px;
-    }
-    .certif-track-label {
-      font-family: var(--font-mono);
-      font-size: 10px;
-      letter-spacing: .1em;
-      text-transform: uppercase;
-      color: var(--text-muted);
-      margin-bottom: 20px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .certif-track-label::after {
-      content: '';
-      flex: 1;
-      height: 1px;
-      background: var(--border);
-    }
-    .certif-steps {
-      display: flex;
-      flex-direction: column;
-      gap: 0;
-    }
-    .certif-step {
-      display: flex;
-      gap: 14px;
-      position: relative;
-    }
-    .certif-step:not(:last-child)::after {
-      content: '';
-      position: absolute;
-      left: 11px;
-      top: 28px;
-      bottom: -4px;
-      width: 1px;
-      background: var(--border);
-    }
-    .certif-step + .certif-step { margin-top: 16px; }
-    .certif-dot {
-      width: 24px;
-      height: 24px;
-      border-radius: 50%;
-      background: var(--accent-bg);
-      border: 1px solid var(--accent);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      margin-top: 1px;
-    }
-    .certif-dot svg { color: var(--accent); }
-    .certif-step-body { flex: 1; padding-bottom: 16px; }
-    .certif-step-title { font-size: 13px; font-weight: 600; margin-bottom: 3px; }
-    .certif-step-desc { font-size: 12px; color: var(--text-mid); line-height: 1.6; }
-    .certif-note {
-      margin-top: 12px;
-      font-size: 11px;
-      color: var(--text-muted);
-      font-family: var(--font-mono);
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
-
-    /* ── WHATSAPP BANNER ── */
+    /* ── WHATSAPP ── */
     .wa-banner {
-      background: #0F0A06;
-      padding: 48px 24px;
-      text-align: center;
+      background: var(--bg-soft);
+      border-top: 1px solid var(--border); padding: 36px 24px;
     }
     .wa-banner-inner {
-      max-width: 620px;
-      margin: 0 auto;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 18px;
+      max-width: 700px; margin: 0 auto;
+      display: flex; align-items: center; gap: 20px; flex-wrap: wrap;
     }
     .wa-icon {
-      width: 52px; height: 52px;
-      background: #25D366;
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 0 0 8px rgba(37,211,102,0.12);
+      width: 44px; height: 44px; border-radius: 50%; background: #25D366;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
     }
-    .wa-banner-title {
-      font-family: var(--font-serif);
-      font-style: italic;
-      font-size: clamp(20px, 3vw, 26px);
-      color: #F9F6F1;
-      line-height: 1.25;
-    }
-    .wa-banner-sub {
-      font-size: 14px;
-      color: rgba(249,246,241,0.55);
-      max-width: 420px;
-      line-height: 1.7;
-    }
+    .wa-body { flex: 1; min-width: 220px; }
+    .wa-body strong { font-size: 14px; display: block; margin-bottom: 4px; }
+    .wa-body span { font-size: 13px; color: var(--text-mid); }
     .wa-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      background: #25D366;
-      color: #fff;
-      font-family: var(--font-body);
-      font-size: 14px;
-      font-weight: 500;
-      padding: 13px 28px;
-      border-radius: var(--radius-sm);
-      text-decoration: none;
-      transition: opacity .2s;
+      background: #25D366; color: #fff;
+      font-family: var(--font-body); font-size: 13px; font-weight: 500;
+      padding: 10px 20px; border-radius: var(--radius-sm); border: none;
+      cursor: pointer; text-decoration: none; white-space: nowrap;
+      display: inline-block; transition: opacity .15s;
     }
     .wa-btn:hover { opacity: .88; }
-    .wa-note {
-      font-family: var(--font-mono);
-      font-size: 11px;
-      letter-spacing: .06em;
-      color: rgba(249,246,241,0.25);
-    }
 
-    /* ── COACH IA SECTION ── */
-    .coach-section {
-      background: #0F0A06;
-      padding: 80px 24px;
+    /* ── MOBILE ── */
+    @media(max-width:640px) {
+      .hero { padding: 72px 20px 48px; }
     }
-    .coach-inner {
-      max-width: 960px;
-      margin: 0 auto;
-    }
-    .coach-header {
-      text-align: center;
-      margin-bottom: 52px;
-    }
-    .coach-label {
-      font-family: var(--font-mono);
-      font-size: 11px;
-      letter-spacing: .1em;
-      text-transform: uppercase;
-      color: rgba(200,137,42,0.75);
-      margin-bottom: 12px;
-    }
-    .coach-title {
-      font-family: var(--font-serif);
-      font-style: italic;
-      font-size: clamp(24px, 4vw, 38px);
-      color: #F9F6F1;
-      line-height: 1.12;
-      margin-bottom: 14px;
-    }
-    .coach-sub {
-      font-size: 15px;
-      color: rgba(249,246,241,0.55);
-      max-width: 480px;
-      margin: 0 auto;
-      line-height: 1.7;
-    }
-    .coach-cards {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 1px;
-      background: rgba(200,137,42,0.10);
-      border: 1px solid rgba(200,137,42,0.10);
-      border-radius: var(--radius-md);
-      overflow: hidden;
-      margin-bottom: 44px;
-    }
-    .coach-card {
-      background: #0F0A06;
-      padding: 36px 30px;
-    }
-    .coach-card-icon {
-      width: 40px; height: 40px;
-      background: rgba(200,137,42,0.10);
-      border: 1px solid rgba(200,137,42,0.18);
-      border-radius: var(--radius-sm);
-      display: flex; align-items: center; justify-content: center;
-      margin-bottom: 20px;
-      color: #C8892A;
-    }
-    .coach-card-title {
-      font-size: 14px;
-      font-weight: 600;
-      color: #F9F6F1;
-      margin-bottom: 8px;
-      line-height: 1.4;
-    }
-    .coach-card-desc {
-      font-size: 13px;
-      color: rgba(249,246,241,0.45);
-      line-height: 1.7;
-    }
-    .coach-cta-wrap {
-      text-align: center;
-    }
-    .btn-coach {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      background: linear-gradient(135deg, #9B5E1A, #C8892A);
-      color: #fff;
-      font-family: var(--font-body);
-      font-size: 14px;
-      font-weight: 500;
-      padding: 14px 36px;
-      border-radius: var(--radius-sm);
-      text-decoration: none;
-      transition: opacity .2s, transform .12s;
-    }
-    .btn-coach:hover { opacity: .9; transform: translateY(-1px); }
-    .coach-cta-note {
-      margin-top: 12px;
-      font-size: 11px;
-      color: rgba(249,246,241,0.28);
-      font-family: var(--font-mono);
-      letter-spacing: .05em;
-    }
-
-    /* ── STATS BAR ── */
-    .stats-bar {
-      background: var(--text);
-      padding: 20px 24px;
-    }
-    .stats-inner {
-      max-width: 860px;
-      margin: 0 auto;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0;
-      flex-wrap: wrap;
-    }
-    .stat-item {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 8px 32px;
-    }
-    .stat-value {
-      font-family: var(--font-serif);
-      font-style: italic;
-      font-size: 24px;
-      color: var(--bg);
-      line-height: 1;
-    }
-    .stat-label {
-      font-family: var(--font-mono);
-      font-size: 10px;
-      letter-spacing: .06em;
-      color: rgba(249,246,241,0.45);
-      margin-top: 4px;
-      text-align: center;
-    }
-    .stat-sep {
-      width: 1px;
-      height: 36px;
-      background: rgba(249,246,241,0.12);
-    }
-    @media (max-width: 640px) {
-      .stat-sep { display: none; }
-      .stat-item { padding: 8px 18px; }
-    }
-
-    /* ── PRICE INLINE (audience cards) ── */
-    .price-inline {
-      display: flex;
-      align-items: baseline;
-      gap: 8px;
-      margin-bottom: 18px;
-      flex-wrap: wrap;
-    }
-    .price-main {
-      font-family: var(--font-serif);
-      font-style: italic;
-      font-size: 20px;
-      color: var(--accent);
-    }
-    .price-after {
-      font-size: 12px;
-      color: var(--text-muted);
-    }
-
-    /* ── DIFFÉRENCIATEURS ── */
-    .diff-section {
-      background: var(--bg-soft);
-      border-top: 1px solid var(--border);
-      border-bottom: 1px solid var(--border);
-    }
-    .diff-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 24px;
-    }
-    @media (max-width: 700px) { .diff-grid { grid-template-columns: 1fr; } }
-    .diff-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-md);
-      padding: 28px 24px;
-    }
-    .diff-icon {
-      width: 40px; height: 40px;
-      background: var(--accent-bg);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      display: flex; align-items: center; justify-content: center;
-      color: var(--accent);
-      margin-bottom: 16px;
-    }
-    .diff-title {
-      font-weight: 600;
-      font-size: 14px;
-      margin-bottom: 8px;
-    }
-    .diff-desc {
-      font-size: 13px;
-      color: var(--text-mid);
-      line-height: 1.7;
-    }
-
-    /* ── PRICING ── */
-    .pricing-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 24px;
-    }
-    @media (max-width: 700px) { .pricing-grid { grid-template-columns: 1fr; } }
-    .price-card {
-      border: 1px solid var(--border);
-      border-radius: var(--radius-md);
-      padding: 32px 28px;
-      background: var(--bg-card);
-    }
-    .price-card.featured {
-      border-color: var(--accent);
-      background: var(--accent-bg);
-    }
-    .price-card-label {
-      font-family: var(--font-mono);
-      font-size: 11px;
-      letter-spacing: .08em;
-      text-transform: uppercase;
-      color: var(--text-muted);
-      margin-bottom: 16px;
-    }
-    .price-card-amount {
-      display: flex;
-      align-items: baseline;
-      gap: 8px;
-      margin-bottom: 6px;
-    }
-    .price-big {
-      font-family: var(--font-serif);
-      font-style: italic;
-      font-size: 36px;
-      color: var(--accent);
-      line-height: 1;
-    }
-    .price-period {
-      font-size: 13px;
-      color: var(--text-muted);
-    }
-    .price-card-after {
-      font-size: 12px;
-      color: var(--text-muted);
-      margin-bottom: 24px;
-      line-height: 1.6;
-    }
-    .price-features {
-      list-style: none;
-      padding: 0;
-      margin: 0 0 24px;
-      display: flex;
-      flex-direction: column;
-      gap: 9px;
-    }
-    .price-features li {
-      display: flex;
-      align-items: flex-start;
-      gap: 9px;
-      font-size: 13px;
-      color: var(--text-mid);
-    }
-    .price-features li svg { flex-shrink: 0; margin-top: 1px; color: var(--accent); }
-
-    /* ── PACKS ENTREPRISES ── */
-    .price-packs {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      margin-bottom: 16px;
-    }
-    .pack-row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 10px 14px;
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      background: var(--bg);
-    }
-    .pack-row.highlight { border-color: var(--accent); background: var(--accent-bg); }
-    .pack-name { font-weight: 600; font-size: 13px; min-width: 60px; }
-    .pack-credits { font-size: 12px; color: var(--text-mid); flex: 1; }
-    .pack-badge {
-      font-family: var(--font-mono);
-      font-size: 10px;
-      letter-spacing: .05em;
-      color: var(--text-muted);
-    }
-    .pack-row.highlight .pack-badge { color: var(--accent); }
-    .popular { font-weight: 600; }
-
-    /* ── CHAT AGENT ── */
-    #tc-chat-btn {
-      position: fixed; bottom: 28px; right: 28px;
-      width: 52px; height: 52px; border-radius: 50%;
-      background: linear-gradient(135deg, #9B5E1A, #C8892A);
-      border: none; cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 4px 20px rgba(200,137,42,0.40);
-      z-index: 9999; transition: transform .2s, box-shadow .2s;
-    }
-    #tc-chat-btn:hover { transform: scale(1.07); box-shadow: 0 6px 28px rgba(200,137,42,0.55); }
-    #tc-chat-btn svg { width: 22px; height: 22px; stroke: #fff; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-    #tc-chat-box {
-      position: fixed; bottom: 90px; right: 28px;
-      width: 340px; max-height: 480px;
-      background: #0f0f13; border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 16px; box-shadow: 0 12px 40px rgba(0,0,0,0.5);
-      display: none; flex-direction: column;
-      z-index: 9998; overflow: hidden;
-    }
-    #tc-chat-box.open { display: flex; }
-    #tc-chat-header {
-      padding: 14px 16px;
-      background: rgba(200,137,42,0.10);
-      border-bottom: 1px solid rgba(200,137,42,0.12);
-      display: flex; align-items: center; gap: 10px;
-    }
-    #tc-chat-header .tc-avatar {
-      width: 32px; height: 32px; border-radius: 50%;
-      background: linear-gradient(135deg, #9B5E1A, #C8892A);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 14px; font-weight: 700; color: #fff;
-    }
-    #tc-chat-header .tc-info .tc-name { font-size: 13px; font-weight: 600; color: #f0f0f5; }
-    #tc-chat-header .tc-info .tc-status { font-size: 11px; color: #6ee7b7; display: flex; align-items: center; gap: 4px; }
-    #tc-chat-header .tc-info .tc-status::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: #6ee7b7; display: inline-block; }
-    #tc-chat-messages {
-      flex: 1; overflow-y: auto; padding: 14px;
-      display: flex; flex-direction: column; gap: 10px;
-      scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.1) transparent;
-    }
-    .tc-msg { max-width: 82%; padding: 9px 13px; border-radius: 12px; font-size: 13px; line-height: 1.5; color: #e8e8f0; font-family: 'Space Grotesk', sans-serif; }
-    .tc-msg.bot { background: rgba(255,255,255,0.06); align-self: flex-start; border-bottom-left-radius: 3px; }
-    .tc-msg.user { background: rgba(200,137,42,0.28); align-self: flex-end; border-bottom-right-radius: 3px; color: #fff; }
-    .tc-msg.typing { color: rgba(255,255,255,0.35); font-style: italic; }
-    #tc-chat-footer {
-      padding: 10px 12px; border-top: 1px solid rgba(255,255,255,0.06);
-      display: flex; gap: 8px; align-items: center;
-    }
-    #tc-chat-input {
-      flex: 1; background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.08); border-radius: 8px;
-      padding: 9px 12px; font-size: 13px; color: #f0f0f5;
-      font-family: 'Space Grotesk', sans-serif;
-      outline: none; resize: none; height: 38px; line-height: 1.3;
-      transition: border-color .2s;
-    }
-    #tc-chat-input:focus { border-color: rgba(200,137,42,0.5); }
-    #tc-chat-input::placeholder { color: rgba(255,255,255,0.25); }
-    #tc-chat-send {
-      width: 36px; height: 36px; border-radius: 8px;
-      background: linear-gradient(135deg, #9B5E1A, #C8892A);
-      border: none; cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-      transition: opacity .2s; flex-shrink: 0;
-    }
-    #tc-chat-send:disabled { opacity: 0.4; cursor: default; }
-    #tc-chat-send svg { width: 16px; height: 16px; stroke: #fff; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
   </style>
 </head>
 <body>
 
-<!-- NAVBAR -->
+<!-- NAV -->
 <nav class="navbar">
-  <a href="/index.html" class="talenco-logo">
-    <div class="nav-logo">
-      <div class="nav-logo-text">
-        <span class="logo-primary">Talenco</span><span class="logo-dot">.</span><span class="logo-tld">bj</span>
-      </div>
-      <div class="logo-tagline" data-i18n="nav.tagline">Recrutement au Bénin</div>
+  <div class="navbar-inner">
+    <a href="/index.html" class="navbar-logo">Talenco<span style="color:var(--accent)">.</span>bj</a>
+    <ul class="navbar-links">
+      <li><a href="/offres.html">Offres</a></li>
+      <li><a href="/international.html">International</a></li>
+      <li><a href="/coach.html">✨ Coach IA</a></li>
+      <li><a href="/blog.html">Blog</a></li>
+    </ul>
+    <div class="navbar-actions">
+      <a href="/connexion.html" class="btn btn-ghost btn-sm">Connexion</a>
+      <a href="/inscription.html" class="btn btn-dark btn-sm">Créer un compte</a>
     </div>
-  </a>
-  <ul class="navbar-links">
-    <li><a href="/offres.html" data-i18n="nav.jobs">Offres</a></li>
-    <li><a href="/international.html" data-i18n="nav.international">International</a></li>
-    <li><a href="#candidats" data-i18n="nav.candidates">Candidats</a></li>
-    <li><a href="#entreprises" data-i18n="nav.companies">Entreprises</a></li>
-    <li><a href="/coach.html" data-i18n="nav.coach">Coach IA</a></li>
-    <li><a href="/blog.html" data-i18n="nav.blog">Blog</a></li>
-  </ul>
-  <div class="navbar-actions">
-    <a href="/inscription.html" class="btn btn-dark btn-sm" data-i18n="nav.signup">Créer un compte</a>
+    <button class="navbar-burger" onclick="document.querySelector('.navbar-links').classList.toggle('open')">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
   </div>
 </nav>
 
 <!-- HERO -->
 <section class="hero">
-  <div class="beta-badge">
-    <div class="beta-dot"></div>
-    <span data-i18n="pres.hero.badge">Phase bêta · Made in Bénin</span>
+  <div class="platform-badge">
+    <span class="platform-dot"></span>
+    Plateforme de recrutement béninoise
   </div>
-  <h1 class="hero-title" data-i18n-html="pres.hero.title">
-    Le recrutement premium<br>
-    enfin pensé pour <em>le Bénin</em>
+  <h1 class="hero-title">
+    Le recrutement,<br>
+    <em>enfin pensé pour le Bénin</em>
   </h1>
-  <p class="hero-sub" data-i18n="pres.hero.sub">
-    Coach IA qui analyse votre CV et prépare vos entretiens. CVthèque 100% vérifiée pour recruter sans perdre de temps. Matching intelligent entre talents et offres — fait pour le marché béninois.
+  <p class="hero-sub">
+    CVthèque 100 % vérifiée, offres structurées, Coach IA, matching candidat↔offre, alertes WhatsApp — une plateforme construite pour la réalité du marché béninois.
   </p>
   <div class="hero-ctas-split">
     <div class="hero-cta-block">
-      <span class="hero-cta-label" data-i18n="pres.hero.ctalabel1">Je cherche un emploi</span>
-      <a href="/inscription.html" class="btn-hero-primary" data-i18n="pres.hero.cta1">Candidat — Inscription gratuite</a>
+      <span class="hero-cta-label">Je cherche un emploi</span>
+      <a href="/inscription.html" class="btn-hero-primary">Candidat — Inscription gratuite</a>
     </div>
     <div class="hero-cta-block">
-      <span class="hero-cta-label" data-i18n="pres.hero.ctalabel2">Je recrute</span>
-      <a href="/inscription-entreprise.html" class="btn-hero-outline" data-i18n="pres.hero.cta2">Recruteur — Demander l'accès</a>
+      <span class="hero-cta-label">Je recrute</span>
+      <a href="/inscription-entreprise.html" class="btn-hero-outline">Recruteur — Demander l'accès</a>
     </div>
   </div>
 </section>
@@ -981,508 +445,605 @@
 <div class="stats-bar">
   <div class="stats-inner">
     <div class="stat-item">
-      <span class="stat-value">100%</span>
-      <span class="stat-label" data-i18n="pres.stats.candidates">Candidats vérifiés manuellement</span>
+      <span class="stat-value">100 %</span>
+      <span class="stat-label">Candidats vérifiés manuellement</span>
     </div>
     <div class="stat-sep"></div>
     <div class="stat-item">
       <span class="stat-value">IA</span>
-      <span class="stat-label" data-i18n="pres.stats.matching">Matching candidat ↔ offre</span>
+      <span class="stat-label">Matching candidat ↔ offre en temps réel</span>
     </div>
     <div class="stat-sep"></div>
     <div class="stat-item">
-      <span class="stat-value">24h</span>
-      <span class="stat-label" data-i18n="pres.stats.coach">Coach IA disponible</span>
+      <span class="stat-value">24 h/24</span>
+      <span class="stat-label">Coach IA disponible</span>
     </div>
     <div class="stat-sep"></div>
     <div class="stat-item">
-      <span class="stat-value">0 FCFA</span>
-      <span class="stat-label" data-i18n="pres.stats.free">Gratuit en phase bêta</span>
-    </div>
-  </div>
-</div>
-
-<!-- COUNTDOWN -->
-<div class="countdown-band">
-  <div class="countdown-label" data-i18n="pres.countdown.label">Fin de la phase bêta dans</div>
-  <div class="countdown-timers">
-    <div class="countdown-unit">
-      <span class="countdown-number" id="cd-days">--</span>
-      <div class="countdown-name" data-i18n="pres.countdown.days">Jours</div>
-    </div>
-    <div class="countdown-unit">
-      <span class="countdown-number" id="cd-hours">--</span>
-      <div class="countdown-name" data-i18n="pres.countdown.hours">Heures</div>
-    </div>
-    <div class="countdown-unit">
-      <span class="countdown-number" id="cd-minutes">--</span>
-      <div class="countdown-name" data-i18n="pres.countdown.minutes">Minutes</div>
+      <span class="stat-value">0 arnaque</span>
+      <span class="stat-label">Entreprises certifiées RCCM/IFU</span>
     </div>
   </div>
 </div>
 
 <hr class="section-divider">
 
-<!-- AUDIENCE -->
-<section class="section" id="candidats">
-  <div class="section-label" data-i18n="pres.audience.label">Pour les talents et les entreprises du Bénin</div>
-  <h2 class="section-title" data-i18n="pres.audience.title">Conçu pour les deux côtés du recrutement</h2>
-  <p class="section-sub" data-i18n="pres.audience.sub">Que vous cherchiez un emploi ou un talent béninois, Talenco.bj offre les outils faits pour notre réalité — pas des fonctionnalités copiées sur LinkedIn.</p>
+<!-- ════════════════════════════════════════
+     FONCTIONNALITÉS — SECTION PRINCIPALE
+     ════════════════════════════════════════ -->
+<section class="section" id="fonctionnalites">
+  <div class="section-label">Fonctionnalités</div>
+  <h2 class="section-title">Tout ce dont vous avez besoin,<br>des deux côtés du recrutement</h2>
+  <p class="section-sub">Que vous cherchiez un poste ou un talent, Talenco.bj couvre l'intégralité du cycle — de la création du profil à la décision finale.</p>
 
-  <div class="audience-grid">
-    <!-- CANDIDAT -->
-    <div class="audience-card">
-      <div class="audience-icon">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--accent)">
-          <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
-        </svg>
-      </div>
-      <div class="audience-type" data-i18n="pres.cand.for">Pour vous</div>
-      <div class="audience-name" data-i18n="pres.cand.name">Candidats</div>
-      <p class="audience-desc" data-i18n="pres.cand.desc">Votre prochaine opportunité professionnelle au Bénin — avec un coach IA dans votre poche et un profil visible uniquement par des entreprises certifiées.</p>
-      <ul class="feature-list">
-        <li>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:#C8892A"><polyline points="20 6 9 17 4 12"/></svg>
-          <span data-i18n-html="pres.cand.f1"><strong>Coach IA</strong> — analyse de CV, lettre de motivation, conseils carrière sur mesure</span>
-        </li>
-        <li>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:#C8892A"><polyline points="20 6 9 17 4 12"/></svg>
-          <span data-i18n-html="pres.cand.f3"><strong>Score de compatibilité IA</strong> — votre % de match avant de postuler, détail par compétences / expérience / secteur</span>
-        </li>
-        <li>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:#C8892A"><polyline points="20 6 9 17 4 12"/></svg>
-          <span data-i18n-html="pres.cand.fsim"><strong>Simulation d'entretien ciblée</strong> — 5 questions générées par IA sur chaque offre + feedback noté /10</span>
-        </li>
-        <li>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:#C8892A"><polyline points="20 6 9 17 4 12"/></svg>
-          <span data-i18n-html="pres.cand.falerte"><strong>Alertes emploi par email</strong> — mots-clés + ville, notification dès qu'une offre correspond</span>
-        </li>
-        <li>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-          <span data-i18n-html="pres.cand.f2"><strong>Lettre de motivation</strong> générée en un clic pour chaque offre</span>
-        </li>
-        <li>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-          <span data-i18n="pres.cand.f6">Suivi des candidatures — email à chaque étape (vue, entretien, décision)</span>
-        </li>
-        <li>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-          <span data-i18n="pres.cand.f5">Postulation en un clic avec votre CV déjà chargé</span>
-        </li>
-        <li>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-          <span data-i18n="pres.cand.f4">Profil visible uniquement par des recruteurs certifiés</span>
-        </li>
-        <li>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-          <span data-i18n-html="pres.cand.f7">Offres en <strong>France</strong> et aux <strong>États-Unis</strong> accessibles depuis votre compte</span>
-        </li>
-      </ul>
-      <div class="price-inline">
-        <span class="price-main" data-i18n="pres.cand.price">Gratuit</span>
-        <span class="price-after" data-i18n="pres.cand.priceafter">pendant la phase bêta · 1 000 FCFA/mois après</span>
-      </div>
-      <a href="/inscription.html" class="btn btn-dark btn-sm" data-i18n="pres.cand.cta">Créer mon profil gratuitement</a>
-    </div>
-
-    <!-- ENTREPRISE -->
-    <div class="audience-card" id="entreprises">
-      <div class="audience-icon">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--accent)">
-          <rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>
-        </svg>
-      </div>
-      <div class="audience-type" data-i18n="pres.comp.for">Pour votre structure</div>
-      <div class="audience-name" data-i18n="pres.comp.name">Entreprises</div>
-      <p class="audience-desc" data-i18n="pres.comp.desc">Fini les centaines de CVs non qualifiés. Accédez à une base de talents vérifiés, matchés par IA sur vos offres — avec un pipeline de recrutement qui suit la réalité béninoise.</p>
-      <ul class="feature-list">
-        <li>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:#C8892A"><polyline points="20 6 9 17 4 12"/></svg>
-          <span data-i18n-html="pres.comp.f1"><strong>CVthèque 100% vérifiée</strong> avec filtres avancés — secteur, niveau, ville, disponibilité</span>
-        </li>
-        <li>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:#C8892A"><polyline points="20 6 9 17 4 12"/></svg>
-          <span data-i18n-html="pres.comp.f2"><strong>Matching IA</strong> — les meilleurs profils remontent automatiquement</span>
-        </li>
-        <li>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:#C8892A"><polyline points="20 6 9 17 4 12"/></svg>
-          <span data-i18n-html="pres.comp.f3"><strong>Tableau Kanban</strong> — pipeline Reçu · Présélectionné · Entretien · Retenu</span>
-        </li>
-        <li>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:#C8892A"><polyline points="20 6 9 17 4 12"/></svg>
-          <span data-i18n-html="pres.comp.fteam"><strong>Équipe multi-comptes</strong> — invitez vos collègues recruteurs, crédits et pipeline partagés</span>
-        </li>
-        <li>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-          <span data-i18n="pres.comp.f4">Profil entreprise certifié — les bons talents font confiance à vos offres</span>
-        </li>
-        <li>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-          <span data-i18n="pres.comp.f5">Contact direct par crédit avec message personnalisé</span>
-        </li>
-        <li>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-          <span data-i18n="pres.comp.f6">Publication d'offres + statistiques de recrutement</span>
-        </li>
-      </ul>
-      <div class="price-inline">
-        <span class="price-main" data-i18n="pres.comp.price">Packs crédits</span>
-        <span class="price-after" data-i18n="pres.comp.priceafter">Starter · Growth · Business — les crédits n'expirent jamais</span>
-      </div>
-      <a href="/inscription-entreprise.html" class="btn btn-dark btn-sm" data-i18n="pres.comp.cta">Demander l'accès recruteur</a>
-    </div>
+  <!-- SWITCH ONGLETS -->
+  <div class="audience-switch">
+    <button class="audience-tab active" onclick="switchTab('candidats',this)">👤 Candidats</button>
+    <button class="audience-tab" onclick="switchTab('entreprises',this)">🏢 Entreprises</button>
   </div>
-</section>
 
-<!-- DIFFÉRENCIATEURS -->
-<section class="diff-section">
-  <div class="section" style="padding-top:60px;padding-bottom:60px;">
-    <div class="section-label" style="text-align:center;" data-i18n="pres.diff.label">Ce qui nous rend différents</div>
-    <h2 class="section-title" style="text-align:center;max-width:520px;margin:0 auto 48px;" data-i18n="pres.diff.title">Talenco n'est pas un annuaire. C'est un filtre.</h2>
-    <div class="diff-grid">
-      <div class="diff-card">
-        <div class="diff-icon">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-        </div>
-        <div class="diff-title" data-i18n="pres.diff.c1.title">Candidats vérifiés</div>
-        <div class="diff-desc" data-i18n="pres.diff.c1.desc">Chaque CV est relu par un humain avant d'apparaître dans la base. Les recruteurs ne voient que des profils réels, cohérents, actifs.</div>
-      </div>
-      <div class="diff-card">
-        <div class="diff-icon">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-        </div>
-        <div class="diff-title" data-i18n="pres.diff.c2.title">Entreprises certifiées</div>
-        <div class="diff-desc" data-i18n="pres.diff.c2.desc">RCCM, IFU, entretien avec l'équipe Talenco. Aucune entreprise ne peut publier d'offres sans avoir été vérifiée. Zéro arnaque, zéro recrutement bidon.</div>
-      </div>
-      <div class="diff-card">
-        <div class="diff-icon">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 1 0 10 10"/><path d="M12 6v6l4 2"/><path d="M18 2l4 4-4 4"/></svg>
-        </div>
-        <div class="diff-title" data-i18n="pres.diff.c3.title">IA ancrée dans le contexte local</div>
-        <div class="diff-desc" data-i18n="pres.diff.c3.desc">Le matching et le coaching sont calibrés pour le marché béninois — secteurs, cultures d'entreprise, niveaux de rémunération. Pas un modèle américain mal traduit.</div>
-      </div>
-    </div>
-  </div>
-</section>
+  <!-- PANEL CANDIDATS -->
+  <div class="feature-panel active" id="panel-candidats">
+    <!-- Colonne gauche -->
+    <div class="fp-col">
 
-<!-- CERTIFICATION -->
-<section class="certif-section">
-  <div class="certif-inner">
-    <div class="certif-header">
-      <div class="section-label" data-i18n="pres.certif.label">Confiance &amp; qualité</div>
-      <h2 data-i18n="pres.certif.title">Des profils vérifiés, des entreprises contrôlées</h2>
-      <p data-i18n="pres.certif.sub">Talenco.bj n'est pas un annuaire libre. Chaque profil candidat et chaque entreprise est vérifié manuellement par l'équipe avant d'être visible.</p>
-    </div>
-    <div class="certif-grid">
-
-      <!-- CANDIDATS -->
-      <div class="certif-track">
-        <div class="certif-track-label" data-i18n="pres.certif.cand.track">Parcours candidat</div>
-        <div class="certif-steps">
-          <div class="certif-step">
-            <div class="certif-dot">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
-            </div>
-            <div class="certif-step-body">
-              <div class="certif-step-title" data-i18n="pres.certif.cand.s1.title">Vous créez votre compte</div>
-              <div class="certif-step-desc" data-i18n="pres.certif.cand.s1.desc">Remplissez votre profil, déposez votre CV. L'inscription est gratuite pendant la phase bêta.</div>
-            </div>
-          </div>
-          <div class="certif-step">
-            <div class="certif-dot">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-            </div>
-            <div class="certif-step-body">
-              <div class="certif-step-title" data-i18n="pres.certif.cand.s2.title">L'équipe vérifie votre dossier</div>
-              <div class="certif-step-desc" data-i18n="pres.certif.cand.s2.desc">CV lisible, expériences cohérentes — une vérification humaine sous 24 h. Pas un algorithme.</div>
-            </div>
-          </div>
-          <div class="certif-step">
-            <div class="certif-dot">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-            </div>
-            <div class="certif-step-body">
-              <div class="certif-step-title" data-i18n="pres.certif.cand.s3.title">Profil activé — visible aux recruteurs</div>
-              <div class="certif-step-desc" data-i18n="pres.certif.cand.s3.desc">Votre profil porte le badge vérifié. Les entreprises peuvent vous contacter directement.</div>
-            </div>
-          </div>
-        </div>
-        <div class="certif-note">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-          <span data-i18n="pres.certif.cand.note">Validation sous 24 h en phase bêta</span>
-        </div>
-      </div>
-
-      <!-- RECRUTEURS -->
-      <div class="certif-track">
-        <div class="certif-track-label" data-i18n="pres.certif.rec.track">Parcours recruteur</div>
-        <div class="certif-steps">
-          <div class="certif-step">
-            <div class="certif-dot">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
-            </div>
-            <div class="certif-step-body">
-              <div class="certif-step-title" data-i18n="pres.certif.rec.s1.title">Vous envoyez une demande d'accès</div>
-              <div class="certif-step-desc" data-i18n="pres.certif.rec.s1.desc">Nom de l'entreprise, secteur, taille. La phase bêta est limitée à 15 structures.</div>
-            </div>
-          </div>
-          <div class="certif-step">
-            <div class="certif-dot">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-            </div>
-            <div class="certif-step-body">
-              <div class="certif-step-title" data-i18n="pres.certif.rec.s2.title">Vérification de l'entreprise</div>
-              <div class="certif-step-desc" data-i18n="pres.certif.rec.s2.desc">RCCM, activité, légitimité du recrutement. On vérifie que vos offres correspondent à une réalité.</div>
-            </div>
-          </div>
-          <div class="certif-step">
-            <div class="certif-dot">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-            </div>
-            <div class="certif-step-body">
-              <div class="certif-step-title" data-i18n="pres.certif.rec.s3.title">Accès accordé — vous recrutez</div>
-              <div class="certif-step-desc" data-i18n="pres.certif.rec.s3.desc">CVthèque, publication d'offres, tableau Kanban. Vos candidats savent que vous êtes une entreprise sérieuse.</div>
-            </div>
-          </div>
-        </div>
-        <div class="certif-note">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-          <span data-i18n="pres.certif.rec.note">Invitation uniquement · 15 places disponibles</span>
-        </div>
-      </div>
-
-    </div>
-  </div>
-</section>
-
-<!-- WHATSAPP CANAL -->
-<div class="wa-banner">
-  <div class="wa-banner-inner">
-    <div class="wa-icon">
-      <svg width="26" height="26" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-    </div>
-    <div class="wa-banner-title" data-i18n="pres.wa.title">Rejoignez notre canal WhatsApp</div>
-    <div class="wa-banner-sub" data-i18n="pres.wa.sub">Offres d'emploi en avant-première, conseils RH pour le marché béninois, actualités Talenco — directement dans votre WhatsApp.</div>
-    <a href="https://whatsapp.com/channel/0029VbD7SIRBFLgOp6Hcfh0y" class="wa-btn" target="_blank" rel="noopener">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-      <span data-i18n="pres.wa.btn">Rejoindre le canal</span>
-    </a>
-    <div class="wa-note" data-i18n="pres.wa.note">Gratuit · Sans spam · Désabonnement en un clic</div>
-  </div>
-</div>
-
-<hr class="section-divider">
-
-<!-- HOW IT WORKS - CANDIDATS -->
-<section class="section">
-  <div class="section-label" data-i18n="pres.how.label">Candidats — Parcours</div>
-  <h2 class="section-title" data-i18n="pres.how.title">En quelques minutes, votre profil est en ligne</h2>
-  <div class="steps-grid">
-    <div class="step">
-      <div class="step-num">01</div>
-      <div class="step-title" data-i18n="pres.how.s1.title">Créez votre compte</div>
-      <p class="step-desc" data-i18n="pres.how.s1.desc">Inscription rapide avec votre email ou Google. Aucun document requis pour démarrer.</p>
-    </div>
-    <div class="step">
-      <div class="step-num">02</div>
-      <div class="step-title" data-i18n="pres.how.s2.title">Complétez votre profil</div>
-      <p class="step-desc" data-i18n="pres.how.s2.desc">Expériences, compétences, diplômes, photo — votre CV en ligne est visible par les recruteurs partenaires.</p>
-    </div>
-    <div class="step">
-      <div class="step-num">03</div>
-      <div class="step-title" data-i18n="pres.how.s3.title">Postulez aux offres</div>
-      <p class="step-desc" data-i18n="pres.how.s3.desc">Parcourez les offres disponibles et postulez en un clic, directement depuis votre profil.</p>
-    </div>
-    <div class="step">
-      <div class="step-num">04</div>
-      <div class="step-title" data-i18n="pres.how.s4.title">Suivez vos candidatures</div>
-      <p class="step-desc" data-i18n="pres.how.s4.desc">Soyez notifié à chaque étape — réception, présélection, entretien, décision.</p>
-    </div>
-  </div>
-</section>
-
-<hr class="section-divider">
-
-<!-- FEATURE KANBAN -->
-<section class="section">
-  <div class="feature-split">
-    <div>
-      <div class="section-label" data-i18n="pres.kanban.label">Par un recruteur — pour des recruteurs</div>
-      <h2 class="section-title" data-i18n="pres.kanban.title">Un pipeline pensé pour le terrain béninois</h2>
-      <p class="section-sub" data-i18n="pres.kanban.sub">Talenco a été conçu par quelqu'un qui a recruté au Bénin — pas traduit d'un outil occidental. Le tableau Kanban reflète la réalité d'un processus local : simple, direct, actionnable.</p>
-      <ul class="feature-list" style="margin-bottom:0">
-        <li>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--accent)"><polyline points="20 6 9 17 4 12"/></svg>
-          <span data-i18n="pres.kanban.f1">Glisser-déposer entre colonnes (Reçu · Présélectionné · Entretien · Retenu)</span>
-        </li>
-        <li>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--accent)"><polyline points="20 6 9 17 4 12"/></svg>
-          <span data-i18n="pres.kanban.f2">Notes internes par candidature</span>
-        </li>
-        <li>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--accent)"><polyline points="20 6 9 17 4 12"/></svg>
-          <span data-i18n="pres.kanban.f3">Contact direct intégré depuis la fiche candidat</span>
-        </li>
-      </ul>
-    </div>
-    <div class="feature-visual">
-      <div style="font-family:var(--font-mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px;">Pipeline — Développeur Web</div>
-      <div class="mini-card">
-        <div class="mini-avatar">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
-        </div>
-        <div class="mini-info">
-          <div class="mini-name">Adjoyi M.</div>
-          <div class="mini-role">3 ans exp. · Cotonou</div>
-        </div>
-        <div class="mini-tag">Entretien</div>
-      </div>
-      <div class="mini-card">
-        <div class="mini-avatar">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
-        </div>
-        <div class="mini-info">
-          <div class="mini-name">Rachida K.</div>
-          <div class="mini-role">5 ans exp. · Porto-Novo</div>
-        </div>
-        <div class="mini-tag">Présélectionné</div>
-      </div>
-      <div class="mini-card">
-        <div class="mini-avatar">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
-        </div>
-        <div class="mini-info">
-          <div class="mini-name">Ismaël D.</div>
-          <div class="mini-role">2 ans exp. · Parakou</div>
-        </div>
-        <div class="mini-tag">Reçu</div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- COACH IA -->
-<section class="coach-section">
-  <div class="coach-inner">
-    <div class="coach-header">
-      <div class="coach-label" data-i18n="pres.coach.label">Intelligence artificielle</div>
-      <h2 class="coach-title" data-i18n-html="pres.coach.title">Votre coach carrière personnel,<br>disponible 24 h/24</h2>
-      <p class="coach-sub" data-i18n="pres.coach.sub">Analyse votre CV, prépare vos entretiens, vous conseille sur le marché béninois. Pas un chatbot générique — un outil conçu pour l'emploi en Afrique de l'Ouest.</p>
-    </div>
-    <div class="coach-cards">
-      <div class="coach-card">
-        <div class="coach-card-icon">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-        </div>
-        <div class="coach-card-title" data-i18n="pres.coach.c1.title">Analyse de CV</div>
-        <div class="coach-card-desc" data-i18n="pres.coach.c1.desc">Soumettez votre CV et recevez un diagnostic complet : points forts, lacunes, suggestions concrètes pour vous démarquer auprès des recruteurs béninois.</div>
-      </div>
-      <div class="coach-card">
-        <div class="coach-card-icon">
+      <!-- Coach IA -->
+      <div class="feat-card accent-top">
+        <div class="feat-icon">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
         </div>
-        <div class="coach-card-title" data-i18n="pres.coach.c2.title">Simulation d'entretien ciblée</div>
-        <div class="coach-card-desc" data-i18n="pres.coach.c2.desc">Depuis chaque offre, simulez l'entretien avec 5 questions générées par IA sur ce poste précis. Recevez une note /10 et un conseil par réponse — avant même de postuler.</div>
-      </div>
-      <div class="coach-card">
-        <div class="coach-card-icon">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        <div class="feat-title">Coach IA — votre préparateur personnel</div>
+        <div class="feat-desc">Analyse votre CV et identifie les lacunes. Génère une lettre de motivation sur mesure pour chaque offre. Vous prépare avec des conseils carrière calibrés pour le marché béninois.</div>
+        <div class="feat-chips">
+          <span class="feat-chip ai">IA Groq</span>
+          <span class="feat-chip">Analyse CV</span>
+          <span class="feat-chip">Lettre de motivation</span>
+          <span class="feat-chip">Conseils carrière</span>
         </div>
-        <div class="coach-card-title" data-i18n="pres.coach.c3.title">Conseils personnalisés</div>
-        <div class="coach-card-desc" data-i18n="pres.coach.c3.desc">Stratégie de recherche d'emploi, secteurs qui recrutent à Cotonou, comment négocier un salaire au Bénin — des conseils ancrés dans la réalité du terrain.</div>
+        <a href="/coach.html" style="display:inline-block;margin-top:16px;font-size:12px;color:var(--accent);text-decoration:underline;text-underline-offset:3px;">Essayer le Coach IA →</a>
       </div>
-    </div>
-    <div class="coach-cta-wrap">
-      <a href="/coach.html" class="btn-coach">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-        <span data-i18n="pres.coach.cta">Essayer le Coach IA gratuitement</span>
-      </a>
-      <div class="coach-cta-note" data-i18n="pres.coach.ctanote">Gratuit · Aucun compte requis pour tester</div>
-    </div>
-  </div>
-</section>
 
-<!-- INTERNATIONAL -->
-<section class="section" style="padding-top:80px;padding-bottom:80px;">
-  <div style="max-width:620px;margin:0 auto;text-align:center;margin-bottom:52px;">
-    <div class="section-label" data-i18n="pres.intl.label">Pour les Béninois qui regardent plus loin</div>
-    <h2 class="section-title" data-i18n-html="pres.intl.title">Votre prochain emploi est<br>peut-être à Paris ou à New York</h2>
-    <p class="section-sub" style="margin:0 auto;" data-i18n="pres.intl.sub">Des milliers d'offres officielles en France et aux États-Unis, consultables sans quitter Talenco. Parce que les ambitions béninoises ne s'arrêtent pas aux frontières.</p>
-  </div>
-  <div class="pricing-grid" style="max-width:720px;margin:0 auto 40px;">
-    <div class="diff-card">
-      <div class="diff-icon" style="font-size:20px;display:flex;align-items:center;justify-content:center;">🇫🇷</div>
-      <div class="diff-title" data-i18n="pres.intl.fr.title">France — France Travail</div>
-      <div class="diff-desc" data-i18n="pres.intl.fr.desc">La plus grande base d'offres en France. CDI, CDD, intérim, alternance — filtrez par ville, par secteur, par type de contrat.</div>
+      <!-- Simulation d'entretien -->
+      <div class="feat-card">
+        <div class="feat-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/></svg>
+        </div>
+        <div class="feat-title">Simulation d'entretien ciblée par offre</div>
+        <div class="feat-desc">Depuis chaque offre, simulez l'entretien avant de postuler. L'IA génère 5 questions spécifiques au poste, évalue chaque réponse et vous donne une note /10 avec un conseil personnalisé.</div>
+        <div class="feat-visual">
+          <div class="mini-row">
+            <div class="mini-info">
+              <div class="mini-name">Q1 — Décrivez votre expérience en gestion de projet</div>
+              <div class="mini-sub">Développeur Web · TechBénin SARL</div>
+            </div>
+            <span class="mini-score">8/10</span>
+          </div>
+          <div class="mini-row" style="background:var(--accent-bg);border-color:var(--accent);">
+            <div class="mini-info">
+              <div class="mini-name" style="color:var(--accent);">Conseil — Ajoutez des exemples concrets et chiffrés</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Score de compatibilité -->
+      <div class="feat-card">
+        <div class="feat-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        </div>
+        <div class="feat-title">Score de compatibilité avant de postuler</div>
+        <div class="feat-desc">Chaque offre affiche votre pourcentage de match calculé par IA — compétences, expérience, secteur, formation. Vous postulez en connaissance de cause, pas à l'aveugle.</div>
+        <div class="feat-chips">
+          <span class="feat-chip ai">IA</span>
+          <span class="feat-chip">Compétences</span>
+          <span class="feat-chip">Expérience</span>
+          <span class="feat-chip">Secteur</span>
+        </div>
+      </div>
+
     </div>
-    <div class="diff-card">
-      <div class="diff-icon" style="font-size:20px;display:flex;align-items:center;justify-content:center;">🇺🇸</div>
-      <div class="diff-title" data-i18n="pres.intl.us.title">États-Unis — Adzuna</div>
-      <div class="diff-desc" data-i18n="pres.intl.us.desc">Des centaines de milliers d'offres à New York, Houston, Miami, Chicago. Tech, finance, hôtellerie, santé — tous les secteurs.</div>
+
+    <!-- Colonne droite -->
+    <div class="fp-col">
+
+      <!-- Profil + Certification -->
+      <div class="feat-card">
+        <div class="feat-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+        </div>
+        <div class="feat-title">Profil vérifié + badge Certifié Talenco</div>
+        <div class="feat-desc">Votre profil est relu par l'équipe avant d'être visible. Demandez la certification pour obtenir le badge <strong>✓ Certifié Talenco</strong> — votre profil remonte en priorité dans la CVthèque et inspire confiance aux recruteurs.</div>
+        <div class="feat-visual">
+          <div class="mini-row">
+            <div class="mini-ava">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+            </div>
+            <div class="mini-info">
+              <div class="mini-name">Adjoyi M. <span style="font-size:10px;background:#dcfce7;color:#15803d;padding:1px 6px;border-radius:10px;margin-left:4px;">✓ Certifié</span></div>
+              <div class="mini-sub">Marketing · 4 ans · Cotonou</div>
+            </div>
+            <span class="mini-badge green">Priorité</span>
+          </div>
+          <div class="mini-row" style="opacity:.5;">
+            <div class="mini-ava">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+            </div>
+            <div class="mini-info">
+              <div class="mini-name">Rachida K.</div>
+              <div class="mini-sub">RH · 2 ans · Porto-Novo</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Alertes emploi -->
+      <div class="feat-card">
+        <div class="feat-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        </div>
+        <div class="feat-title">Alertes emploi — email et WhatsApp</div>
+        <div class="feat-desc">Configurez vos critères (poste, ville, secteur, type de contrat) et recevez une notification dès qu'une offre correspond — par email ou directement sur WhatsApp. Ne ratez aucune opportunité.</div>
+        <div class="feat-chips">
+          <span class="feat-chip">Email</span>
+          <span class="feat-chip">WhatsApp</span>
+          <span class="feat-chip">Temps réel</span>
+          <span class="feat-chip">Multi-critères</span>
+        </div>
+      </div>
+
+      <!-- Suivi candidatures + Postulation 1 clic -->
+      <div class="feat-card">
+        <div class="feat-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        </div>
+        <div class="feat-title">Postulation 1 clic + suivi en temps réel</div>
+        <div class="feat-desc">Votre CV est déjà chargé — postulez en un seul clic. Suivez l'état de chaque candidature (envoyée → vue → entretien → décision) et recevez un email à chaque étape.</div>
+        <ul class="feat-list">
+          <li>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            <span>Candidatures groupées dans votre espace</span>
+          </li>
+          <li>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            <span>Notification à chaque changement de statut</span>
+          </li>
+          <li>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            <span>Profil visible uniquement par des recruteurs certifiés</span>
+          </li>
+        </ul>
+      </div>
+
     </div>
   </div>
-  <div style="text-align:center;">
-    <a href="/international.html" class="btn btn-dark btn-sm" style="font-size:14px;padding:12px 28px;" data-i18n="pres.intl.cta">Explorer les offres à l'international</a>
-    <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);margin-top:12px;letter-spacing:.04em;" data-i18n="pres.intl.note">🇧🇯 Pensé pour les Béninois · Offres 🇫🇷 France Travail et 🇺🇸 Adzuna USA</div>
+
+  <!-- PANEL ENTREPRISES -->
+  <div class="feature-panel" id="panel-entreprises">
+    <!-- Colonne gauche -->
+    <div class="fp-col">
+
+      <!-- Publication offres structurées -->
+      <div class="feat-card accent-top">
+        <div class="feat-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        </div>
+        <div class="feat-title">Offres au format éditorial structuré</div>
+        <div class="feat-desc">Chaque offre est rédigée en 5 sections qui inspirent confiance aux candidats : Pourquoi postuler · Vos missions · Votre profil · Votre futur employeur · Conditions. L'IA peut rédiger les sections automatiquement à partir du titre du poste.</div>
+        <div class="feat-visual">
+          <div style="font-family:var(--font-mono);font-size:10px;letter-spacing:.06em;color:var(--text-muted);margin-bottom:4px;text-transform:uppercase;">Structure d'une offre Talenco</div>
+          <div style="display:flex;flex-direction:column;gap:4px;">
+            <div style="font-size:11px;padding:5px 10px;background:var(--accent-bg);border-radius:var(--radius-sm);color:var(--accent);font-weight:500;">📌 Pourquoi postuler</div>
+            <div style="font-size:11px;padding:5px 10px;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-mid);">🎯 Vos missions</div>
+            <div style="font-size:11px;padding:5px 10px;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-mid);">👤 Votre profil</div>
+            <div style="font-size:11px;padding:5px 10px;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-mid);">🏢 Votre futur employeur</div>
+            <div style="font-size:11px;padding:5px 10px;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-mid);">💼 Conditions + Salaire</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Vérification éthique IA -->
+      <div class="feat-card">
+        <div class="feat-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <div class="feat-title">Vérification éthique IA avant publication</div>
+        <div class="feat-desc">Avant chaque soumission, un agent IA analyse le contenu de l'offre et détecte automatiquement toute formulation discriminatoire — âge, genre, origine, état de santé. Une offre conforme protège votre image et attire des candidats plus diversifiés.</div>
+        <div class="feat-chips">
+          <span class="feat-chip ai">IA Groq</span>
+          <span class="feat-chip">Anti-discrimination</span>
+          <span class="feat-chip">Conforme au droit du travail</span>
+        </div>
+      </div>
+
+      <!-- CVthèque -->
+      <div class="feat-card">
+        <div class="feat-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+        </div>
+        <div class="feat-title">CVthèque 100 % vérifiée</div>
+        <div class="feat-desc">Parcourez une base de candidats filtrée manuellement. Chaque profil a été relu par l'équipe Talenco. Filtres par secteur, niveau d'expérience, ville, disponibilité. Contactez directement par crédit avec un message personnalisé.</div>
+        <ul class="feat-list">
+          <li>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            <span>Filtres avancés (secteur, ville, niveau, certifié)</span>
+          </li>
+          <li>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            <span>Contact direct par crédit avec message personnalisé</span>
+          </li>
+          <li>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            <span>Candidats certifiés remontent en priorité</span>
+          </li>
+        </ul>
+      </div>
+
+    </div>
+
+    <!-- Colonne droite -->
+    <div class="fp-col">
+
+      <!-- Stats par offre -->
+      <div class="feat-card">
+        <div class="feat-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        </div>
+        <div class="feat-title">Statistiques par offre en temps réel</div>
+        <div class="feat-desc">Chaque offre publiée affiche ses propres métriques : nombre de vues, total des candidatures reçues, candidatures en phase entretien. Identifiez vos offres qui convertissent et celles qui passent inaperçues.</div>
+        <div class="feat-visual">
+          <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);margin-bottom:4px;letter-spacing:.06em;text-transform:uppercase;">Développeur Fullstack · CDI</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center;">
+            <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 8px;">
+              <div style="font-family:var(--font-serif);font-style:italic;font-size:20px;color:var(--accent);">47</div>
+              <div style="font-size:10px;color:var(--text-muted);">👁 vues</div>
+            </div>
+            <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 8px;">
+              <div style="font-family:var(--font-serif);font-style:italic;font-size:20px;color:var(--accent);">12</div>
+              <div style="font-size:10px;color:var(--text-muted);">📋 candidatures</div>
+            </div>
+            <div style="background:#dcfce7;border:1px solid #bbf7d0;border-radius:var(--radius-sm);padding:10px 8px;">
+              <div style="font-family:var(--font-serif);font-style:italic;font-size:20px;color:#15803d;">3</div>
+              <div style="font-size:10px;color:#15803d;">🎯 entretiens</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pipeline Kanban -->
+      <div class="feat-card">
+        <div class="feat-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="18" rx="1"/><rect x="14" y="3" width="7" height="10" rx="1"/></svg>
+        </div>
+        <div class="feat-title">Pipeline Kanban — gestion des candidatures</div>
+        <div class="feat-desc">Glissez les candidatures entre les colonnes de votre pipeline : Reçu · Présélectionné · Entretien · Retenu. Ajoutez des notes internes par candidat, contactez directement depuis la fiche.</div>
+        <div class="feat-visual">
+          <div class="mini-row">
+            <div class="mini-ava"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></div>
+            <div class="mini-info"><div class="mini-name">Ismaël D.</div><div class="mini-sub">React · 3 ans</div></div>
+            <span class="mini-badge">Entretien</span>
+          </div>
+          <div class="mini-row">
+            <div class="mini-ava"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></div>
+            <div class="mini-info"><div class="mini-name">Fatou K.</div><div class="mini-sub">Node.js · 5 ans</div></div>
+            <span class="mini-badge green">Retenu</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Équipe multi-comptes -->
+      <div class="feat-card">
+        <div class="feat-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <div class="feat-title">Équipe multi-comptes — crédits partagés</div>
+        <div class="feat-desc">Invitez vos collègues recruteurs par email. Tous partagent le même pipeline, les mêmes crédits et les mêmes offres. Idéal pour les équipes RH qui recrutent en parallèle sur plusieurs postes.</div>
+        <div class="feat-chips">
+          <span class="feat-chip">Invitations par email</span>
+          <span class="feat-chip">Crédits mutualisés</span>
+          <span class="feat-chip">Pipeline partagé</span>
+        </div>
+      </div>
+
+    </div>
   </div>
 </section>
 
 <hr class="section-divider">
 
-<!-- TARIFS -->
+<!-- ════════════════════════════════
+     IA — SECTION DÉDIÉE
+     ════════════════════════════════ -->
+<section class="ia-section">
+  <div class="ia-inner">
+    <div class="ia-header">
+      <span class="ia-eyebrow">Intelligence artificielle</span>
+      <h2 class="ia-title">L'IA au service du recrutement <em>béninois</em></h2>
+      <p class="ia-sub">Des modèles calibrés pour le contexte local — pas des outils américains mal traduits.</p>
+    </div>
+    <div class="ia-grid">
+
+      <div class="ia-card">
+        <div class="ia-card-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/></svg>
+        </div>
+        <div class="ia-card-title">Analyse de CV</div>
+        <div class="ia-card-desc">Votre CV est analysé en profondeur — points forts, lacunes détectées, suggestions concrètes pour vous démarquer auprès des recruteurs béninois.</div>
+        <span class="ia-tag">Pour les candidats</span>
+      </div>
+
+      <div class="ia-card">
+        <div class="ia-card-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/></svg>
+        </div>
+        <div class="ia-card-title">Matching candidat ↔ offre</div>
+        <div class="ia-card-desc">Chaque offre calcule un score de compatibilité basé sur vos compétences, secteur et expérience. Les recruteurs voient les candidats les mieux matchés en premier.</div>
+        <span class="ia-tag">Candidats + Recruteurs</span>
+      </div>
+
+      <div class="ia-card">
+        <div class="ia-card-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        </div>
+        <div class="ia-card-title">Simulation d'entretien</div>
+        <div class="ia-card-desc">5 questions générées pour chaque poste précis. Répondez, obtenez une note /10 et un feedback détaillé. Préparez-vous avant même de postuler.</div>
+        <span class="ia-tag">Pour les candidats</span>
+      </div>
+
+      <div class="ia-card">
+        <div class="ia-card-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <div class="ia-card-title">Vérification éthique des offres</div>
+        <div class="ia-card-desc">Avant chaque publication, l'IA scanne l'offre et bloque toute formulation discriminatoire — genre, âge, origine, état de santé. Offres conformes au droit du travail.</div>
+        <span class="ia-tag">Pour les recruteurs</span>
+      </div>
+
+      <div class="ia-card">
+        <div class="ia-card-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+        </div>
+        <div class="ia-card-title">Rédaction assistée d'offres</div>
+        <div class="ia-card-desc">L'IA rédige les 5 sections de votre offre à partir du titre du poste et de quelques paramètres. Gagnez du temps, obtenez une offre structurée et convaincante.</div>
+        <span class="ia-tag">Pour les recruteurs</span>
+      </div>
+
+      <div class="ia-card">
+        <div class="ia-card-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        </div>
+        <div class="ia-card-title">Lettre de motivation personnalisée</div>
+        <div class="ia-card-desc">En un clic depuis chaque offre, l'IA génère une lettre de motivation calibrée sur votre profil et le poste visé — adaptée au style béninois, pas à la française.</div>
+        <span class="ia-tag">Pour les candidats</span>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<hr class="section-divider">
+
+<!-- ════════════════════════════════
+     CONFIANCE & VÉRIFICATION
+     ════════════════════════════════ -->
+<section class="trust-section">
+  <div class="section" style="padding-top:60px;padding-bottom:60px;">
+    <div class="section-label" style="text-align:center;">Confiance &amp; qualité</div>
+    <h2 class="section-title" style="text-align:center;max-width:500px;margin:0 auto 48px;">Talenco n'est pas un annuaire.<br>C'est un filtre.</h2>
+    <div class="trust-grid">
+      <div class="trust-card">
+        <div class="trust-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        </div>
+        <div class="trust-title">Candidats vérifiés manuellement</div>
+        <div class="trust-desc">Chaque CV est relu par un humain avant d'apparaître dans la base. Les recruteurs ne voient que des profils réels, cohérents et actifs — pas des inscriptions fantômes.</div>
+      </div>
+      <div class="trust-card">
+        <div class="trust-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <div class="trust-title">Entreprises certifiées RCCM/IFU</div>
+        <div class="trust-desc">RCCM, IFU, entretien avec l'équipe Talenco. Aucune entreprise ne peut publier sans avoir été vérifiée. Zéro arnaque, zéro recrutement bidon — les candidats font confiance à vos offres.</div>
+      </div>
+      <div class="trust-card">
+        <div class="trust-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10A15.3 15.3 0 0 1 8 12a15.3 15.3 0 0 1 4-10z"/></svg>
+        </div>
+        <div class="trust-title">Ancré dans le contexte béninois</div>
+        <div class="trust-desc">Matching, coaching et offres calibrés pour le marché béninois — secteurs locaux, niveaux de rémunération en FCFA, cultures d'entreprise de la sous-région. Pas un outil occidental mal adapté.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════
+     PARCOURS ÉTAPE PAR ÉTAPE
+     ════════════════════════════════ -->
+<section class="section">
+  <div class="section-label">Comment ça marche</div>
+  <h2 class="section-title">Démarrez en moins de 10 minutes</h2>
+  <p class="section-sub">Un parcours simple, des deux côtés du recrutement.</p>
+
+  <div class="parcours-grid">
+
+    <!-- CANDIDAT -->
+    <div>
+      <div class="parcours-track-label">Parcours candidat</div>
+      <div class="parcours-steps">
+        <div class="parcours-step">
+          <div class="parcours-dot">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+          </div>
+          <div class="parcours-body">
+            <div class="parcours-step-title">Créez votre profil gratuitement</div>
+            <div class="parcours-step-desc">Remplissez vos informations, déposez votre CV. L'inscription prend 3 minutes.</div>
+          </div>
+        </div>
+        <div class="parcours-step">
+          <div class="parcours-dot">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+          </div>
+          <div class="parcours-body">
+            <div class="parcours-step-title">Vérification par l'équipe — sous 24 h</div>
+            <div class="parcours-step-desc">CV relu, expériences vérifiées, profil activé. Une vraie vérification humaine, pas un algorithme.</div>
+          </div>
+        </div>
+        <div class="parcours-step">
+          <div class="parcours-dot">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          </div>
+          <div class="parcours-body">
+            <div class="parcours-step-title">Préparez-vous avec le Coach IA</div>
+            <div class="parcours-step-desc">Analysez votre CV, simulez des entretiens, consultez votre score de compatibilité sur chaque offre.</div>
+          </div>
+        </div>
+        <div class="parcours-step">
+          <div class="parcours-dot">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div class="parcours-body">
+            <div class="parcours-step-title">Postulez en 1 clic, suivez en temps réel</div>
+            <div class="parcours-step-desc">Votre CV est déjà chargé. Suivez chaque candidature et recevez un email à chaque étape du process.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RECRUTEUR -->
+    <div>
+      <div class="parcours-track-label">Parcours recruteur</div>
+      <div class="parcours-steps">
+        <div class="parcours-step">
+          <div class="parcours-dot">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+          </div>
+          <div class="parcours-body">
+            <div class="parcours-step-title">Envoyez une demande d'accès</div>
+            <div class="parcours-step-desc">Nom de l'entreprise, secteur, coordonnées. L'accès est sélectif pour garantir la qualité.</div>
+          </div>
+        </div>
+        <div class="parcours-step">
+          <div class="parcours-dot">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <div class="parcours-body">
+            <div class="parcours-step-title">Vérification de votre entreprise</div>
+            <div class="parcours-step-desc">RCCM, IFU, légitimité du recrutement. Validation sous 48 h. Votre badge entreprise certifiée rassure les candidats.</div>
+          </div>
+        </div>
+        <div class="parcours-step">
+          <div class="parcours-dot">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          </div>
+          <div class="parcours-body">
+            <div class="parcours-step-title">Publiez vos offres en format éditorial</div>
+            <div class="parcours-step-desc">L'IA rédige les sections en quelques secondes. Vérification éthique automatique avant publication.</div>
+          </div>
+        </div>
+        <div class="parcours-step">
+          <div class="parcours-dot">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="18" rx="1"/><rect x="14" y="3" width="7" height="10" rx="1"/></svg>
+          </div>
+          <div class="parcours-body">
+            <div class="parcours-step-title">Gérez le pipeline, recrutez</div>
+            <div class="parcours-step-desc">CVthèque filtrée, Kanban, statistiques par offre, équipe multi-comptes. Tout au même endroit.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<hr class="section-divider">
+
+<!-- ════════════════════════════════
+     INTERNATIONAL
+     ════════════════════════════════ -->
+<section class="section" style="padding-bottom:60px;">
+  <div style="max-width:700px;">
+    <div class="section-label">Pour les Béninois qui regardent plus loin</div>
+    <h2 class="section-title">Votre prochain emploi est peut-être<br>à Paris ou à New York</h2>
+    <p class="section-sub" style="margin-bottom:36px;">Des milliers d'offres officielles en France et aux États-Unis, consultables depuis votre compte Talenco. Les ambitions béninoises ne s'arrêtent pas aux frontières.</p>
+    <div class="intl-grid">
+      <div class="intl-card">
+        <span class="intl-flag">🇫🇷</span>
+        <div class="intl-title">France — France Travail</div>
+        <div class="intl-desc">La plus grande base d'offres officielles en France. CDI, CDD, intérim, alternance — filtrez par ville et secteur. Accès direct depuis votre compte.</div>
+      </div>
+      <div class="intl-card">
+        <span class="intl-flag">🇺🇸</span>
+        <div class="intl-title">États-Unis — Adzuna</div>
+        <div class="intl-desc">Des centaines de milliers d'offres à New York, Houston, Miami, Chicago. Tech, finance, hôtellerie, santé — tous secteurs, toutes villes.</div>
+      </div>
+    </div>
+    <div style="margin-top:28px;">
+      <a href="/international.html" class="btn btn-dark btn-sm" style="font-size:14px;padding:12px 24px;">Explorer les offres internationales</a>
+      <span style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);margin-left:16px;letter-spacing:.04em;">Pensé pour la diaspora béninoise</span>
+    </div>
+  </div>
+</section>
+
+<hr class="section-divider">
+
+<!-- ════════════════════════════════
+     TARIFS
+     ════════════════════════════════ -->
 <section class="section" id="tarifs">
-  <div class="section-label" data-i18n="pres.pricing.label">Tarifs</div>
-  <h2 class="section-title" data-i18n="pres.pricing.title">Simple, transparent, béninois</h2>
-  <p class="section-sub" data-i18n="pres.pricing.sub">Gratuit pendant la phase bêta. Après le lancement, des prix adaptés au marché local.</p>
+  <div class="section-label">Tarifs</div>
+  <h2 class="section-title">Simple, transparent, béninois</h2>
+  <p class="section-sub">Des prix adaptés au marché local. Les crédits entreprises n'expirent jamais.</p>
+
   <div class="pricing-grid">
 
     <!-- CANDIDATS -->
     <div class="price-card featured">
-      <div class="price-card-label" data-i18n="pres.pricing.cand.label">Candidats</div>
+      <div class="price-card-label">Candidats</div>
       <div class="price-card-amount">
-        <span class="price-big" data-i18n="pres.pricing.cand.amount">Gratuit</span>
-        <span class="price-period" data-i18n="pres.pricing.cand.period">en phase bêta</span>
+        <span class="price-big">1 000 FCFA</span>
+        <span class="price-period">/ mois</span>
       </div>
-      <div class="price-card-after" data-i18n-html="pres.pricing.cand.after">Après le 12 juillet 2026 : <strong>1 000 FCFA/mois</strong></div>
+      <div class="price-card-after">Accès complet à toutes les fonctionnalités. Compte suspendu après 3 mois d'inactivité — réactivation 2 000 FCFA.</div>
       <ul class="price-features">
-        <li><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span data-i18n="pres.pricing.cand.f1">Profil + CV visible par les recruteurs</span></li>
-        <li><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span data-i18n="pres.pricing.cand.f2">Coach IA illimité (CV, entretien, lettre)</span></li>
-        <li><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span data-i18n="pres.pricing.cand.f3">Score de matching sur chaque offre</span></li>
-        <li><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span data-i18n="pres.pricing.cand.f4">Postulations illimitées</span></li>
-        <li><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span data-i18n="pres.pricing.cand.f5">Suivi des candidatures en temps réel</span></li>
-        <li><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span data-i18n="pres.pricing.cand.f6">Recherche d'offres en France et aux États-Unis</span></li>
+        <li><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>Profil + CV visible par les recruteurs</span></li>
+        <li><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>Coach IA illimité — analyse CV, lettre, conseils</span></li>
+        <li><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>Simulation d'entretien sur chaque offre</span></li>
+        <li><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>Score de compatibilité IA sur chaque offre</span></li>
+        <li><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>Postulations illimitées + suivi en temps réel</span></li>
+        <li><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>Alertes email + WhatsApp</span></li>
+        <li><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>Accès aux offres France et USA</span></li>
       </ul>
-      <a href="/inscription.html" class="btn btn-dark btn-sm" style="display:block;text-align:center;text-decoration:none;" data-i18n="pres.pricing.cand.cta">Commencer gratuitement</a>
+      <a href="/inscription.html" class="btn btn-dark" style="display:block;text-align:center;padding:11px;">Créer mon profil</a>
     </div>
 
     <!-- ENTREPRISES -->
     <div class="price-card">
-      <div class="price-card-label" data-i18n="pres.pricing.comp.label">Entreprises — Packs crédits</div>
+      <div class="price-card-label">Entreprises — Packs crédits</div>
       <div class="price-packs">
         <div class="pack-row">
           <span class="pack-name">Starter</span>
-          <span class="pack-credits">10 contacts</span>
-          <span class="pack-badge" data-i18n="pres.pricing.comp.starter.badge">Idéal pour démarrer</span>
+          <span class="pack-credits">10 crédits — CVthèque + offres</span>
+          <span class="pack-price">25 000 FCFA</span>
         </div>
         <div class="pack-row highlight">
           <span class="pack-name">Growth</span>
-          <span class="pack-credits">30 contacts</span>
-          <span class="pack-badge popular" data-i18n="pres.pricing.comp.growth.badge">Le plus choisi</span>
+          <span class="pack-credits">30 crédits — équipe 2 recruteurs</span>
+          <span class="pack-price popular">60 000 FCFA</span>
         </div>
         <div class="pack-row">
           <span class="pack-name">Business</span>
-          <span class="pack-credits">100 contacts</span>
-          <span class="pack-badge" data-i18n="pres.pricing.comp.business.badge">Équipes RH</span>
+          <span class="pack-credits">100 crédits — équipe illimitée</span>
+          <span class="pack-price">150 000 FCFA</span>
         </div>
       </div>
-      <div class="price-card-after" style="margin-bottom:16px;" data-i18n="pres.pricing.comp.after">Les crédits n'expirent jamais. Un crédit = un contact direct avec un candidat.</div>
+      <div class="price-card-after">1 crédit = 1 contact CVthèque. Les crédits n'expirent jamais. La publication d'offres est gratuite.</div>
       <ul class="price-features">
-        <li><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span data-i18n="pres.pricing.comp.f1">CVthèque vérifiée + matching IA</span></li>
-        <li><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span data-i18n="pres.pricing.comp.f2">Publication d'offres illimitées</span></li>
-        <li><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span data-i18n="pres.pricing.comp.f3">Pipeline Kanban complet</span></li>
-        <li><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span data-i18n="pres.pricing.comp.f4">Profil entreprise certifié</span></li>
+        <li><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>Publication d'offres illimitée (gratuite)</span></li>
+        <li><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>CVthèque 100 % vérifiée + matching IA</span></li>
+        <li><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>Pipeline Kanban + statistiques par offre</span></li>
+        <li><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>Multi-comptes recruteurs — crédits partagés</span></li>
+        <li><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>Vérification éthique IA sur chaque offre</span></li>
       </ul>
-      <a href="/inscription-entreprise.html" class="btn btn-sm" style="display:block;text-align:center;text-decoration:none;background:var(--bg-soft);border:1px solid var(--border-strong);color:var(--text);padding:10px;border-radius:var(--radius-sm);" data-i18n="pres.pricing.comp.cta">Demander l'accès recruteur</a>
+      <a href="/inscription-entreprise.html" class="btn btn-outline" style="display:block;text-align:center;padding:11px;">Demander l'accès recruteur</a>
     </div>
 
   </div>
@@ -1490,150 +1051,59 @@
 
 <hr class="section-divider">
 
-<!-- CTA FINAL -->
-<section>
-  <div class="cta-section">
-    <h2 class="cta-title" data-i18n-html="pres.cta.title">La première plateforme RH<br>vraiment béninoise</h2>
-    <p class="cta-sub" data-i18n="pres.cta.sub">
-      Conçue ici, pour ici. Accès bêta entièrement gratuit jusqu'au 12 juillet 2026 — rejoignez les premiers talents et recruteurs qui construisent l'avenir du recrutement au Bénin.
-    </p>
-    <div class="cta-split">
-      <div class="cta-box dark">
-        <div class="cta-box-icon">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
-        </div>
-        <div class="cta-box-title" data-i18n="pres.cta.cand.title">Je suis candidat</div>
-        <div class="cta-box-sub" data-i18n="pres.cta.cand.sub">Gratuit · Coach IA inclus</div>
-        <a href="/inscription.html" data-i18n="pres.cta.cand.btn">Créer mon compte</a>
-      </div>
-      <div class="cta-box light">
-        <div class="cta-box-icon">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
-        </div>
-        <div class="cta-box-title" data-i18n="pres.cta.comp.title">Je suis recruteur</div>
-        <div class="cta-box-sub" data-i18n="pres.cta.comp.sub">CVthèque vérifiée · Matching IA</div>
-        <a href="/inscription-entreprise.html" data-i18n="pres.cta.comp.btn">Demander l'accès</a>
-      </div>
-    </div>
+<!-- ════════════════════════════════
+     CTA FINAL
+     ════════════════════════════════ -->
+<section class="cta-section">
+  <h2 class="cta-title">Prêt à recruter<br><em>autrement au Bénin ?</em></h2>
+  <p class="cta-sub">Rejoignez des candidats vérifiés et des entreprises certifiées sur la première plateforme pensée pour le marché béninois.</p>
+  <div class="cta-btns">
+    <a href="/inscription.html" class="btn-cta-primary">Je suis candidat — Inscription gratuite</a>
+    <a href="/inscription-entreprise.html" class="btn-cta-outline">Je suis recruteur — Demander l'accès</a>
   </div>
 </section>
 
+<!-- WHATSAPP -->
+<div class="wa-banner">
+  <div class="wa-banner-inner">
+    <div class="wa-icon">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+    </div>
+    <div class="wa-body">
+      <strong>Rejoignez la communauté Talenco sur WhatsApp</strong>
+      <span>Offres exclusives, conseils carrière, actualités du marché de l'emploi béninois.</span>
+    </div>
+    <a href="https://chat.whatsapp.com/talenco" class="wa-btn" target="_blank" rel="noopener">Rejoindre le canal</a>
+  </div>
+</div>
+
 <!-- FOOTER -->
-<footer>
-  <div class="pres-footer">
-    <div class="pres-footer-brand">Talenco<span>.</span>bj</div>
-    <div class="pres-footer-copy" data-i18n="pres.footer.copy">© 2026 GlobalSolutions Entreprise — Phase bêta</div>
-    <div style="display:flex;gap:16px;">
-      <a href="/cgv.html" style="font-size:12px;color:var(--text-muted);text-decoration:none;" data-i18n="pres.footer.cgv">CGV</a>
-      <a href="/mentions-legales.html" style="font-size:12px;color:var(--text-muted);text-decoration:none;" data-i18n="pres.footer.legal">Mentions légales</a>
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <span class="footer-logo">Talenco<span style="color:var(--accent)">.</span>bj</span>
+      <span class="footer-tagline">La plateforme de recrutement béninoise</span>
+    </div>
+    <div class="footer-links">
+      <a href="/offres.html">Offres</a>
+      <a href="/international.html">International</a>
+      <a href="/coach.html">Coach IA</a>
+      <a href="/blog.html">Blog</a>
+      <a href="/a-propos.html">À propos</a>
+      <a href="/mentions-legales.html">Mentions légales</a>
     </div>
   </div>
 </footer>
 
 <script>
-  // Countdown vers le 12 juillet 2026
-  const target = new Date('2026-07-12T00:00:00');
-  function updateCountdown() {
-    const now  = new Date();
-    const diff = target - now;
-    if (diff <= 0) {
-      document.getElementById('cd-days').textContent    = '0';
-      document.getElementById('cd-hours').textContent   = '0';
-      document.getElementById('cd-minutes').textContent = '0';
-      return;
-    }
-    const days    = Math.floor(diff / 86400000);
-    const hours   = Math.floor((diff % 86400000) / 3600000);
-    const minutes = Math.floor((diff % 3600000) / 60000);
-    document.getElementById('cd-days').textContent    = days;
-    document.getElementById('cd-hours').textContent   = String(hours).padStart(2,'0');
-    document.getElementById('cd-minutes').textContent = String(minutes).padStart(2,'0');
-  }
-  updateCountdown();
-  setInterval(updateCountdown, 30000);
+/* ── ONGLETS FONCTIONNALITÉS ── */
+function switchTab(id, btn) {
+  document.querySelectorAll('.audience-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.feature-panel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('panel-' + id).classList.add('active');
+}
 </script>
-<script src="/nav-mobile.js"></script>
-<script src="/i18n.js"></script>
 
-<!-- AGENT ONBOARDING -->
-<button id="tc-chat-btn" title="Assistant Talenco" aria-label="Ouvrir l'assistant">
-  <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-</button>
-<div id="tc-chat-box" role="dialog" aria-label="Assistant Talenco">
-  <div id="tc-chat-header">
-    <div class="tc-avatar">T</div>
-    <div class="tc-info">
-      <div class="tc-name">Assistant Talenco</div>
-      <div class="tc-status">En ligne</div>
-    </div>
-  </div>
-  <div id="tc-chat-messages">
-    <div class="tc-msg bot">Bonjour 👋 Je suis l'assistant Talenco. Candidat ou recruteur — comment puis-je vous aider ?</div>
-  </div>
-  <div id="tc-chat-footer">
-    <textarea id="tc-chat-input" placeholder="Posez votre question…" rows="1"></textarea>
-    <button id="tc-chat-send" title="Envoyer">
-      <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-    </button>
-  </div>
-</div>
-<script>
-(function () {
-  const btn = document.getElementById('tc-chat-btn');
-  const box = document.getElementById('tc-chat-box');
-  const input = document.getElementById('tc-chat-input');
-  const send = document.getElementById('tc-chat-send');
-  const msgs = document.getElementById('tc-chat-messages');
-  let history = [], loading = false;
-
-  btn.addEventListener('click', () => {
-    box.classList.toggle('open');
-    if (box.classList.contains('open')) input.focus();
-  });
-
-  function addMsg(text, role) {
-    const el = document.createElement('div');
-    el.className = 'tc-msg ' + role;
-    el.textContent = text;
-    msgs.appendChild(el);
-    msgs.scrollTop = msgs.scrollHeight;
-    return el;
-  }
-
-  async function sendMessage() {
-    const text = input.value.trim();
-    if (!text || loading) return;
-    input.value = '';
-    send.disabled = true;
-    loading = true;
-    addMsg(text, 'user');
-    history.push({ role: 'user', content: text });
-    const typing = addMsg('…', 'bot typing');
-    try {
-      const res = await fetch('/api/agent?type=onboarding', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: text, history: history.slice(0, -1) }),
-      });
-      const data = await res.json();
-      const reply = data.reply || "Désolé, une erreur est survenue.";
-      typing.remove();
-      addMsg(reply, 'bot');
-      history.push({ role: 'assistant', content: reply });
-    } catch {
-      typing.remove();
-      addMsg("Connexion impossible. Veuillez réessayer.", 'bot');
-    }
-    send.disabled = false;
-    loading = false;
-    input.focus();
-  }
-
-  send.addEventListener('click', sendMessage);
-  input.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
-  });
-})();
-</script>
 </body>
 </html>
