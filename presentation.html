@@ -397,22 +397,23 @@
 <body>
 
 <!-- NAV -->
-<nav class="navbar">
-  <div class="navbar-inner">
-    <a href="/index.html" class="navbar-logo">Talenco<span style="color:var(--accent)">.</span>bj</a>
-    <ul class="navbar-links">
-      <li><a href="/offres.html">Offres</a></li>
-      <li><a href="/international.html">International</a></li>
-      <li><a href="/coach.html">✨ Coach IA</a></li>
-      <li><a href="/blog.html">Blog</a></li>
-    </ul>
-    <div class="navbar-actions">
-      <a href="/connexion.html" class="btn btn-ghost btn-sm">Connexion</a>
-      <a href="/inscription.html" class="btn btn-dark btn-sm">Créer un compte</a>
+<nav class="navbar" id="main-nav">
+  <a href="/index.html" class="talenco-logo">
+    <div class="nav-logo">
+      <div class="nav-logo-mark"><svg width="28" height="28" viewBox="0 0 68 68" xmlns="http://www.w3.org/2000/svg"><path d="M8,34 Q34,7 60,34" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><path d="M60,34 Q34,61 8,34" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><circle cx="34" cy="34" r="4.5" fill="currentColor"/></svg></div>
+      <div class="nav-logo-words"><div class="nav-logo-text"><span class="logo-primary"><span class="base">Talen</span><span class="co">co</span></span></div><div class="logo-tagline">by GSE</div></div>
     </div>
-    <button class="navbar-burger" onclick="document.querySelector('.navbar-links').classList.toggle('open')">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-    </button>
+  </a>
+  <ul class="navbar-links">
+    <li><a href="/index.html">Accueil</a></li>
+    <li><a href="/offres.html">Offres</a></li>
+    <li><a href="/international.html">International</a></li>
+    <li><a href="/coach.html">✨ Coach IA</a></li>
+    <li><a href="/blog.html">Blog</a></li>
+  </ul>
+  <div class="navbar-actions">
+    <a href="/connexion.html" class="btn btn-outline btn-sm">Connexion</a>
+    <a href="/inscription.html" class="btn btn-dark btn-sm">Créer un compte</a>
   </div>
 </nav>
 
