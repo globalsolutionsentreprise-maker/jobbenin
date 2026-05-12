@@ -540,24 +540,45 @@ async function chargerModeration() {
 }
 
 // ── OFFRES ────────────────────────────────────────────────
+let offreStats = {};
+
 async function chargerOffres() {
-  const { data } = await sb.from('jobs').select('id,title,city,sector,contract_type,status,score,created_at').order('created_at',{ascending:false});
-  allOffres = data || [];
+  const [{ data: offresData }, { data: statsData }] = await Promise.all([
+    sb.from('jobs').select('id,title,city,sector,contract_type,status,score,created_at,view_count,time_type,work_mode').order('created_at',{ascending:false}),
+    sb.from('applications').select('job_id, status'),
+  ]);
+  allOffres = offresData || [];
+  // Agréger les stats candidatures par offre
+  offreStats = {};
+  for (const a of (statsData || [])) {
+    if (!offreStats[a.job_id]) offreStats[a.job_id] = { total: 0, envoyee: 0, entretien: 0 };
+    offreStats[a.job_id].total++;
+    if (a.status === 'entretien') offreStats[a.job_id].entretien++;
+    if (a.status === 'envoyée' || a.status === 'envoyee') offreStats[a.job_id].envoyee++;
+  }
   afficherOffres(allOffres);
 }
 
 function afficherOffres(offres) {
   const el = document.getElementById('offres-list');
   if (!offres?.length) { el.innerHTML = '<div style="padding:16px;color:var(--text-muted);font-size:13px;">Aucune offre.</div>'; return; }
-  el.innerHTML = `<div class="table-head" style="grid-template-columns:1fr auto auto auto auto;display:grid;">
-    <span>Titre</span><span>Ville</span><span>Statut</span><span>Score</span><span>Actions</span>
-  </div>` + offres.map(o => `
-    <div class="table-row" style="grid-template-columns:1fr auto auto auto auto;" id="row-offre-${o.id}">
+  el.innerHTML = `<div class="table-head" style="grid-template-columns:1fr auto auto auto auto auto;display:grid;">
+    <span>Titre</span><span>Ville</span><span>Stats</span><span>Statut</span><span>Score</span><span>Actions</span>
+  </div>` + offres.map(o => {
+    const s = offreStats[o.id] || { total: 0, entretien: 0 };
+    const views = o.view_count ?? 0;
+    return `
+    <div class="table-row" style="grid-template-columns:1fr auto auto auto auto auto;" id="row-offre-${o.id}">
       <div>
         <div style="font-weight:500;font-size:13px;">${o.title}</div>
-        <div style="font-size:10px;color:var(--text-muted);">${o.sector||''} · ${o.contract_type||''}</div>
+        <div style="font-size:10px;color:var(--text-muted);">${o.sector||''} · ${o.contract_type||''}${o.time_type?' · '+o.time_type:''}${o.work_mode?' · '+o.work_mode:''}</div>
       </div>
       <span style="font-size:12px;">${o.city||'—'}</span>
+      <div style="font-size:11px;line-height:1.5;text-align:right;">
+        <div style="color:var(--text-muted);">👁 ${views}</div>
+        <div style="color:#1e40af;">📋 ${s.total} cand.</div>
+        ${s.entretien ? `<div style="color:#15803d;">🎯 ${s.entretien} entretien(s)</div>` : ''}
+      </div>
       <span class="badge b-${o.status}">${o.status}</span>
       <span style="font-size:11px;font-weight:600;color:${(o.score||0)>=75?'#15803d':(o.score||0)>=40?'#854d0e':'#b91c1c'}">${o.score||0}</span>
       <div style="display:flex;gap:5px;">
@@ -565,7 +586,8 @@ function afficherOffres(offres) {
         ${o.status!=='rejected'?`<button class="btn-action btn-reject" onclick="actionOffre('${o.id}','rejected')">Rejeter</button>`:''}
         <button class="btn-action btn-delete" onclick="supprimerOffre('${o.id}')">🗑</button>
       </div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 }
 
 function filtrerOffres() {
@@ -900,11 +922,15 @@ function afficherCandidats(candidats) {
       </div>
       <span class="badge ${u.is_active === false ? 'b-inactive' : 'b-active'}">${u.is_active === false ? 'Inactif' : 'Actif'}</span>
       <span style="font-size:11px;color:var(--text-muted);">${new Date(u.created_at).toLocaleDateString('fr-FR')}</span>
-      <div style="display:flex;gap:5px;">
+      <div style="display:flex;gap:5px;flex-wrap:wrap;">
         <button class="btn-action btn-view" onclick="voirProfil('${u.id}')">Voir profil</button>
         ${u.is_active === false
           ? `<button class="btn-action" style="border-color:#15803d;color:#15803d;" onclick="toggleUser('${u.id}',true)">Activer</button>`
           : `<button class="btn-action" style="border-color:#b91c1c;color:#b91c1c;" onclick="toggleUser('${u.id}',false)">Désactiver</button>`
+        }
+        ${!u.is_certified
+          ? `<button class="btn-action btn-publish" id="btn-certif-${u.id}" onclick="certifierDirectement('${u.id}','${(u.full_name||u.email).replace(/'/g,"\\'")}')">🏅 Certifier</button>`
+          : `<button class="btn-action" style="border-color:#b91c1c;color:#b91c1c;" id="btn-certif-${u.id}" onclick="retirerCertif('${u.id}','${(u.full_name||u.email).replace(/'/g,"\\'")}')">✕ Retirer certif</button>`
         }
         <button class="btn-action" style="border-color:#7f1d1d;color:#7f1d1d;" onclick="supprimerCandidat('${u.id}','${(u.full_name||u.email).replace(/'/g,"\\'")}')">Supprimer</button>
       </div>
@@ -1024,6 +1050,47 @@ async function rejeterCertif(certifId) {
   await sb.from('certification_requests').update({ status: 'rejected' }).eq('id', certifId);
   toast('❌ Demande refusée');
   chargerCertifications();
+}
+
+async function certifierDirectement(userId, nom) {
+  if (!confirm(`Certifier directement "${nom}" sans passer par une demande ?`)) return;
+  const btn = document.getElementById(`btn-certif-${userId}`);
+  if (btn) { btn.disabled = true; btn.textContent = '⏳…'; }
+  const { error } = await sb.from('users')
+    .update({ is_certified: true, certified_at: new Date().toISOString() })
+    .eq('id', userId);
+  if (error) { toast('❌ Erreur : ' + error.message); if (btn) { btn.disabled = false; btn.textContent = '🏅 Certifier'; } return; }
+  const row = document.getElementById(`row-cand-${userId}`);
+  if (row) {
+    const nameEl = row.querySelector('[style*="font-weight:500"]');
+    if (nameEl && !nameEl.querySelector('.certif-badge')) {
+      const badge = document.createElement('span');
+      badge.className = 'certif-badge';
+      badge.style.cssText = 'margin-left:4px;font-size:10px;background:#dcfce7;color:#15803d;padding:1px 6px;border-radius:10px;';
+      badge.textContent = '✓ Certifié';
+      nameEl.appendChild(badge);
+    }
+    if (btn) { btn.textContent = '✕ Retirer certif'; btn.style.cssText = 'border-color:#b91c1c;color:#b91c1c;'; btn.onclick = () => retirerCertif(userId, nom); btn.disabled = false; }
+  }
+  toast('🏅 Candidat certifié !');
+  chargerStats();
+}
+
+async function retirerCertif(userId, nom) {
+  if (!confirm(`Retirer la certification de "${nom}" ?`)) return;
+  const btn = document.getElementById(`btn-certif-${userId}`);
+  if (btn) { btn.disabled = true; btn.textContent = '⏳…'; }
+  const { error } = await sb.from('users')
+    .update({ is_certified: false, certified_at: null })
+    .eq('id', userId);
+  if (error) { toast('❌ Erreur : ' + error.message); if (btn) { btn.disabled = false; } return; }
+  const row = document.getElementById(`row-cand-${userId}`);
+  if (row) {
+    row.querySelector('.certif-badge')?.remove();
+    if (btn) { btn.textContent = '🏅 Certifier'; btn.style.cssText = ''; btn.className = 'btn-action btn-publish'; btn.onclick = () => certifierDirectement(userId, nom); btn.disabled = false; }
+  }
+  toast('Certification retirée');
+  chargerStats();
 }
 
 // ── WHATSAPP ──────────────────────────────────────────────

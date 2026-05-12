@@ -147,10 +147,7 @@
 <nav class="navbar" id="main-nav">
   <a href="/index.html" class="talenco-logo">
     <div class="nav-logo">
-      <div class="nav-logo-text">
-        <span class="logo-primary">Talenco</span><span class="logo-dot">.</span><span class="logo-tld">bj</span>
-      </div>
-      <div class="logo-tagline">Recrutement au Bénin</div>
+      <div class="nav-logo-mark"><svg width="28" height="28" viewBox="0 0 68 68" xmlns="http://www.w3.org/2000/svg"><path d="M8,34 Q34,7 60,34" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><path d="M60,34 Q34,61 8,34" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><circle cx="34" cy="34" r="4.5" fill="currentColor"/></svg></div><div class="nav-logo-words"><div class="nav-logo-text"><span class="logo-primary"><span class="base">Talen</span><span class="co">co</span></span></div><div class="logo-tagline">by GSE</div></div>
     </div>
   </a>
 
@@ -203,10 +200,7 @@
   <div class="footer-grid">
     <a href="/index.html" class="talenco-logo" style="text-decoration:none;">
       <div class="nav-logo">
-        <div class="nav-logo-text">
-          <span class="logo-primary">Talenco</span><span class="logo-dot">.</span><span class="logo-tld">bj</span>
-        </div>
-        <div class="logo-tagline">Recrutement au Bénin</div>
+        <div class="nav-logo-mark"><svg width="28" height="28" viewBox="0 0 68 68" xmlns="http://www.w3.org/2000/svg"><path d="M8,34 Q34,7 60,34" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><path d="M60,34 Q34,61 8,34" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><circle cx="34" cy="34" r="4.5" fill="currentColor"/></svg></div><div class="nav-logo-words"><div class="nav-logo-text"><span class="logo-primary"><span class="base">Talen</span><span class="co">co</span></span></div><div class="logo-tagline">by GSE</div></div>
       </div>
     </a>
     <ul class="footer-links">
@@ -248,6 +242,11 @@
     ]);
 
     if (!job) { window.location.href = '/offres.html'; return; }
+
+    // Incrémenter le compteur de vues (fire-and-forget)
+    sb.rpc('increment_job_view', { job_id: jobId }).catch(() =>
+      sb.from('jobs').update({ view_count: (job.view_count ?? 0) + 1 }).eq('id', jobId).catch(() => {})
+    );
 
     // Auth nav
     if (session) {

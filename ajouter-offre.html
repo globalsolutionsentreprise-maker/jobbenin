@@ -62,10 +62,7 @@
 <nav class="navbar" id="main-nav">
   <a href="/index.html" class="talenco-logo">
     <div class="nav-logo">
-      <div class="nav-logo-text">
-        <span class="logo-primary">Talenco</span><span class="logo-dot">.</span><span class="logo-tld">bj</span>
-      </div>
-      <div class="logo-tagline">Recrutement au Bénin</div>
+      <div class="nav-logo-mark"><svg width="28" height="28" viewBox="0 0 68 68" xmlns="http://www.w3.org/2000/svg"><path d="M8,34 Q34,7 60,34" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><path d="M60,34 Q34,61 8,34" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><circle cx="34" cy="34" r="4.5" fill="currentColor"/></svg></div><div class="nav-logo-words"><div class="nav-logo-text"><span class="logo-primary"><span class="base">Talen</span><span class="co">co</span></span></div><div class="logo-tagline">by GSE</div></div>
     </div>
   </a>
 
@@ -174,48 +171,108 @@
               </select>
             </div>
           </div>
+          <div class="form-row">
+            <div class="form-field">
+              <label class="form-label" for="champ-type-contrat">Type de contrat <span style="color:var(--accent)">*</span></label>
+              <select id="champ-type-contrat" required>
+                <option value="">Sélectionnez</option>
+                <option>CDI</option>
+                <option>CDD</option>
+                <option>Stage</option>
+                <option>Freelance</option>
+                <option>Alternance</option>
+              </select>
+            </div>
+            <div class="form-field">
+              <label class="form-label" for="champ-time-type">Temps de travail <span style="color:var(--accent)">*</span></label>
+              <select id="champ-time-type" required>
+                <option value="">Sélectionnez</option>
+                <option value="temps-plein">Temps plein</option>
+                <option value="temps-partiel">Temps partiel</option>
+              </select>
+            </div>
+          </div>
           <div class="form-field">
-            <label class="form-label" for="champ-type-contrat">Type de contrat <span style="color:var(--accent)">*</span></label>
-            <select id="champ-type-contrat" required>
+            <label class="form-label" for="champ-work-mode">Mode de travail <span style="color:var(--accent)">*</span></label>
+            <select id="champ-work-mode" required>
               <option value="">Sélectionnez</option>
-              <option>CDI</option>
-              <option>CDD</option>
-              <option>Stage</option>
-              <option>Freelance</option>
-              <option>Temps partiel</option>
-              <option>Alternance</option>
+              <option value="presentiel">Présentiel</option>
+              <option value="teletravail">Télétravail complet</option>
+              <option value="hybride">Hybride</option>
             </select>
           </div>
         </div>
       </div>
 
-      <!-- Contenu de l'offre (rempli par l'IA) -->
+      <!-- Titre (généré par l'IA, caché dans le DOM) -->
+      <input type="hidden" id="champ-titre">
+
+      <!-- Section 1 : Pourquoi postuler -->
       <div class="form-section">
         <div class="form-section-header">
-          <p class="form-section-title">Contenu de l'offre</p>
+          <p class="form-section-title">Pourquoi postuler <span style="color:var(--accent)">*</span></p>
         </div>
         <div class="form-section-body">
           <div class="form-field">
-            <label class="form-label" for="champ-titre">Titre de l'offre</label>
-            <input type="text" id="champ-titre" placeholder="Généré automatiquement par l'IA">
+            <label class="form-label" for="champ-pourquoi" style="font-size:11px;color:var(--text-muted);">Mettez en avant les atouts stratégiques du poste et de l'environnement de travail</label>
+            <textarea id="champ-pourquoi" rows="4" placeholder="Ex: Occuper un rôle clé et stratégique avec une forte autonomie…&#10;Piloter une transformation digitale ambitieuse…&#10;Manager une équipe à taille humaine…" required></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 2 : Vos missions -->
+      <div class="form-section">
+        <div class="form-section-header">
+          <p class="form-section-title">Vos missions <span style="color:var(--accent)">*</span></p>
+        </div>
+        <div class="form-section-body">
+          <div class="form-field">
+            <textarea id="champ-description" rows="8" placeholder="Décrivez les missions et responsabilités du poste…" required></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 3 : Votre profil -->
+      <div class="form-section">
+        <div class="form-section-header">
+          <p class="form-section-title">Votre profil <span style="color:var(--accent)">*</span></p>
+        </div>
+        <div class="form-section-body">
+          <div class="form-field">
+            <label class="form-label">Formation &amp; expérience requises</label>
+            <textarea id="champ-profil" rows="4" placeholder="Formation requise, années d'expérience, qualités recherchées…" required></textarea>
           </div>
           <div class="form-field">
-            <label class="form-label" for="champ-description">Description du poste</label>
-            <textarea id="champ-description" rows="6" placeholder="Décrivez les missions et responsabilités…"></textarea>
+            <label class="form-label">Compétences techniques <span style="color:var(--text-muted);font-weight:400;">(optionnel)</span></label>
+            <textarea id="champ-competences" rows="3" placeholder="Outils, logiciels, langages, certifications…"></textarea>
           </div>
+        </div>
+      </div>
+
+      <!-- Section 4 : Votre futur employeur -->
+      <div class="form-section">
+        <div class="form-section-header">
+          <p class="form-section-title">Votre futur employeur <span style="color:var(--accent)">*</span></p>
+        </div>
+        <div class="form-section-body">
           <div class="form-field">
-            <label class="form-label" for="champ-profil">Profil recherché</label>
-            <textarea id="champ-profil" rows="4" placeholder="Formation requise, expérience, qualités…"></textarea>
+            <label class="form-label" for="champ-futur-employeur" style="font-size:11px;color:var(--text-muted);">Présentez l'entreprise, sa culture, ses valeurs, ses chiffres clés</label>
+            <textarea id="champ-futur-employeur" rows="4" placeholder="L'entreprise X est… Fondée en…" required></textarea>
           </div>
+        </div>
+      </div>
+
+      <!-- Section 5 : Conditions -->
+      <div class="form-section">
+        <div class="form-section-header">
+          <p class="form-section-title">Conditions <span style="color:var(--accent)">*</span></p>
+        </div>
+        <div class="form-section-body">
           <div class="form-field">
-            <label class="form-label" for="champ-competences">Compétences requises</label>
-            <textarea id="champ-competences" rows="3" placeholder="Compétences techniques et comportementales…"></textarea>
-          </div>
-          <div class="form-field">
-            <label class="form-label">Salaire proposé <span style="color:var(--text-muted);font-weight:400;">(optionnel)</span></label>
+            <label class="form-label">Rémunération <span style="color:var(--accent)">*</span></label>
             <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:center;">
-              <input type="number" id="champ-salary-min" placeholder="Min" min="0" style="padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-card);color:var(--text);font-family:var(--font-body);font-size:13px;">
-              <input type="number" id="champ-salary-max" placeholder="Max (optionnel)" min="0" style="padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-card);color:var(--text);font-family:var(--font-body);font-size:13px;">
+              <input type="number" id="champ-salary-min" placeholder="Min (obligatoire)" min="0" required style="padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-card);color:var(--text);font-family:var(--font-body);font-size:13px;">
+              <input type="number" id="champ-salary-max" placeholder="Max (fourchette)" min="0" style="padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-card);color:var(--text);font-family:var(--font-body);font-size:13px;">
               <select id="champ-salary-currency" style="padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-card);color:var(--text);font-family:var(--font-body);font-size:13px;cursor:pointer;">
                 <option value="FCFA">FCFA</option>
                 <option value="EUR">EUR €</option>
@@ -233,32 +290,24 @@
             </div>
             <div id="salary-preview" style="margin-top:10px;display:none;font-size:12px;color:var(--text-muted);padding:8px 12px;background:var(--bg-soft);border-radius:var(--radius-sm);"></div>
           </div>
-
           <div class="form-field">
-            <label class="form-label">Avantages &amp; conditions</label>
+            <label class="form-label">Avantages supplémentaires <span style="color:var(--text-muted);font-weight:400;">(optionnel)</span></label>
             <textarea id="champ-avantages" rows="2" placeholder="Assurance, tickets repas, véhicule de fonction…"></textarea>
           </div>
-
           <div class="form-field">
-            <div style="display:flex;flex-direction:column;gap:10px;">
-              <label style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:12px;border:1px solid var(--border);border-radius:var(--radius-sm);">
-                <input type="checkbox" id="champ-diaspora" style="width:16px;height:16px;accent-color:var(--accent);cursor:pointer;">
-                <div>
-                  <div style="font-size:13px;font-weight:500;">Ouvert à la diaspora</div>
-                  <div style="font-size:11px;color:var(--text-muted);">Ce poste accepte des candidats basés à l'étranger</div>
-                </div>
-              </label>
-              <label style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:12px;border:1px solid var(--border);border-radius:var(--radius-sm);">
-                <input type="checkbox" id="champ-remote" style="width:16px;height:16px;accent-color:var(--accent);cursor:pointer;">
-                <div>
-                  <div style="font-size:13px;font-weight:500;">Télétravail possible</div>
-                  <div style="font-size:11px;color:var(--text-muted);">Remote partiel ou complet accepté</div>
-                </div>
-              </label>
-            </div>
+            <label style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:12px;border:1px solid var(--border);border-radius:var(--radius-sm);">
+              <input type="checkbox" id="champ-diaspora" style="width:16px;height:16px;accent-color:var(--accent);cursor:pointer;">
+              <div>
+                <div style="font-size:13px;font-weight:500;">Ouvert à la diaspora</div>
+                <div style="font-size:11px;color:var(--text-muted);">Ce poste accepte des candidats basés à l'étranger</div>
+              </div>
+            </label>
           </div>
         </div>
       </div>
+
+      <!-- Bandeau vérification éthique -->
+      <div id="ethics-bandeau" style="display:none;padding:14px 16px;border-radius:var(--radius-sm);margin-bottom:12px;border:1px solid;"></div>
 
       <!-- Barre de soumission -->
       <div class="form-submit-bar">
@@ -279,10 +328,7 @@
   <div class="footer-grid">
     <a href="/index.html" class="talenco-logo" style="text-decoration:none;">
       <div class="nav-logo">
-        <div class="nav-logo-text">
-          <span class="logo-primary">Talenco</span><span class="logo-dot">.</span><span class="logo-tld">bj</span>
-        </div>
-        <div class="logo-tagline">Recrutement au Bénin</div>
+        <div class="nav-logo-mark"><svg width="28" height="28" viewBox="0 0 68 68" xmlns="http://www.w3.org/2000/svg"><path d="M8,34 Q34,7 60,34" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><path d="M60,34 Q34,61 8,34" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><circle cx="34" cy="34" r="4.5" fill="currentColor"/></svg></div><div class="nav-logo-words"><div class="nav-logo-text"><span class="logo-primary"><span class="base">Talen</span><span class="co">co</span></span></div><div class="logo-tagline">by GSE</div></div>
       </div>
     </a>
     <ul class="footer-links">
@@ -348,22 +394,81 @@
       return;
     }
 
+    // Validation manuelle des champs obligatoires
+    const salaryMin = parseInt(document.getElementById('champ-salary-min').value);
+    if (!salaryMin || isNaN(salaryMin)) {
+      msgEl.className = 'alert alert-error'; msgEl.textContent = '❌ La rémunération (min) est obligatoire.'; msgEl.style.display = 'block';
+      btnSubmit.disabled = false; btnSubmit.textContent = 'Publier l\'offre'; return;
+    }
+    const fieldsReq = [
+      ['champ-time-type','Temps de travail'],['champ-work-mode','Mode de travail'],
+      ['champ-pourquoi','Pourquoi postuler'],['champ-description','Vos missions'],
+      ['champ-profil','Votre profil'],['champ-futur-employeur','Votre futur employeur'],
+    ];
+    for (const [id, label] of fieldsReq) {
+      if (!document.getElementById(id)?.value?.trim()) {
+        msgEl.className = 'alert alert-error'; msgEl.textContent = `❌ Le champ "${label}" est obligatoire.`; msgEl.style.display = 'block';
+        document.getElementById(id)?.focus();
+        btnSubmit.disabled = false; btnSubmit.textContent = 'Publier l\'offre'; return;
+      }
+    }
+
+    // Vérification éthique (IA)
+    btnSubmit.textContent = '🔍 Vérification éthique…';
+    const ethicsContent = [
+      document.getElementById('champ-pourquoi').value,
+      document.getElementById('champ-description').value,
+      document.getElementById('champ-profil').value,
+      document.getElementById('champ-futur-employeur').value,
+    ].join('\n\n');
+    try {
+      const ethRes = await fetch('/api/jobs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${currentSession.access_token}` },
+        body: JSON.stringify({ action: 'ethics', content: ethicsContent }),
+      });
+      if (ethRes.ok) {
+        const eth = await ethRes.json();
+        const bandeau = document.getElementById('ethics-bandeau');
+        if (eth.severity === 'block') {
+          bandeau.style.display = 'block';
+          bandeau.style.background = '#fef2f2'; bandeau.style.borderColor = '#fca5a5'; bandeau.style.color = '#991b1b';
+          bandeau.innerHTML = `<strong>⛔ Publication bloquée — contenu non conforme</strong><ul style="margin:8px 0 0;padding-left:20px;">${eth.issues.map(i=>`<li>${i}</li>`).join('')}</ul>`;
+          btnSubmit.disabled = false; btnSubmit.textContent = 'Publier l\'offre'; return;
+        }
+        if (eth.severity === 'warning' && eth.issues?.length) {
+          bandeau.style.display = 'block';
+          bandeau.style.background = '#fffbeb'; bandeau.style.borderColor = '#fcd34d'; bandeau.style.color = '#92400e';
+          bandeau.innerHTML = `<strong>⚠️ Points d'attention détectés</strong><ul style="margin:8px 0 0;padding-left:20px;">${eth.issues.map(i=>`<li>${i}</li>`).join('')}</ul><div style="margin-top:10px;font-size:12px;">L'offre peut quand même être publiée — l'admin validera avant mise en ligne.</div>`;
+        } else {
+          bandeau.style.display = 'none';
+        }
+      }
+    } catch (e) { /* fail-open */ }
+
+    btnSubmit.textContent = '⏳ Publication…';
+
     const payload = {
-      company_id:       currentCompanyId,
-      title:            document.getElementById('champ-titre').value.trim()    || document.getElementById('champ-poste').value.trim(),
-      city:             document.getElementById('champ-ville').value,
-      sector:           document.getElementById('champ-secteur').value,
-      contract_type:    document.getElementById('champ-type-contrat').value,
-      description:      document.getElementById('champ-description').value.trim(),
-      requirements:     document.getElementById('champ-profil').value.trim(),
-      benefits:         document.getElementById('champ-avantages').value.trim(),
-      salary_min:       parseInt(document.getElementById('champ-salary-min').value) || null,
-      salary_max:       parseInt(document.getElementById('champ-salary-max').value) || null,
-      salary_currency:  document.getElementById('champ-salary-currency').value || 'FCFA',
-      salary_period:    document.querySelector('input[name="salary-period"]:checked')?.value || 'mois',
-      is_diaspora_open: document.getElementById('champ-diaspora').checked,
-      is_remote:        document.getElementById('champ-remote').checked,
-      status:           'pending',
+      company_id:          currentCompanyId,
+      title:               document.getElementById('champ-titre').value.trim() || document.getElementById('champ-poste').value.trim(),
+      city:                document.getElementById('champ-ville').value,
+      sector:              document.getElementById('champ-secteur').value,
+      contract_type:       document.getElementById('champ-type-contrat').value,
+      time_type:           document.getElementById('champ-time-type').value,
+      work_mode:           document.getElementById('champ-work-mode').value,
+      pourquoi_postuler:   document.getElementById('champ-pourquoi').value.trim(),
+      description:         document.getElementById('champ-description').value.trim(),
+      requirements:        document.getElementById('champ-profil').value.trim(),
+      competences_requises:document.getElementById('champ-competences').value.trim() || null,
+      futur_employeur:     document.getElementById('champ-futur-employeur').value.trim(),
+      benefits:            document.getElementById('champ-avantages').value.trim() || null,
+      salary_min:          salaryMin,
+      salary_max:          parseInt(document.getElementById('champ-salary-max').value) || null,
+      salary_currency:     document.getElementById('champ-salary-currency').value || 'FCFA',
+      salary_period:       document.querySelector('input[name="salary-period"]:checked')?.value || 'mois',
+      is_diaspora_open:    document.getElementById('champ-diaspora').checked,
+      is_remote:           document.getElementById('champ-work-mode').value !== 'presentiel',
+      status:              'pending',
     };
 
     const { data: newJob, error } = await sb.from('jobs').insert(payload).select().single();
@@ -402,19 +507,23 @@
   'use strict';
 
   const CHAMPS = {
-    poste:        '#champ-poste',
-    entreprise:   '#champ-entreprise',
-    ville:        '#champ-ville',
-    secteur:      '#champ-secteur',
-    type_contrat: '#champ-type-contrat',
-    titre:        '#champ-titre',
-    description:  '#champ-description',
-    profil:       '#champ-profil',
-    competences:  '#champ-competences',
-    avantages:    '#champ-avantages',
+    poste:           '#champ-poste',
+    entreprise:      '#champ-entreprise',
+    ville:           '#champ-ville',
+    secteur:         '#champ-secteur',
+    type_contrat:    '#champ-type-contrat',
+    time_type:       '#champ-time-type',
+    work_mode:       '#champ-work-mode',
+    titre:           '#champ-titre',
+    pourquoi:        '#champ-pourquoi',
+    description:     '#champ-description',
+    profil:          '#champ-profil',
+    competences:     '#champ-competences',
+    futur_employeur: '#champ-futur-employeur',
+    avantages:       '#champ-avantages',
   };
 
-  const REQUIS = ['poste', 'ville', 'secteur', 'type_contrat'];
+  const REQUIS = ['poste', 'ville', 'secteur', 'type_contrat', 'time_type', 'work_mode'];
 
   const btnGenerer   = document.getElementById('btn-ia-generer');
   const btnRegenerer = document.getElementById('btn-ia-regenerer');
@@ -462,11 +571,13 @@
       const data = await res.json();
       if (!res.ok || !data.success) { showErreur(`❌ ${data.error ?? 'Erreur lors de la génération.'}`); return; }
       const { offre } = data;
-      remplirChamp('titre',       offre.titre);
-      remplirChamp('description', offre.description);
-      remplirChamp('profil',      tableauVersTexte(offre.profil_recherche));
-      remplirChamp('competences', tableauVersTexte(offre.competences_requises));
-      remplirChamp('avantages',   tableauVersTexte(offre.avantages));
+      remplirChamp('titre',           offre.titre);
+      remplirChamp('pourquoi',        tableauVersTexte(offre.pourquoi_postuler ?? offre.pourquoi));
+      remplirChamp('description',     offre.missions ?? offre.description);
+      remplirChamp('profil',          tableauVersTexte(offre.profil_recherche));
+      remplirChamp('competences',     tableauVersTexte(offre.competences_requises));
+      remplirChamp('futur_employeur', offre.futur_employeur ?? offre.entreprise_description ?? '');
+      remplirChamp('avantages',       tableauVersTexte(offre.avantages));
       bandeauOk.style.display = 'block';
       btnRegenerer.style.display = 'inline-flex';
       document.querySelector(CHAMPS.titre)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -478,9 +589,10 @@
   }
 
   btnGenerer.addEventListener('click', () => {
-    const manquants = REQUIS.filter(k => !valeur(k)).map(k => ({ poste:'Poste', ville:'Ville', secteur:'Secteur', type_contrat:'Type de contrat' }[k]));
+    const libelles = { poste:'Poste', ville:'Ville', secteur:'Secteur', type_contrat:'Type de contrat', time_type:'Temps de travail', work_mode:'Mode de travail' };
+    const manquants = REQUIS.filter(k => !valeur(k)).map(k => libelles[k]);
     if (manquants.length) { showErreur(`⚠️ Remplissez d'abord : ${manquants.join(', ')}`); document.querySelector(CHAMPS[REQUIS.find(k => !valeur(k))])?.focus(); return; }
-    dernierParams = { poste: valeur('poste'), entreprise: valeur('entreprise'), ville: valeur('ville'), secteur: valeur('secteur'), type_contrat: valeur('type_contrat') };
+    dernierParams = { poste: valeur('poste'), entreprise: valeur('entreprise'), ville: valeur('ville'), secteur: valeur('secteur'), type_contrat: valeur('type_contrat'), time_type: valeur('time_type'), work_mode: valeur('work_mode') };
     generer(dernierParams);
   });
 

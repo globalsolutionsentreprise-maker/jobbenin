@@ -515,6 +515,58 @@ Titre : ${profile?.job_title ?? 'non précisé'} | Niveau : ${profile?.level ?? 
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
+// VÉRIFICATION ÉTHIQUE (pré-publication)
+// ══════════════════════════════════════════════════════════════════════════════
+
+async function handleEthics(req, res) {
+  const { content } = req.body ?? {};
+  if (!content?.trim()) return res.status(200).json({ ok: true, issues: [], severity: 'ok' });
+
+  const prompt = `Tu es expert en droit du travail et éthique RH. Analyse cette offre d'emploi et détecte tout contenu discriminatoire ou contraire à l'éthique professionnelle.
+
+Vérifie : discrimination par l'âge ("jeune", "moins de X ans", "senior"), le genre (poste genré, stéréotypes), l'origine/nationalité, l'état de santé ou handicap, la religion, le statut marital/familial, exigences illégales ou disproportionnées.
+
+Réponds UNIQUEMENT en JSON valide :
+{
+  "ok": true/false,
+  "severity": "ok" | "warning" | "block",
+  "issues": ["description précise du problème 1", ...]
+}
+
+Règles : severity="block" uniquement si discrimination explicite et claire. severity="warning" si formulation ambiguë ou potentiellement excluante. severity="ok" si aucun problème. Si ok=true et aucun problème, issues=[].
+
+Offre :
+${content.substring(0, 3000)}`;
+
+  try {
+    const groqRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${process.env.GROQ_API_KEY}` },
+      body: JSON.stringify({
+        model: 'llama-3.3-70b-versatile',
+        max_tokens: 400, temperature: 0.1,
+        response_format: { type: 'json_object' },
+        messages: [
+          { role: 'system', content: 'Expert éthique RH. JSON uniquement.' },
+          { role: 'user', content: prompt },
+        ],
+      }),
+    });
+    if (!groqRes.ok) throw new Error(`Groq ${groqRes.status}`);
+    const raw = (await groqRes.json()).choices?.[0]?.message?.content ?? '{}';
+    const result = JSON.parse(raw);
+    return res.status(200).json({
+      ok: result.ok !== false,
+      severity: ['ok','warning','block'].includes(result.severity) ? result.severity : 'ok',
+      issues: Array.isArray(result.issues) ? result.issues : [],
+    });
+  } catch (e) {
+    console.error('ethics check:', e.message);
+    return res.status(200).json({ ok: true, issues: [], severity: 'ok' }); // fail-open
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
 // ROUTER PRINCIPAL
 // ══════════════════════════════════════════════════════════════════════════════
 
@@ -532,6 +584,7 @@ module.exports = async (req, res) => {
     if (action === 'score')    return handleScore(req, res);
     if (action === 'match')    return handleMatch(req, res);
     if (action === 'simulate') return handleSimulate(req, res);
+    if (action === 'ethics')   return handleEthics(req, res);
     return handleAlerts(req, res);
   }
 

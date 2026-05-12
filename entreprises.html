@@ -120,10 +120,7 @@
 <nav class="navbar" id="main-nav">
   <a href="/index.html" class="talenco-logo">
     <div class="nav-logo">
-      <div class="nav-logo-text">
-        <span class="logo-primary">Talenco</span><span class="logo-dot">.</span><span class="logo-tld">bj</span>
-      </div>
-      <div class="logo-tagline">Recrutement au Bénin</div>
+      <div class="nav-logo-mark"><svg width="28" height="28" viewBox="0 0 68 68" xmlns="http://www.w3.org/2000/svg"><path d="M8,34 Q34,7 60,34" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><path d="M60,34 Q34,61 8,34" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><circle cx="34" cy="34" r="4.5" fill="currentColor"/></svg></div><div class="nav-logo-words"><div class="nav-logo-text"><span class="logo-primary"><span class="base">Talen</span><span class="co">co</span></span></div><div class="logo-tagline">by GSE</div></div>
     </div>
   </a>
 
@@ -377,25 +374,46 @@
   }
 
   async function chargerMesOffres(userId) {
-    const { data: offres } = await sb
-      .from('jobs')
-      .select('id, title, city, contract_type, status, created_at')
-      .eq('company_id', userId)
-      .order('created_at', { ascending: false });
+    const [{ data: offres }, { data: cands }] = await Promise.all([
+      sb.from('jobs').select('id, title, city, contract_type, time_type, work_mode, status, created_at, view_count').eq('company_id', userId).order('created_at', { ascending: false }),
+      sb.from('applications').select('job_id, status').in('job_id',
+        (await sb.from('jobs').select('id').eq('company_id', userId)).data?.map(j => j.id) ?? []
+      ),
+    ]);
+
+    const statsMap = {};
+    for (const a of (cands || [])) {
+      if (!statsMap[a.job_id]) statsMap[a.job_id] = { total: 0, nouveau: 0, entretien: 0 };
+      statsMap[a.job_id].total++;
+      if (a.status === 'envoyée' || a.status === 'envoyee') statsMap[a.job_id].nouveau++;
+      if (a.status === 'entretien') statsMap[a.job_id].entretien++;
+    }
 
     const list = document.getElementById('mes-offres-list');
     if (!offres?.length) { list.innerHTML = '<p class="text-muted">Aucune offre publiée. <a href="/ajouter-offre.html">Publiez votre première offre →</a></p>'; return; }
 
-    list.innerHTML = `<div style="display:flex;flex-direction:column;gap:8px;">${offres.map(o => `
-      <div style="display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-sm);">
-        <div style="flex:1;min-width:0;">
-          <div style="font-family:var(--font-serif);font-style:italic;font-size:14px;">${o.title}</div>
-          <div style="font-family:var(--font-mono);font-size:9px;color:var(--text-muted);">${o.city ?? ''} · ${o.contract_type ?? ''}</div>
+    list.innerHTML = `<div style="display:flex;flex-direction:column;gap:8px;">${offres.map(o => {
+      const s = statsMap[o.id] || { total: 0, nouveau: 0, entretien: 0 };
+      const views = o.view_count ?? 0;
+      const modeLabel = { presentiel: 'Présentiel', teletravail: 'Télétravail', hybride: 'Hybride' };
+      return `
+      <div style="padding:14px 16px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-sm);">
+        <div style="display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap;">
+          <div style="flex:1;min-width:0;">
+            <div style="font-family:var(--font-serif);font-style:italic;font-size:14px;">${o.title}</div>
+            <div style="font-family:var(--font-mono);font-size:9px;color:var(--text-muted);margin-top:2px;">${o.city ?? ''} · ${o.contract_type ?? ''}${o.time_type ? ' · ' + o.time_type : ''}${o.work_mode ? ' · ' + (modeLabel[o.work_mode] ?? o.work_mode) : ''}</div>
+          </div>
+          <span class="badge badge-${o.status === 'published' ? 'success' : 'warning'}">${o.status}</span>
+          <a href="/offre-detail.html?id=${o.id}" class="btn btn-outline btn-sm">Voir</a>
         </div>
-        <span class="badge badge-${o.status === 'published' ? 'success' : 'warning'}">${o.status}</span>
-        <a href="/offre-detail.html?id=${o.id}" class="btn btn-outline btn-sm">Voir</a>
-      </div>
-    `).join('')}</div>`;
+        <div style="display:flex;gap:16px;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);flex-wrap:wrap;">
+          <span style="font-size:11px;color:var(--text-muted);">👁 <strong>${views}</strong> vue${views !== 1 ? 's' : ''}</span>
+          <span style="font-size:11px;color:#1e40af;">📋 <strong>${s.total}</strong> candidature${s.total !== 1 ? 's' : ''}</span>
+          ${s.nouveau ? `<span style="font-size:11px;color:#92400e;">🔔 <strong>${s.nouveau}</strong> nouvelle${s.nouveau !== 1 ? 's' : ''}</span>` : ''}
+          ${s.entretien ? `<span style="font-size:11px;color:#15803d;">🎯 <strong>${s.entretien}</strong> entretien${s.entretien !== 1 ? 's' : ''}</span>` : ''}
+        </div>
+      </div>`;
+    }).join('')}</div>`;
   }
 
   async function chargerNews(userId) {
@@ -514,5 +532,43 @@
 
 </script>
 <script src="/i18n.js"></script>
+
+<!-- ── Broadcast popup entreprise ───────────────────────────────────────── -->
+<div id="broadcast-overlay-co" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.52);z-index:9999;align-items:center;justify-content:center;">
+  <div style="background:var(--bg, #F9F6F1);border-radius:16px;padding:36px 32px;max-width:460px;width:90%;box-shadow:0 24px 64px rgba(0,0,0,.22);position:relative;">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
+      <span style="font-size:18px;">📣</span>
+      <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#999;">Message de l'équipe Talenco.bj</span>
+    </div>
+    <h2 id="bc-co-titre" style="font-size:22px;margin:10px 0 12px;font-style:italic;"></h2>
+    <p id="bc-co-message" style="font-size:14px;line-height:1.75;margin:0 0 28px;white-space:pre-wrap;"></p>
+    <button id="bc-co-btn" style="width:100%;padding:13px;background:#8B4513;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;">Compris</button>
+  </div>
+</div>
+
+<script>
+(async () => {
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) return;
+  try {
+    const { data } = await sb.from('broadcast_messages')
+      .select('id,titre,message')
+      .eq('active', true)
+      .or('cible.eq.entreprise,cible.eq.tous')
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (!data || localStorage.getItem('bc_vu_' + data.id)) return;
+    document.getElementById('bc-co-titre').textContent   = data.titre;
+    document.getElementById('bc-co-message').textContent = data.message;
+    const overlay = document.getElementById('broadcast-overlay-co');
+    overlay.style.display = 'flex';
+    document.getElementById('bc-co-btn').onclick = () => {
+      localStorage.setItem('bc_vu_' + data.id, '1');
+      overlay.style.display = 'none';
+    };
+  } catch(e) { /* silent */ }
+})();
+</script>
 </body>
 </html>
