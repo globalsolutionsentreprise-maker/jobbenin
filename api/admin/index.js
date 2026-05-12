@@ -184,10 +184,27 @@ async function handleCompanyVerify(req, res) {
   return res.status(400).json({ error: `Action inconnue : ${action}` });
 }
 
+// ── GET cv_signed_url : URL signée pour lire un CV (contourne RLS) ───────────
+async function handleCvSignedUrl(req, res) {
+  const adminUser = await requireAdmin(req);
+  if (!adminUser) return res.status(403).json({ error: 'Admin requis.' });
+
+  const userId = req.query.userId;
+  if (!userId) return res.status(400).json({ error: 'userId requis.' });
+
+  const { data: profile } = await supabaseAdmin.from('users').select('cv_url').eq('id', userId).single();
+  const cvPath = profile?.cv_url || `${userId}/cv.pdf`;
+
+  const { data, error } = await supabaseAdmin.storage.from('cvs').createSignedUrl(cvPath, 3600);
+  if (error || !data?.signedUrl) return res.status(404).json({ error: error?.message || 'CV introuvable.' });
+  return res.status(200).json({ signedUrl: data.signedUrl });
+}
+
 // ── Router ────────────────────────────────────────────────────────────────────
 module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   if (req.method === 'OPTIONS') return res.status(200).end();
+  if (req.method === 'GET' && req.query.action === 'cv_signed_url') return handleCvSignedUrl(req, res);
   if (req.method === 'DELETE') return handleDeleteUser(req, res);
   if (req.method === 'POST') {
     if (req.body?.action === 'notify_missing_cv') return handleNotifyMissingCv(req, res);
