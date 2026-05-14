@@ -13,6 +13,9 @@ const SITE_URL      = 'https://talenco.bj';
 const CV_BUCKET     = 'CVS';
 const MAX_CV_SIZE   = 5 * 1024 * 1024; // 5 Mo
 
+// Bêta : accès aux offres 100 % gratuit. Passer à false après la bêta pour activer les crédits candidat.
+const BETA_FREE_APPLY = true;
+
 // ════════════════════════════════════════════════════════════
 // SECTION CANDIDAT.HTML — Upload CV
 // ════════════════════════════════════════════════════════════
@@ -294,6 +297,17 @@ async function initPostulerBtn(supabase, jobId, containerId, opts = {}) {
     return;
   }
 
+  // ── Crédits candidat (actif après la bêta) ───────────────
+  if (!BETA_FREE_APPLY) {
+    const { data: creditData } = await supabase
+      .from('users').select('credits').eq('id', user.id).single();
+    const credits = creditData?.credits ?? 0;
+    if (credits < 1) {
+      container.innerHTML = _btnHtml('no-credits');
+      return;
+    }
+  }
+
   // ── Prêt à postuler ───────────────────────────────────────
   container.innerHTML = _btnHtml('ready');
   container.querySelector('#btn-postuler-1clic')?.addEventListener('click', () =>
@@ -334,6 +348,14 @@ function _btnHtml(state, jobId = '') {
               <p style="margin:6px 0 0 0;font-size:12px;color:#15803d;">
                 Vous serez notifié(e) dès qu'elle sera consultée.
               </p>`;
+    case 'no-credits':
+      return `<a href="${SITE_URL}/candidat.html#credits"
+                 style="${_btnStyle('#8B4513')}text-decoration:none;display:inline-block;">
+                🎟️ Acheter des crédits pour postuler
+              </a>
+              <p style="margin:6px 0 0 0;font-size:12px;color:#92400e;">
+                L'inscription, le CV et le Coach IA restent gratuits
+              </p>`;
     case 'error':
       return `<p style="font-size:13px;color:#b91c1c;">
                 ❌ Erreur lors de l'envoi. Réessayez.
@@ -372,6 +394,12 @@ async function _soumettreCandidature(supabase, user, jobId, cvPath, container, m
     console.error('Candidature insert error:', insertErr);
     container.innerHTML = _btnHtml('error');
     return;
+  }
+
+  // 1b. Déduire 1 crédit (actif après la bêta)
+  if (!BETA_FREE_APPLY) {
+    await supabase.rpc('decrement_candidate_credits', { user_id: user.id })
+      .catch(err => console.warn('Credit deduction non critique:', err));
   }
 
   // 2. Déclencher la notification recruteur (fire-and-forget)
