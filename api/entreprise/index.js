@@ -32,7 +32,7 @@ async function handleList(req, res) {
   if (!token) return res.status(401).json({ error: 'Connexion requise.' });
 
   const user = await getOwner(token);
-  if (!user || user.role !== 'entreprise') return res.status(403).json({ error: 'Accès refusé.' });
+  if (!user || user.role !== 'entreprise' && user.role !== 'company') return res.status(403).json({ error: 'Accès refusé.' });
   if (user.company_owner_id) return res.status(403).json({ error: 'Seul le propriétaire du compte peut gérer l\'équipe.' });
 
   const { data: membres } = await supabaseAdmin
@@ -56,7 +56,7 @@ async function handleInvite(req, res) {
   if (!token) return res.status(401).json({ error: 'Connexion requise.' });
 
   const user = await getOwner(token);
-  if (!user || user.role !== 'entreprise') return res.status(403).json({ error: 'Accès refusé.' });
+  if (!user || user.role !== 'entreprise' && user.role !== 'company') return res.status(403).json({ error: 'Accès refusé.' });
   if (user.company_owner_id) return res.status(403).json({ error: 'Seul le propriétaire peut inviter.' });
 
   const { email } = req.body ?? {};
@@ -138,7 +138,7 @@ async function handleAccept(req, res) {
   // Mettre à jour l'utilisateur
   const { error: updateErr } = await supabaseAdmin
     .from('users')
-    .update({ company_owner_id: invite.owner_id, role: 'entreprise' })
+    .update({ company_owner_id: invite.owner_id, role: 'company' })
     .eq('id', authUser.id);
 
   if (updateErr) {
@@ -161,7 +161,7 @@ async function handleRemove(req, res) {
   if (!token) return res.status(401).json({ error: 'Connexion requise.' });
 
   const user = await getOwner(token);
-  if (!user || user.role !== 'entreprise') return res.status(403).json({ error: 'Accès refusé.' });
+  if (!user || user.role !== 'entreprise' && user.role !== 'company') return res.status(403).json({ error: 'Accès refusé.' });
   if (user.company_owner_id) return res.status(403).json({ error: 'Seul le propriétaire peut retirer un membre.' });
 
   const { member_id } = req.body ?? {};

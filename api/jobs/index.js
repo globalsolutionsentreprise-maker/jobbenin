@@ -378,9 +378,10 @@ Règles : score = moyenne pondérée des 3 sous-scores. Sois précis et honnête
   const explanation = result.explication ?? '';
 
   // Mettre en cache
-  await supabaseAdmin.from('job_match_scores').upsert({
+  const { error: _me } = await supabaseAdmin.from('job_match_scores').upsert({
     user_id: user.id, job_id, score, breakdown, explanation,
-  }, { onConflict: 'user_id,job_id' }).catch(() => {});
+  }, { onConflict: 'user_id,job_id' });
+  if (_me) console.warn('job_match_scores upsert:', _me.message);
 
   return res.status(200).json({ score, breakdown, explanation, cached: false });
 }

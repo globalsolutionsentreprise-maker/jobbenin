@@ -195,9 +195,12 @@ async function handleCvSignedUrl(req, res) {
   const { data: profile } = await supabaseAdmin.from('users').select('cv_url').eq('id', userId).single();
   const cvPath = profile?.cv_url || `${userId}/cv.pdf`;
 
-  const { data, error } = await supabaseAdmin.storage.from('cvs').createSignedUrl(cvPath, 3600);
-  if (error || !data?.signedUrl) return res.status(404).json({ error: error?.message || 'CV introuvable.' });
-  return res.status(200).json({ signedUrl: data.signedUrl });
+  // Essayer les deux casses du bucket (CVS créé manuellement vs cvs en migration)
+  for (const bucket of ['CVS', 'cvs']) {
+    const { data, error } = await supabaseAdmin.storage.from(bucket).createSignedUrl(cvPath, 3600);
+    if (!error && data?.signedUrl) return res.status(200).json({ signedUrl: data.signedUrl });
+  }
+  return res.status(404).json({ error: `CV introuvable (chemin: ${cvPath})` });
 }
 
 // ── Router ────────────────────────────────────────────────────────────────────

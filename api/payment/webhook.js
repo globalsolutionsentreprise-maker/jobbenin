@@ -60,7 +60,7 @@ module.exports = async (req, res) => {
         if (user) {
           await supabase.from('users').update({ credits: (user.credits||0) + creditsToAdd }).eq('id', user.id);
         } else {
-          await supabase.from('users').insert({ email: txn.email, nom: txn.nom, telephone: txn.telephone, role: 'entreprise', status: 'active', credits: creditsToAdd });
+          await supabase.from('users').insert({ email: txn.email, nom: txn.nom, telephone: txn.telephone, role: 'company', status: 'active', credits: creditsToAdd });
         }
         await sendMail({ to: txn.email, subject: `Talenco.bj — ${creditsToAdd} crédits ajoutés`,
           html: `<p><strong>${creditsToAdd} crédits</strong> ajoutés à votre compte. Ils n'expirent jamais.</p><a href="${process.env.SITE_URL}/entreprises.html">Espace recruteur →</a>`

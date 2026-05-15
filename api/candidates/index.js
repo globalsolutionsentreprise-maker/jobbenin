@@ -23,7 +23,12 @@ async function getCompany(req) {
   const { data } = await supabaseAdmin.from('users')
     .select('id, role, credits, company_name, full_name, email, status, company_owner_id')
     .eq('id', user.id).single();
-  if (data?.role !== 'entreprise') return null;
+  // L'admin a accès illimité à la CVthèque sans déduction de crédits
+  if (data?.role === 'admin') {
+    return { ...data, _owner_id: data.id, credits: 9999, _is_admin: true };
+  }
+
+  if (data?.role !== 'entreprise' && data?.role !== 'company') return null;
 
   // Si c'est un membre d'équipe, charger les crédits depuis l'owner
   if (data.company_owner_id) {
@@ -82,7 +87,7 @@ async function handleContact(req, res) {
   const company = await getCompany(req);
   if (!company) return res.status(403).json({ error: 'Réservé aux entreprises connectées.' });
 
-  if ((company.credits ?? 0) < 1)
+  if (!company._is_admin && (company.credits ?? 0) < 1)
     return res.status(402).json({ error: 'Crédits insuffisants. Achetez un pack pour continuer.', credits: 0 });
 
   const { candidate_id, message } = req.body ?? {};
@@ -95,18 +100,20 @@ async function handleContact(req, res) {
 
   if (!candidate) return res.status(404).json({ error: 'Candidat introuvable.' });
 
-  // Déduire depuis l'owner (ou l'utilisateur lui-même s'il est owner)
-  const { error: creditErr } = await supabaseAdmin
-    .from('users')
-    .update({ credits: company.credits - 1 })
-    .eq('id', company._owner_id)
-    .gt('credits', 0);
+  // Déduire 1 crédit (sauf pour l'admin)
+  if (!company._is_admin) {
+    const { error: creditErr } = await supabaseAdmin
+      .from('users')
+      .update({ credits: company.credits - 1 })
+      .eq('id', company._owner_id)
+      .gt('credits', 0);
+    if (creditErr) return res.status(500).json({ error: 'Erreur déduction crédit.' });
+  }
 
-  if (creditErr) return res.status(500).json({ error: 'Erreur déduction crédit.' });
-
-  await supabaseAdmin.from('candidate_contacts').insert({
+  const { error: _ce } = await supabaseAdmin.from('candidate_contacts').insert({
     company_id: company.id, candidate_id: candidate.id, message: message || null,
-  }).catch(() => {});
+  });
+  if (_ce) console.warn('candidate_contacts insert:', _ce.message);
 
   const companyName = company.company_name || company.full_name || company.email;
 
@@ -145,11 +152,11 @@ async function handleContact(req, res) {
     console.warn('contact email failed:', e.message);
   }
 
-  const newCredits = company.credits - 1;
+  const newCredits = company._is_admin ? 9999 : company.credits - 1;
   return res.status(200).json({
     success: true,
     credits_remaining: newCredits,
-    message: `Contact envoyé. Il vous reste ${newCredits} crédit(s).`,
+    message: company._is_admin ? 'Contact envoyé (admin — pas de déduction).' : `Contact envoyé. Il vous reste ${newCredits} crédit(s).`,
   });
 }
 
@@ -158,7 +165,13 @@ module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   if (req.method === 'OPTIONS') return res.status(200).end();
-  if (req.method === 'GET')  return handleSearch(req, res);
-  if (req.method === 'POST') return handleContact(req, res);
+  try {
+    if (req.method === 'GET')  return await handleSearch(req, res);
+    if (req.method === 'POST') return await handleContact(req, res);
+  } catch (err) {
+    console.error('[candidates] Unhandled error:', err?.message, err?.stack);
+    if (!res.headersSent) res.status(500).json({ error: err?.message || 'Erreur interne.' });
+    return;
+  }
   return res.status(405).end();
 };

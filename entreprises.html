@@ -329,6 +329,7 @@
 
   // ── Auth ────────────────────────────────────────────────────────────
   let _session = null;
+  let _companyId = null;
 
   sb.auth.getSession().then(async ({ data: { session } }) => {
     if (!session) {
@@ -346,7 +347,13 @@
     // Résoudre l'ID "company" effectif (owner ou soi-même)
     const { data: profil } = await sb.from('users')
       .select('company_owner_id').eq('id', session.user.id).single();
-    const companyId = profil?.company_owner_id ?? session.user.id;
+    const ownerUserId = profil?.company_owner_id ?? session.user.id;
+
+    // Résoudre le companies.id (clé étrangère réelle dans jobs / applications / news)
+    const { data: companyRow } = await sb.from('companies')
+      .select('id').eq('owner_id', ownerUserId).maybeSingle();
+    const companyId = companyRow?.id ?? ownerUserId;
+    _companyId = companyId;
 
     // Onglet équipe visible uniquement pour les owners (pas de company_owner_id)
     if (!profil?.company_owner_id) {
@@ -354,8 +361,8 @@
       chargerEquipe();
     }
 
-    // Kanban
-    kanban.init(sb, 'kanban', companyId);
+    // Kanban (utilise le user ID pour le canal realtime)
+    kanban.init(sb, 'kanban', ownerUserId);
 
     chargerStats(companyId);
     chargerMesOffres(companyId);
@@ -519,7 +526,7 @@
     const fb = document.getElementById('news-feedback');
     if (!title || !content) { fb.textContent = '⚠️ Titre et contenu requis.'; fb.style.display='block'; return; }
     const { error } = await sb.from('company_news').insert({
-      company_id: session.user.id, title, content,
+      company_id: _companyId, title, content,
       image_url: image_url || null, status: 'published'
     });
     if (error) { fb.textContent = '❌ Erreur : ' + error.message; fb.style.display='block'; return; }
