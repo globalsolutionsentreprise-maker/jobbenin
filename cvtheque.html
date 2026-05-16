@@ -62,8 +62,7 @@
 <nav class="navbar" id="main-nav">
   <a href="/index.html" class="talenco-logo">
     <div class="nav-logo">
-      <div class="nav-logo-text"><span class="logo-primary">Talenco</span><span class="logo-dot">.</span><span class="logo-tld">bj</span></div>
-      <div class="logo-tagline" data-i18n="nav.tagline">Recrutement au Bénin</div>
+      <div class="nav-logo-mark"><svg width="28" height="28" viewBox="0 0 68 68" xmlns="http://www.w3.org/2000/svg"><path d="M8,34 Q34,7 60,34" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><path d="M60,34 Q34,61 8,34" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><circle cx="34" cy="34" r="4.5" fill="currentColor"/></svg></div><div class="nav-logo-words"><div class="nav-logo-text"><span class="logo-primary"><span class="base">Talen</span><span class="co">co</span></span></div><div class="logo-tagline">by GSE</div></div>
     </div>
   </a>
   <ul class="navbar-links">
@@ -591,9 +590,11 @@ async function ouvrirPaiement(planId) {
 // Vérifier si l'utilisateur connecté est premium
 async function verifierPremium(session) {
   const { data } = await sb.from('users')
-    .select('premium_until, plan')
+    .select('premium_until, plan, role')
     .eq('id', session.user.id)
     .single();
+
+  if (data?.role === 'admin') return true;
 
   const isPremium = data?.premium_until && new Date(data.premium_until) > new Date();
   if (!isPremium) {

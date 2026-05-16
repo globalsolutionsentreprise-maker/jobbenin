@@ -545,7 +545,7 @@ let offreStats = {};
 async function chargerOffres() {
   const [{ data: offresData }, { data: statsData }] = await Promise.all([
     sb.from('jobs').select('id,title,city,sector,contract_type,status,score,created_at,view_count,time_type,work_mode').order('created_at',{ascending:false}),
-    sb.from('applications').select('job_id, status'),
+    sb.from('applications').select('job_id, statut'),
   ]);
   allOffres = offresData || [];
   // Agréger les stats candidatures par offre
@@ -553,8 +553,8 @@ async function chargerOffres() {
   for (const a of (statsData || [])) {
     if (!offreStats[a.job_id]) offreStats[a.job_id] = { total: 0, envoyee: 0, entretien: 0 };
     offreStats[a.job_id].total++;
-    if (a.status === 'entretien') offreStats[a.job_id].entretien++;
-    if (a.status === 'envoyée' || a.status === 'envoyee') offreStats[a.job_id].envoyee++;
+    if (a.statut === 'entretien') offreStats[a.job_id].entretien++;
+    if (a.statut === 'envoyée') offreStats[a.job_id].envoyee++;
   }
   afficherOffres(allOffres);
 }
@@ -622,13 +622,13 @@ async function supprimerOffre(id) {
 
 // ── CANDIDATURES ──────────────────────────────────────────
 async function chargerCandidatures() {
-  const { data } = await sb.from('applications').select('id,status,created_at,job_id,user_id').order('created_at',{ascending:false}).limit(50);
+  const { data } = await sb.from('applications').select('id,statut,created_at,job_id,user_id').order('created_at',{ascending:false}).limit(50);
   const el = document.getElementById('cand-list');
   if (!data?.length) { el.innerHTML = '<div style="padding:16px;color:var(--text-muted);font-size:13px;">Aucune candidature.</div>'; return; }
   el.innerHTML = `<div class="table-head" style="grid-template-columns:1fr auto auto;display:grid;"><span>ID Offre</span><span>Statut</span><span>Date</span></div>` +
     data.map(c => `<div class="table-row" style="grid-template-columns:1fr auto auto;">
       <span style="font-family:monospace;font-size:11px;color:var(--text-muted);">${c.job_id?.substring(0,8)}…</span>
-      <span class="badge b-${c.status==='accepted'?'active':c.status==='rejected'?'rejected':'pending'}">${c.status||'pending'}</span>
+      <span class="badge b-${c.statut==='entretien'?'active':c.statut==='refusée'?'rejected':'pending'}">${c.statut||'envoyée'}</span>
       <span style="font-size:11px;color:var(--text-muted);">${new Date(c.created_at).toLocaleDateString('fr-FR')}</span>
     </div>`).join('');
 }
@@ -741,7 +741,7 @@ async function voirProfil(userId) {
   // Charger user + candidatures
   const [{ data: u }, { data: apps, count: nbApps }] = await Promise.all([
     sb.from('users').select('*').eq('id', userId).single(),
-    sb.from('applications').select('id,status,created_at,jobs(title,city)', { count:'exact' }).eq('user_id', userId).order('created_at', { ascending:false }).limit(10),
+    sb.from('applications').select('id,statut,created_at,jobs(title,city)', { count:'exact' }).eq('user_id', userId).order('created_at', { ascending:false }).limit(10),
   ]);
 
   if (!u) { document.getElementById('modal-content').innerHTML = '<div class="profile-loading">Profil introuvable.</div>'; return; }
@@ -758,7 +758,7 @@ async function voirProfil(userId) {
         <div style="font-weight:500;">${a.jobs?.title || '—'}</div>
         <div style="color:var(--text-muted);font-size:11px;">${a.jobs?.city||''} · ${date(a.created_at)}</div>
       </div>
-      <span class="badge b-${a.status==='accepted'?'active':a.status==='rejected'?'rejected':'pending'}">${a.status||'pending'}</span>
+      <span class="badge b-${a.statut==='entretien'?'active':a.statut==='refusée'?'rejected':'pending'}">${a.statut||'envoyée'}</span>
     </div>`).join('');
 
   document.getElementById('modal-content').innerHTML = `

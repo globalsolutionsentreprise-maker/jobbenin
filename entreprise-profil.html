@@ -49,10 +49,7 @@
 <nav class="navbar">
   <a href="/index.html" class="talenco-logo">
     <div class="nav-logo">
-      <div class="nav-logo-text">
-        <span class="logo-primary">Talenco</span><span class="logo-dot">.</span><span class="logo-tld">bj</span>
-      </div>
-      <div class="logo-tagline">Recrutement au Bénin</div>
+      <div class="nav-logo-mark"><svg width="28" height="28" viewBox="0 0 68 68" xmlns="http://www.w3.org/2000/svg"><path d="M8,34 Q34,7 60,34" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><path d="M60,34 Q34,61 8,34" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><circle cx="34" cy="34" r="4.5" fill="currentColor"/></svg></div><div class="nav-logo-words"><div class="nav-logo-text"><span class="logo-primary"><span class="base">Talen</span><span class="co">co</span></span></div><div class="logo-tagline">by GSE</div></div>
     </div>
   </a>
 
@@ -94,10 +91,7 @@
   <div class="footer-grid">
     <a href="/index.html" class="talenco-logo" style="text-decoration:none;">
       <div class="nav-logo">
-        <div class="nav-logo-text">
-          <span class="logo-primary">Talenco</span><span class="logo-dot">.</span><span class="logo-tld">bj</span>
-        </div>
-        <div class="logo-tagline">Recrutement au Bénin</div>
+        <div class="nav-logo-mark"><svg width="28" height="28" viewBox="0 0 68 68" xmlns="http://www.w3.org/2000/svg"><path d="M8,34 Q34,7 60,34" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><path d="M60,34 Q34,61 8,34" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><circle cx="34" cy="34" r="4.5" fill="currentColor"/></svg></div><div class="nav-logo-words"><div class="nav-logo-text"><span class="logo-primary"><span class="base">Talen</span><span class="co">co</span></span></div><div class="logo-tagline">by GSE</div></div>
       </div>
     </a>
     <ul class="footer-links">
@@ -130,6 +124,14 @@
       // Mode "mon profil" (recruteur connecté)
       const { data: { session } } = await sb.auth.getSession();
       if (!session) { window.location.href = '/connexion.html'; return; }
+
+      // L'admin est redirigé vers le panneau admin (pas de profil entreprise propre)
+      const { data: userProfile } = await sb.from('users').select('role').eq('id', session.user.id).maybeSingle();
+      if (userProfile?.role === 'admin') {
+        window.location.href = '/admin.html';
+        return;
+      }
+
       const { data } = await sb.from('companies').select('*').eq('owner_id', session.user.id).maybeSingle();
       company = data;
     } else {

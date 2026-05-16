@@ -122,10 +122,7 @@
 <nav class="navbar" id="main-nav">
   <a href="/index.html" class="talenco-logo">
     <div class="nav-logo">
-      <div class="nav-logo-text">
-        <span class="logo-primary">Talenco</span><span class="logo-dot">.</span><span class="logo-tld">bj</span>
-      </div>
-      <div class="logo-tagline" data-i18n="nav.tagline">Recrutement au Bénin</div>
+      <div class="nav-logo-mark"><svg width="28" height="28" viewBox="0 0 68 68" xmlns="http://www.w3.org/2000/svg"><path d="M8,34 Q34,7 60,34" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><path d="M60,34 Q34,61 8,34" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><circle cx="34" cy="34" r="4.5" fill="currentColor"/></svg></div><div class="nav-logo-words"><div class="nav-logo-text"><span class="logo-primary"><span class="base">Talen</span><span class="co">co</span></span></div><div class="logo-tagline">by GSE</div></div>
     </div>
   </a>
 
@@ -549,10 +546,7 @@
   <div class="footer-grid">
     <a href="/index.html" class="talenco-logo" style="text-decoration:none;">
       <div class="nav-logo">
-        <div class="nav-logo-text">
-          <span class="logo-primary">Talenco</span><span class="logo-dot">.</span><span class="logo-tld">bj</span>
-        </div>
-        <div class="logo-tagline" data-i18n="nav.tagline">Recrutement au Bénin</div>
+        <div class="nav-logo-mark"><svg width="28" height="28" viewBox="0 0 68 68" xmlns="http://www.w3.org/2000/svg"><path d="M8,34 Q34,7 60,34" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><path d="M60,34 Q34,61 8,34" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><circle cx="34" cy="34" r="4.5" fill="currentColor"/></svg></div><div class="nav-logo-words"><div class="nav-logo-text"><span class="logo-primary"><span class="base">Talen</span><span class="co">co</span></span></div><div class="logo-tagline">by GSE</div></div>
       </div>
     </a>
     <ul class="footer-links">
@@ -599,6 +593,7 @@
       document.querySelector('.content')?.prepend(banner);
     }
     chargerProfil(session);
+    verifierBroadcast();
   });
 
   function rafraichirActivite(userId) {
@@ -655,16 +650,19 @@
   document.getElementById('btn-save-profile').addEventListener('click', async () => {
     const { data: { user } } = await sb.auth.getUser();
     if (!user) return;
+    const prenom = document.getElementById('profile-prenom').value.trim();
+    const nom    = document.getElementById('profile-nom').value.trim();
     const { error } = await sb.from('users').upsert({
-      id:      user.id,
-      prenom:  document.getElementById('profile-prenom').value.trim(),
-      nom:     document.getElementById('profile-nom').value.trim(),
+      id: user.id,
+      prenom,
+      nom,
     });
     const msgEl = document.getElementById('profile-msg');
     if (error) {
       msgEl.className = 'alert alert-error'; msgEl.textContent = '❌ ' + error.message;
     } else {
       msgEl.className = 'alert alert-success'; msgEl.textContent = '✓ Profil enregistré';
+      notifierAdminProfilMaj(user.id, [prenom, nom].filter(Boolean).join(' ') || user.email);
     }
     msgEl.style.display = 'block';
     setTimeout(() => { msgEl.style.display = 'none'; }, 3000);
@@ -693,6 +691,8 @@
       msgEl.className = 'alert alert-error'; msgEl.textContent = '❌ ' + error.message;
     } else {
       msgEl.className = 'alert alert-success'; msgEl.textContent = '✓ Profil professionnel enregistré ! Il sera visible dans la CVthèque après validation.';
+      const name = document.getElementById('sidebar-name')?.textContent || user.email;
+      notifierAdminProfilMaj(user.id, name);
     }
     msgEl.style.display = 'block';
     btn.disabled = false; btn.textContent = 'Enregistrer';
@@ -772,8 +772,8 @@
   async function chargerCandidatures(userId) {
     const { data: apps } = await sb
       .from('applications')
-      .select('id, status, created_at, jobs(id, title, city)')
-      .eq('candidate_id', userId)
+      .select('id, statut, created_at, jobs(id, title, city)')
+      .eq('user_id', userId)
       .order('created_at', { ascending: false })
       .limit(20);
 
@@ -790,7 +790,7 @@
           <div class="application-title">${a.jobs?.title ?? 'Offre supprimée'}</div>
           <div class="application-company">${a.jobs?.city ?? ''}</div>
         </div>
-        <span class="badge badge-${a.status === 'accepted' ? 'success' : a.status === 'rejected' ? 'danger' : 'warning'}">${a.status ?? 'En attente'}</span>
+        <span class="badge badge-${a.statut === 'entretien' ? 'success' : a.statut === 'refusée' ? 'danger' : a.statut === 'vue' ? 'info' : 'warning'}">${a.statut ?? 'Envoyée'}</span>
       </div>
     `).join('');
   }
@@ -1172,5 +1172,56 @@
 })();
 </script>
 <script src="/i18n.js"></script>
+
+<!-- ── Broadcast popup ─────────────────────────────────────────────────── -->
+<div id="broadcast-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.52);z-index:9999;align-items:center;justify-content:center;">
+  <div style="background:var(--bg);border-radius:16px;padding:36px 32px;max-width:460px;width:90%;box-shadow:0 24px 64px rgba(0,0,0,.22);position:relative;">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
+      <span style="font-size:18px;">📣</span>
+      <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--text-muted);">Message de l'équipe Talenco.bj</span>
+    </div>
+    <h2 id="bc-popup-titre" style="font-family:var(--font-serif);font-style:italic;font-size:22px;margin:10px 0 12px;color:var(--text);"></h2>
+    <p id="bc-popup-message" style="font-size:14px;line-height:1.75;color:var(--text-mid);margin:0 0 28px;white-space:pre-wrap;"></p>
+    <button id="bc-popup-btn" style="width:100%;padding:13px;background:var(--accent);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;">Compris</button>
+  </div>
+</div>
+
+<script>
+// ── Broadcast : afficher si message actif non encore vu ──
+async function verifierBroadcast() {
+  try {
+    const { data } = await sb.from('broadcast_messages')
+      .select('id,titre,message')
+      .eq('active', true)
+      .or('cible.eq.candidat,cible.eq.tous')
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (!data) return;
+    if (localStorage.getItem('bc_vu_' + data.id)) return;
+    document.getElementById('bc-popup-titre').textContent   = data.titre;
+    document.getElementById('bc-popup-message').textContent = data.message;
+    const overlay = document.getElementById('broadcast-overlay');
+    overlay.style.display = 'flex';
+    document.getElementById('bc-popup-btn').onclick = () => {
+      localStorage.setItem('bc_vu_' + data.id, '1');
+      overlay.style.display = 'none';
+    };
+  } catch(e) { /* silent */ }
+}
+
+// ── Notification admin : déclencher après save profil ────
+async function notifierAdminProfilMaj(userId, fullName) {
+  try {
+    await sb.from('admin_notifications').insert({
+      type: 'profile_update',
+      user_id: userId,
+      user_name: fullName || null,
+      user_role: 'candidate',
+      read: false,
+    });
+  } catch(e) { /* silent */ }
+}
+</script>
 </body>
 </html>

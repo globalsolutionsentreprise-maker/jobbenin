@@ -373,7 +373,7 @@
     const [{ count: nbOffres }, { count: nbCandidatures }, { count: nbNouveaux }] = await Promise.all([
       sb.from('jobs').select('*', { count: 'exact', head: true }).eq('company_id', userId).eq('status', 'published'),
       sb.from('applications').select('*, jobs!inner(company_id)', { count: 'exact', head: true }).eq('jobs.company_id', userId),
-      sb.from('applications').select('*, jobs!inner(company_id)', { count: 'exact', head: true }).eq('jobs.company_id', userId).eq('status', 'pending'),
+      sb.from('applications').select('*, jobs!inner(company_id)', { count: 'exact', head: true }).eq('jobs.company_id', userId).eq('statut', 'envoyée'),
     ]);
     document.getElementById('stat-offres-actives').textContent = nbOffres ?? 0;
     document.getElementById('stat-candidatures').textContent   = nbCandidatures ?? 0;
@@ -383,7 +383,7 @@
   async function chargerMesOffres(userId) {
     const [{ data: offres }, { data: cands }] = await Promise.all([
       sb.from('jobs').select('id, title, city, contract_type, time_type, work_mode, status, created_at, view_count').eq('company_id', userId).order('created_at', { ascending: false }),
-      sb.from('applications').select('job_id, status').in('job_id',
+      sb.from('applications').select('job_id, statut').in('job_id',
         (await sb.from('jobs').select('id').eq('company_id', userId)).data?.map(j => j.id) ?? []
       ),
     ]);
@@ -392,8 +392,8 @@
     for (const a of (cands || [])) {
       if (!statsMap[a.job_id]) statsMap[a.job_id] = { total: 0, nouveau: 0, entretien: 0 };
       statsMap[a.job_id].total++;
-      if (a.status === 'envoyée' || a.status === 'envoyee') statsMap[a.job_id].nouveau++;
-      if (a.status === 'entretien') statsMap[a.job_id].entretien++;
+      if (a.statut === 'envoyée') statsMap[a.job_id].nouveau++;
+      if (a.statut === 'entretien') statsMap[a.job_id].entretien++;
     }
 
     const list = document.getElementById('mes-offres-list');

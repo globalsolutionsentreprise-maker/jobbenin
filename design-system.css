@@ -167,43 +167,46 @@ a:hover { opacity: .8; }
 /* ── Logo Talenco.bj ── */
 .nav-logo {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
   line-height: 1;
 }
-.nav-logo-text {
+.nav-logo-mark {
+  flex-shrink: 0;
+  color: var(--accent);
   display: flex;
-  align-items: baseline;
-  gap: 0;
+  align-items: center;
+}
+.nav-logo-words {
+  display: block;
+}
+.nav-logo-text {
+  display: block;
+  line-height: 1;
 }
 .logo-primary {
-  font-family: 'Hanken Grotesk', sans-serif;
-  font-weight: 900;
-  font-size: 20px;
-  color: var(--text);
-  letter-spacing: -.03em;
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-style: italic;
+  font-size: 21px;
+  font-weight: 400;
+  letter-spacing: -.02em;
+  line-height: 1;
 }
-.logo-dot {
-  color: var(--accent);
-  font-size: 20px;
-  font-weight: 900;
-  display: inline-block;
-  transition: transform .15s ease;
-}
-.logo-tld {
-  font-family: 'DM Mono', monospace;
-  font-size: 14px;
-  color: var(--accent);
-  font-weight: 500;
-  letter-spacing: .02em;
-}
+.logo-primary .base { color: var(--text); }
+.logo-primary .co   { color: var(--accent); }
+.logo-dot { display: none; }
+.logo-tld { display: none; }
 .logo-tagline {
+  display: block;
   font-family: 'DM Mono', monospace;
-  font-size: 9px;
-  color: var(--text-muted);
-  letter-spacing: .12em;
+  font-size: 8.5px;
+  color: var(--accent);
+  letter-spacing: .14em;
   text-transform: uppercase;
-  margin-top: 1px;
-  transition: letter-spacing .35s ease, color .25s ease;
+  margin-top: 3px;
+  opacity: .75;
+  transition: opacity .2s ease;
 }
 
 /* ── Logo animations ── */
@@ -211,21 +214,11 @@ a:hover { opacity: .8; }
   from { opacity: 0; transform: translateY(-3px); }
   to   { opacity: 1; transform: translateY(0); }
 }
-@keyframes dot-pop {
-  0%   { transform: scale(1)    rotate(0deg); }
-  35%  { transform: scale(1.55) rotate(-8deg); }
-  65%  { transform: scale(1.3)  rotate(5deg); }
-  100% { transform: scale(1)    rotate(0deg); }
-}
 .nav-logo {
   animation: logo-in .4s cubic-bezier(.22,1,.36,1) both;
 }
-.talenco-logo:hover .logo-dot {
-  animation: dot-pop .45s cubic-bezier(.22,1,.36,1);
-}
 .talenco-logo:hover .logo-tagline {
-  letter-spacing: .18em;
-  color: var(--accent);
+  opacity: 1;
 }
 
 /* ── Footer texte simple (pres-footer-brand) ── */
@@ -1410,10 +1403,10 @@ label {
 .ds-footer-logo .logo-bold { color: var(--bg); }
 .ds-footer-logo .logo-serif { color: rgba(249, 246, 241, .6); }
 .ds-footer-logo .ds-nav-logo-sub { color: rgba(249, 246, 241, .35); }
-.ds-footer .logo-primary { color: var(--bg); }
-.ds-footer .logo-dot { color: var(--gold-light, #E8C97A); }
-.ds-footer .logo-tld { color: var(--gold-light, #E8C97A); }
-.ds-footer .logo-tagline { color: rgba(255, 255, 255, .4); }
+.ds-footer .nav-logo-mark { color: #C8892A; }
+.ds-footer .logo-primary .base { color: var(--bg); }
+.ds-footer .logo-primary .co   { color: #C8892A; }
+.ds-footer .logo-tagline { color: rgba(255,255,255,.35); opacity: 1; }
 
 .ds-footer-links {
   display: flex;
@@ -1685,10 +1678,10 @@ label {
 /* Footer alias */
 .footer { background: var(--text); color: var(--bg); padding: 40px 24px; margin-top: 64px; }
 .footer-grid { max-width: 1140px; margin: 0 auto; display: grid; grid-template-columns: auto 1fr auto; align-items: start; gap: 32px; }
-.footer .logo-primary { color: var(--bg); }
-.footer .logo-dot { color: var(--gold-light, #E8C97A); }
-.footer .logo-tld { color: var(--gold-light, #E8C97A); }
-.footer .logo-tagline { color: rgba(255,255,255,.4); }
+.footer .nav-logo-mark { color: #C8892A; }
+.footer .logo-primary .base { color: var(--bg); }
+.footer .logo-primary .co   { color: #C8892A; }
+.footer .logo-tagline { color: rgba(255,255,255,.35); opacity: 1; }
 .footer-links { display: flex; flex-wrap: wrap; gap: 20px; list-style: none; padding: 0; margin: 0; }
 .footer-links a { font-family: var(--font-body); font-size: 11px; color: rgba(249,246,241,.5); text-decoration: none; transition: color .15s; }
 .footer-links a:hover { color: var(--bg); opacity: 1; }

@@ -135,10 +135,10 @@ async function handleAccept(req, res) {
     return res.status(403).json({ error: `Cette invitation est pour ${invite.email}. Connectez-vous avec ce compte.` });
   }
 
-  // Mettre à jour l'utilisateur
+  // Mettre à jour l'utilisateur (activation + rattachement à l'owner)
   const { error: updateErr } = await supabaseAdmin
     .from('users')
-    .update({ company_owner_id: invite.owner_id, role: 'company' })
+    .update({ company_owner_id: invite.owner_id, role: 'company', status: 'active' })
     .eq('id', authUser.id);
 
   if (updateErr) {

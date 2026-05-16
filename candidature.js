@@ -435,7 +435,7 @@ window.candidature = {
         if (!jobId) return;
         const { data: { session } } = await sb.auth.getSession();
         if (!session) { window.location.href = '/connexion.html'; return; }
-        const { error } = await sb.from('applications').insert({ job_id: jobId, candidate_id: session.user.id });
+        const { error } = await sb.from('applications').insert({ job_id: jobId, user_id: session.user.id });
         if (error) { alert('Erreur lors de la candidature : ' + error.message); return; }
         btn.textContent = '✅ Candidature envoyée';
         btn.disabled = true;

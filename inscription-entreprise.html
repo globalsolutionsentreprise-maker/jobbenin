@@ -63,10 +63,7 @@
 <nav class="navbar">
   <a href="/presentation.html" class="talenco-logo">
     <div class="nav-logo">
-      <div class="nav-logo-text">
-        <span class="logo-primary">Talenco</span><span class="logo-dot">.</span><span class="logo-tld">bj</span>
-      </div>
-      <div class="logo-tagline">Recrutement au Bénin</div>
+      <div class="nav-logo-mark"><svg width="28" height="28" viewBox="0 0 68 68" xmlns="http://www.w3.org/2000/svg"><path d="M8,34 Q34,7 60,34" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><path d="M60,34 Q34,61 8,34" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><circle cx="34" cy="34" r="4.5" fill="currentColor"/></svg></div><div class="nav-logo-words"><div class="nav-logo-text"><span class="logo-primary"><span class="base">Talen</span><span class="co">co</span></span></div><div class="logo-tagline">by GSE</div></div>
     </div>
   </a>
   <ul class="navbar-links">
@@ -246,6 +243,17 @@ const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 let selectedFormat = 'google_meet';
 let createdUserId  = null;
 
+// Contexte invitation d'équipe
+const _inviteParams = new URLSearchParams(location.search);
+const _inviteToken  = _inviteParams.get('invite_token') || null;
+const _inviteEmail  = _inviteParams.get('email') || null;
+if (_inviteEmail) {
+  document.addEventListener('DOMContentLoaded', () => {
+    const emailField = document.getElementById('reg-email');
+    if (emailField) { emailField.value = _inviteEmail; emailField.readOnly = true; }
+  });
+}
+
 function selectFormat(fmt) {
   selectedFormat = fmt;
   document.getElementById('opt-meet').classList.toggle('selected', fmt === 'google_meet');
@@ -314,6 +322,7 @@ document.getElementById('btn-step1').addEventListener('click', async () => {
   }
 
   createdUserId = data.user?.id;
+  const _newSession = data.session; // disponible immédiatement si email confirmation désactivée
 
   const { error: dbErr } = await sb.from('users').upsert({
     id:                  createdUserId,
@@ -335,6 +344,24 @@ document.getElementById('btn-step1').addEventListener('click', async () => {
   }
 
   btn.disabled = false; btn.textContent = 'Continuer →';
+
+  // Si l'utilisateur vient d'une invitation d'équipe : accepter directement et rediriger
+  if (_inviteToken && _newSession) {
+    try {
+      await fetch('/api/entreprise', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${_newSession.access_token}` },
+        body: JSON.stringify({ action: 'accept', token: _inviteToken }),
+      });
+    } catch (_) {}
+    window.location.href = '/entreprises.html';
+    return;
+  } else if (_inviteToken && !_newSession) {
+    // Email confirmation requise — rediriger vers invitation-equipe après confirmation
+    showMsg('info', 'Confirmez votre email puis cliquez sur le lien d\'invitation pour rejoindre l\'équipe.');
+    return;
+  }
+
   goStep(2);
 });
 
