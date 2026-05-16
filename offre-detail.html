@@ -244,8 +244,8 @@
     if (!job) { window.location.href = '/offres.html'; return; }
 
     // Incrémenter le compteur de vues (fire-and-forget)
-    sb.rpc('increment_job_view', { job_id: jobId }).catch(() =>
-      sb.from('jobs').update({ view_count: (job.view_count ?? 0) + 1 }).eq('id', jobId).catch(() => {})
+    sb.rpc('increment_job_view', { job_id: jobId }).then(null, () =>
+      sb.from('jobs').update({ view_count: (job.view_count ?? 0) + 1 }).eq('id', jobId)
     );
 
     // Auth nav
