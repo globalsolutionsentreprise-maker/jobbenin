@@ -246,8 +246,8 @@ let _rtChannel = null;
 
 async function loadJobs() {
   const { data } = await _sb.from('jobs')
-    .select('id, titre, title')
-    .eq('user_id', _userId)
+    .select('id, title')
+    .eq('company_id', _userId)
     .order('created_at', { ascending: false });
   _jobs = data ?? [];
 }
@@ -264,7 +264,7 @@ async function loadApplications() {
       id, job_id, user_id, statut, cv_path, message, note_recruteur, created_at,
       match_score, match_explanation,
       users!applications_user_id_fkey ( email ),
-      jobs ( id, titre, title, entreprise, company )
+      jobs ( id, title )
     `)
     .in('job_id', jobIds)
     .order('match_score', { ascending: false, nullsFirst: false })
@@ -273,7 +273,7 @@ async function loadApplications() {
   _apps = (data ?? []).map(a => ({
     ...a,
     email:             (a.users)?.email ?? '',
-    jobTitre:          (a.jobs)?.titre ?? (a.jobs)?.title ?? '—',
+    jobTitre:          (a.jobs)?.title ?? '—',
     match_score:       a.match_score ?? null,
     match_explanation: a.match_explanation ?? '',
   }));
@@ -283,7 +283,7 @@ async function loadApplications() {
 
 function renderToolbar() {
   const opts = _jobs.map(j =>
-    `<option value="${j.id}">${j.titre ?? j.title}</option>`
+    `<option value="${j.id}">${j.title}</option>`
   ).join('');
   const total = _apps.length;
   return `
@@ -509,7 +509,7 @@ async function moveCard(appId, fromStatut, toStatut) {
 
   // Notification email candidat (fire-and-forget)
   if (['vue', 'entretien', 'refusée'].includes(toStatut)) {
-    fetch(`${SUPABASE_URL}/functions/v1/notify-statut-change`, {
+    fetch(`${KANBAN_SUPABASE_URL}/functions/v1/notify-statut-change`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

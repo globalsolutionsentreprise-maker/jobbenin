@@ -361,8 +361,8 @@
       chargerEquipe();
     }
 
-    // Kanban (utilise le user ID pour le canal realtime)
-    kanban.init(sb, 'kanban', ownerUserId);
+    // Kanban (utilise le company ID pour filtrer les offres et nommer le canal realtime)
+    kanban.init(sb, 'kanban', companyId);
 
     chargerStats(companyId);
     chargerMesOffres(companyId);
