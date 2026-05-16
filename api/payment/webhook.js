@@ -27,7 +27,7 @@ module.exports = async (req, res) => {
         if (existing) {
           await supabase.from('users').update({ status: 'active', subscription_start: now, subscription_end: end, premium_until: end, last_activity: now }).eq('id', existing.id);
         } else {
-          await supabase.from('users').insert({ email: txn.email, nom: txn.nom, telephone: txn.telephone, role: 'candidat', status: 'active', subscription_start: now, subscription_end: end, premium_until: end, last_activity: now, credits: 0 });
+          await supabase.from('users').insert({ email: txn.email, full_name: txn.nom, telephone: txn.telephone, role: 'candidate', status: 'active', subscription_start: now, subscription_end: end, premium_until: end, last_activity: now, credits: 0 });
         }
         await sendMail({ to: txn.email, subject: 'Bienvenue sur Talenco.bj — Abonnement activé !',
           html: `<h2>Votre abonnement est activé</h2><p>Bonjour ${txn.nom},</p><p>Abonnement <strong>1 000 FCFA/mois</strong> actif.</p><a href="${process.env.SITE_URL}/offres.html" style="background:#F0A500;color:#000;padding:10px 20px;border-radius:8px;text-decoration:none;font-weight:bold">Voir les offres →</a>`
@@ -60,7 +60,7 @@ module.exports = async (req, res) => {
         if (user) {
           await supabase.from('users').update({ credits: (user.credits||0) + creditsToAdd }).eq('id', user.id);
         } else {
-          await supabase.from('users').insert({ email: txn.email, nom: txn.nom, telephone: txn.telephone, role: 'company', status: 'active', credits: creditsToAdd });
+          await supabase.from('users').insert({ email: txn.email, full_name: txn.nom, company_name: txn.nom, telephone: txn.telephone, role: 'company', status: 'active', credits: creditsToAdd });
         }
         await sendMail({ to: txn.email, subject: `Talenco.bj — ${creditsToAdd} crédits ajoutés`,
           html: `<p><strong>${creditsToAdd} crédits</strong> ajoutés à votre compte. Ils n'expirent jamais.</p><a href="${process.env.SITE_URL}/entreprises.html">Espace recruteur →</a>`
