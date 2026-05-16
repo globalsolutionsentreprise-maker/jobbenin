@@ -53,7 +53,7 @@ module.exports = async (req, res) => {
     if (type === 'enterprise_purchase') {
       const { data: txn } = await supabase.from('transactions').select('*').eq('fedapay_id', String(fedapayId)).single();
       if (txn) {
-        const meta = JSON.parse(txn.meta || '{}');
+        const meta = typeof txn.meta === 'string' ? JSON.parse(txn.meta) : (txn.meta || {});
         const CREDITS = { starter: 10, growth: 30, business: 100 };
         const creditsToAdd = CREDITS[meta.pack] || 0;
         const { data: user } = await supabase.from('users').select('id,credits').eq('email', txn.email).single();
