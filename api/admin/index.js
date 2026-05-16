@@ -192,15 +192,18 @@ async function handleCvSignedUrl(req, res) {
   const userId = req.query.userId;
   if (!userId) return res.status(400).json({ error: 'userId requis.' });
 
-  const { data: profile } = await supabaseAdmin.from('users').select('cv_url').eq('id', userId).single();
-  const cvPath = profile?.cv_url || `${userId}/cv.pdf`;
+  const { data: profile } = await supabaseAdmin.from('users').select('cv_url, cv_path').eq('id', userId).single();
+  const cvRaw = profile?.cv_url || profile?.cv_path || `${userId}/cv.pdf`;
+
+  // URL externe (données de test ou upload direct) → retourner telle quelle
+  if (cvRaw.startsWith('http')) return res.status(200).json({ signedUrl: cvRaw });
 
   // Essayer les deux casses du bucket (CVS créé manuellement vs cvs en migration)
   for (const bucket of ['CVS', 'cvs']) {
-    const { data, error } = await supabaseAdmin.storage.from(bucket).createSignedUrl(cvPath, 3600);
+    const { data, error } = await supabaseAdmin.storage.from(bucket).createSignedUrl(cvRaw, 3600);
     if (!error && data?.signedUrl) return res.status(200).json({ signedUrl: data.signedUrl });
   }
-  return res.status(404).json({ error: `CV introuvable (chemin: ${cvPath})` });
+  return res.status(404).json({ error: `CV introuvable (chemin: ${cvRaw})` });
 }
 
 // ── Router ────────────────────────────────────────────────────────────────────

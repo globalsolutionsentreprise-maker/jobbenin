@@ -235,7 +235,7 @@
   async function chargerOffre() {
     const [{ data: job }, { data: { session } }] = await Promise.all([
       sb.from('jobs')
-        .select('id, title, company_id, city, sector, contract_type, description, requirements, benefits, created_at, score, salary_min, salary_max, diaspora_friendly, work_mode')
+        .select('id, title, company_id, city, sector, contract_type, description, requirements, benefits, created_at, score, salary_min, salary_max, diaspora_friendly, work_mode, pourquoi_postuler, futur_employeur, companies(id, name)')
         .eq('id', jobId)
         .maybeSingle(),
       sb.auth.getSession(),
@@ -268,7 +268,7 @@
               <a href="/offres.html">Offres</a> / ${job.sector ?? ''}
             </div>
             <h1 class="detail-title">${job.title}</h1>
-            <p class="detail-company">Entreprise — ${job.city ?? ''}</p>
+            <p class="detail-company">${job.companies?.name ? `<a href="/entreprise-profil.html?id=${job.companies.id}" style="color:inherit;text-decoration:none;">${job.companies.name}</a>` : 'Entreprise'} — ${job.city ?? ''}</p>
             <div class="detail-meta">
               <span class="tag">${job.city ?? ''}</span>
               <span class="tag">${job.contract_type ?? ''}</span>
@@ -283,7 +283,7 @@
           <div class="detail-sidebar-card">
             <div class="sidebar-info-row">
               <span class="sidebar-info-label">Entreprise</span>
-              <span class="sidebar-info-val">Entreprise</span>
+              <span class="sidebar-info-val">${job.companies?.name ? `<a href="/entreprise-profil.html?id=${job.companies.id}" style="color:inherit;">${job.companies.name}</a>` : '—'}</span>
             </div>
             <div class="sidebar-info-row">
               <span class="sidebar-info-label">Localisation</span>
