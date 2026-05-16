@@ -100,6 +100,21 @@ async function handleContact(req, res) {
 
   if (!candidate) return res.status(404).json({ error: 'Candidat introuvable.' });
 
+  // Vérifier doublon avant de déduire (évite de perdre un crédit sur re-contact)
+  const { data: existingContact } = await supabaseAdmin
+    .from('candidate_contacts')
+    .select('id')
+    .eq('company_id', company.id)
+    .eq('candidate_id', candidate.id)
+    .maybeSingle();
+
+  if (existingContact) {
+    return res.status(409).json({
+      error: 'Vous avez déjà contacté ce candidat. Aucun crédit déduit.',
+      credits_remaining: company._is_admin ? 9999 : company.credits,
+    });
+  }
+
   // Déduire 1 crédit (sauf pour l'admin)
   if (!company._is_admin) {
     const { error: creditErr } = await supabaseAdmin
