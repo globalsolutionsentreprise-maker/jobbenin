@@ -26,7 +26,7 @@ function buildEmailRecruteur(params: {
   message: string | null;
 }): string {
   const { jobTitre, jobId, candidatEmail, message } = params;
-  const dashboardUrl = `${SITE_URL}/recruteur.html?tab=candidatures&job=${jobId}`;
+  const dashboardUrl = `${SITE_URL}/entreprises.html?tab=candidatures&job=${jobId}`;
 
   return `<!DOCTYPE html>
 <html lang="fr">
@@ -137,7 +137,7 @@ Deno.serve(async (req) => {
         id, cv_path, message,
         user_id,
         job_id,
-        jobs (id, titre, user_id),
+        jobs (id, titre, title, company_id),
         users!applications_user_id_fkey (email)
       `)
       .eq('id', application_id)
@@ -152,8 +152,8 @@ Deno.serve(async (req) => {
     const job: any = app.jobs;
     const candidatEmail: string = (app.users as any)?.email ?? '';
 
-    if (!job?.user_id) {
-      return new Response(JSON.stringify({ error: 'Offre sans recruteur associé' }), {
+    if (!job?.company_id) {
+      return new Response(JSON.stringify({ error: 'Offre sans entreprise associée' }), {
         status: 422, headers: { ...CORS, 'Content-Type': 'application/json' },
       });
     }
@@ -162,7 +162,7 @@ Deno.serve(async (req) => {
     const { data: recruteur } = await sb
       .from('users')
       .select('email')
-      .eq('id', job.user_id)
+      .eq('id', job.company_id)
       .single();
 
     if (!recruteur?.email) {
