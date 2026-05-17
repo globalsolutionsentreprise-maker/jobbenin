@@ -1022,32 +1022,8 @@
       </div>`;
   }
 
-  async function payerPremium() {
-    const session = (await sb.auth.getSession()).data.session;
-    if (!session) return;
-
-    FedaPay.init({
-      public_key: 'pk_live_5V_GBzSSPmHe9OD47EXXTr_5',
-      transaction: {
-        amount: 1000,
-        description: 'Abonnement Premium Candidat Talenco.bj — 1 mois',
-        currency: { iso: 'XOF' },
-      },
-      customer: { email: session.user.email },
-      onComplete: async function(resp) {
-        if (resp.reason === FedaPay.DIALOG_DISMISSED) return;
-        const refId = resp?.transaction?.id || resp?.id || null;
-        // Sauvegarde pour que le webhook active le premium
-        await sb.from('payments').insert({
-          user_id:     session.user.id,
-          plan:        'candidat_premium',
-          amount:      1000,
-          fedapay_ref: String(refId),
-          status:      'pending',
-        });
-        alert('✅ Paiement reçu ! Votre accès Premium sera activé dans quelques secondes. Rechargez la page.');
-      }
-    }).open();
+  function payerPremium() {
+    window.location.href = '/paiement-candidat.html';
   }
 
 </script>

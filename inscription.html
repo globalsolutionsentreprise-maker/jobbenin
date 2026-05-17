@@ -238,7 +238,7 @@
         .from('CVS')
         .upload(cvPath, cvFile, { contentType: 'application/pdf', upsert: true });
       if (!uploadErr) {
-        await sb.from('users').update({ cv_url: cvPath }).eq('id', data.user.id);
+        await sb.from('users').update({ cv_path: cvPath }).eq('id', data.user.id);
       }
       showMsg('success', uploadErr ? 'Compte créé ! (CV à re-uploader dans votre profil).' : 'Compte créé avec votre CV. Redirection…');
       btn.textContent = 'Compte créé';

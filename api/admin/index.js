@@ -49,8 +49,8 @@ async function handleNotifyMissingCv(req, res) {
     .from('users')
     .select('id, email, full_name')
     .eq('role', 'candidate')
-    .is('cv_url', null)
-    .eq('is_active', true);
+    .is('cv_path', null)
+    .eq('status', 'active');
 
   if (dbErr) return res.status(500).json({ error: 'Erreur base de données.' });
   if (!candidats?.length) return res.status(200).json({ message: 'Tous les candidats actifs ont un CV.', sent: 0 });
