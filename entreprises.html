@@ -221,7 +221,10 @@
     <div class="tab-panel" id="tab-offres">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
         <h3 style="margin:0;font-family:var(--font-serif);font-style:italic;" data-i18n="ent.offres.h3">Mes offres publiées</h3>
-        <a href="/ajouter-offre.html" class="btn btn-primary btn-sm" data-i18n="ent.offres.btn">+ Nouvelle offre</a>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <button class="btn btn-outline btn-sm" onclick="exportCandidaturesCSV()" title="Exporter toutes les candidatures en CSV">⬇ CSV</button>
+          <a href="/ajouter-offre.html" class="btn btn-primary btn-sm" data-i18n="ent.offres.btn">+ Nouvelle offre</a>
+        </div>
       </div>
       <div id="mes-offres-list">Chargement…</div>
     </div>
@@ -421,6 +424,45 @@
         </div>
       </div>`;
     }).join('')}</div>`;
+  }
+
+  async function exportCandidaturesCSV() {
+    if (!_session) return;
+    const companyId = _session.user.id;
+    // 1. Récupérer tous les jobs de cette entreprise
+    const { data: jobs } = await sb.from('jobs').select('id, title').eq('company_id', companyId);
+    if (!jobs?.length) { alert('Aucune offre trouvée.'); return; }
+    const jobIds = jobs.map(j => j.id);
+    const jobMap = Object.fromEntries(jobs.map(j => [j.id, j.title]));
+    // 2. Récupérer toutes les candidatures avec info candidat
+    const { data: apps } = await sb.from('applications')
+      .select('id, job_id, statut, created_at, cv_path, users(prenom, nom, email, telephone, city)')
+      .in('job_id', jobIds)
+      .order('created_at', { ascending: false });
+    if (!apps?.length) { alert('Aucune candidature à exporter.'); return; }
+    // 3. Construire le CSV
+    const header = ['Offre', 'Candidat', 'Email', 'Téléphone', 'Ville', 'Statut', 'Date candidature', 'CV'];
+    const rows = apps.map(a => {
+      const u = a.users ?? {};
+      const nom = [u.prenom, u.nom].filter(Boolean).join(' ') || '—';
+      const date = new Date(a.created_at).toLocaleDateString('fr-FR');
+      return [
+        jobMap[a.job_id] ?? a.job_id,
+        nom,
+        u.email ?? '',
+        u.telephone ?? '',
+        u.city ?? '',
+        a.statut ?? '',
+        date,
+        a.cv_path ? 'Oui' : 'Non',
+      ].map(v => `"${String(v).replace(/"/g, '""')}"`).join(',');
+    });
+    const csv = [header.join(','), ...rows].join('\n');
+    const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = `candidatures-${new Date().toISOString().slice(0,10)}.csv`;
+    a.click(); URL.revokeObjectURL(url);
   }
 
   async function chargerNews(userId) {

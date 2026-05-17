@@ -481,7 +481,7 @@
     }
 
     let query = sb.from('jobs')
-      .select('id, title, city, sector, contract_type, created_at, score, salary_min, salary_max, salary_currency, salary_period, salary_visible, is_diaspora_open, is_remote, companies!company_id(name)', { count: 'exact' })
+      .select('id, title, city, sector, contract_type, created_at, score, salary_min, salary_max, salary_currency, salary_period, salary_visible, is_diaspora_open, is_remote, apply_count, companies!company_id(name, is_verified, avg_rating, review_count)', { count: 'exact' })
       .eq('status', 'published')
       .range(currentPage * PAGE_SIZE, (currentPage + 1) * PAGE_SIZE - 1);
 
@@ -520,7 +520,12 @@
         ${saveBtn}
         <div class="job-body">
           <p class="job-title">${j.title}</p>
-          <p class="job-company">${j.companies?.name || 'Entreprise'}</p>
+          <p class="job-company">
+            ${j.companies?.name || 'Entreprise'}
+            ${j.companies?.is_verified ? `<span style="display:inline-block;width:13px;height:13px;background:var(--accent);border-radius:50%;font-size:8px;color:#fff;text-align:center;line-height:13px;margin-left:4px;vertical-align:middle;" title="Entreprise certifiée Talenco">✓</span>` : ''}
+            ${j.companies?.avg_rating ? `<span style="font-size:10px;color:var(--accent);margin-left:4px;">${'★'.repeat(Math.round(j.companies.avg_rating))}${'☆'.repeat(5-Math.round(j.companies.avg_rating))}</span>` : ''}
+          </p>
+          ${j.apply_count > 0 ? `<div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);margin-bottom:4px;">${j.apply_count} candidat${j.apply_count > 1 ? 's' : ''}</div>` : ''}
           ${salaryHtml}
           <div class="job-tags">
             <span class="tag">${j.city ?? ''}</span>

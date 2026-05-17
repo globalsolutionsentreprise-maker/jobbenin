@@ -26,6 +26,15 @@
     .sidebar-name { font-family: var(--font-sans); font-weight: 700; font-size: 14px; color: var(--text); margin-bottom: 2px; }
     .sidebar-email { font-family: var(--font-mono); font-size: 9px; color: var(--text-muted); }
     .sidebar-divider { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+    .dispo-badge { display: inline-block; font-family: var(--font-mono); font-size: 9px; font-weight: 600; padding: 2px 8px; border-radius: 20px; margin-top: 6px; }
+    .dispo-active { background: #d4f0d4; color: #1a6b1a; }
+    .dispo-soon { background: #fff3cd; color: #7a5800; }
+    .dispo-later { background: #fde8d0; color: #a04000; }
+    .dispo-off { background: #ebebeb; color: #666; }
+    .profile-completion { margin-top: 10px; }
+    .profile-completion-label { font-family: var(--font-mono); font-size: 9px; color: var(--text-muted); margin-bottom: 4px; display: flex; justify-content: space-between; }
+    .profile-completion-track { background: var(--border); border-radius: 4px; height: 4px; overflow: hidden; }
+    .profile-completion-fill { height: 4px; border-radius: 4px; background: var(--accent); transition: width 0.4s; }
     .content { padding: 28px; min-width: 0; }
     .section-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden; margin-bottom: 16px; }
     .section-card-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; border-bottom: 1px solid var(--border); }
@@ -182,6 +191,16 @@
       <div class="sidebar-avatar" id="sidebar-avatar">?</div>
       <div class="sidebar-name" id="sidebar-name">—</div>
       <div class="sidebar-email" id="sidebar-email">—</div>
+      <div id="dispo-badge" style="display:none;"></div>
+      <div class="profile-completion" id="profile-completion" style="display:none;">
+        <div class="profile-completion-label">
+          <span>Profil complété</span>
+          <span id="profile-pct">0%</span>
+        </div>
+        <div class="profile-completion-track">
+          <div class="profile-completion-fill" id="profile-fill" style="width:0%"></div>
+        </div>
+      </div>
       <hr class="sidebar-divider">
       <ul class="ds-sidebar-links">
         <li><a href="#profil" class="active"><span data-icon="user" data-size="13"></span> <span data-i18n="cand.nav.profil">Profil</span></a></li>
@@ -626,6 +645,46 @@
     verifierBroadcast();
   });
 
+  function afficherBadgeDispo(availability) {
+    const el = document.getElementById('dispo-badge');
+    if (!el) return;
+    const map = {
+      immediate:       { cls: 'dispo-active', label: '● Cherche activement' },
+      '1mois':         { cls: 'dispo-soon',   label: '● Disponible sous 1 mois' },
+      '3mois':         { cls: 'dispo-later',  label: '● Disponible sous 3 mois' },
+      non_disponible:  { cls: 'dispo-off',    label: '● Non disponible' },
+    };
+    const cfg = map[availability];
+    if (!cfg) { el.style.display = 'none'; return; }
+    el.className = 'dispo-badge ' + cfg.cls;
+    el.textContent = cfg.label;
+    el.style.display = 'inline-block';
+  }
+
+  function mettreAJourCompletion(profile) {
+    if (!profile) return;
+    const champs = [
+      profile.prenom || profile.first_name,
+      profile.nom || profile.last_name,
+      profile.telephone,
+      profile.ville || profile.city,
+      profile.cv_path,
+      profile.job_title,
+      profile.sector,
+      profile.availability,
+      profile.linkedin_url,
+      profile.bio,
+    ];
+    const remplis = champs.filter(Boolean).length;
+    const pct = Math.round((remplis / champs.length) * 100);
+    const pctEl = document.getElementById('profile-pct');
+    const fillEl = document.getElementById('profile-fill');
+    const container = document.getElementById('profile-completion');
+    if (pctEl) pctEl.textContent = pct + '%';
+    if (fillEl) fillEl.style.width = pct + '%';
+    if (container) container.style.display = 'block';
+  }
+
   function rafraichirActivite(userId) {
     const today = new Date().toDateString();
     if (localStorage.getItem('ta_activity_date') === today) return;
@@ -662,6 +721,12 @@
         document.getElementById('sidebar-name').textContent = profile.full_name;
       }
     }
+
+    // Badge disponibilité
+    afficherBadgeDispo(profile?.availability);
+
+    // Barre de complétion (données de base dispo ici, pro chargées après)
+    mettreAJourCompletion(profile);
 
     // Profil pro avec nouvelles colonnes
     remplirProfilPro(user.id);
@@ -801,6 +866,9 @@
       if (certifLi && !certifLi.value) certifLi.value = data.linkedin_url;
     }
     if (data.is_certified) { document.getElementById('badge-verifie').style.display='inline-flex'; }
+    // Mise à jour badge dispo + barre de complétion avec données pro
+    afficherBadgeDispo(data.availability);
+    mettreAJourCompletion(data);
     chargerStatutCertif(userId);
   }
 

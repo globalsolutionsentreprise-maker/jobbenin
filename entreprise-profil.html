@@ -57,6 +57,20 @@
     .photo-upload-slot span { font-size: 11px; font-family: var(--font-mono); color: var(--text-muted); }
     .photo-upload-slot.loading { opacity: .5; pointer-events: none; }
 
+    /* ── Avis candidats ── */
+    .review-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 16px; margin-bottom: 12px; }
+    .review-stars { color: var(--accent); font-size: 14px; letter-spacing: .05em; }
+    .review-title { font-family: var(--font-serif); font-style: italic; font-size: 15px; margin: 6px 0 4px; }
+    .review-comment { font-size: 13px; color: var(--text-mid); line-height: 1.6; }
+    .review-meta { font-family: var(--font-mono); font-size: 10px; color: var(--text-muted); margin-top: 8px; }
+    .star-input { display: flex; gap: 4px; flex-direction: row-reverse; justify-content: flex-end; margin: 8px 0; }
+    .star-input input { display: none; }
+    .star-input label { font-size: 22px; color: var(--border); cursor: pointer; transition: color .1s; }
+    .star-input input:checked ~ label,
+    .star-input label:hover,
+    .star-input label:hover ~ label { color: var(--accent); }
+    .company-avg-stars { color: var(--accent); font-size: 13px; margin-top: 4px; }
+
     /* ── Lightbox ── */
     .lightbox { position: fixed; inset: 0; background: rgba(0,0,0,.88); z-index: 9999; display: none; align-items: center; justify-content: center; }
     .lightbox.open { display: flex; }
@@ -172,6 +186,14 @@
     const { data: offres } = await sb.from('jobs').select('id, title, city, contract_type, created_at')
       .eq('company_id', company.id).eq('status', 'published').order('created_at', { ascending: false }).limit(6);
 
+    // Avis candidats (SELECT public)
+    const { data: reviews } = await sb.from('company_reviews')
+      .select('rating, title, comment, is_anonymous, is_verified, created_at')
+      .eq('company_id', company.id)
+      .eq('status', 'approved')
+      .order('created_at', { ascending: false })
+      .limit(10);
+
     // Taux de réponse via RPC SECURITY DEFINER (bypasse RLS, visible publiquement)
     let tauxReponse = null;
     const { data: responseData } = await sb.rpc('get_company_response_days', { p_company_id: company.id });
@@ -197,8 +219,9 @@
               ${company.city ? `<span>📍 ${company.city}</span>` : ''}
               ${company.sector ? `<span>🏷 ${company.sector}</span>` : ''}
               ${company.email ? `<span>✉️ ${company.email}</span>` : ''}
-              ${company.is_verified ? `<span style="color:var(--accent);font-weight:600;">✓ Certifiée</span>` : ''}
+              ${company.is_verified ? `<span style="color:var(--accent);font-weight:600;">✓ Certifiée Talenco</span>` : ''}
             </div>
+            ${company.avg_rating ? `<div class="company-avg-stars">${'★'.repeat(Math.round(company.avg_rating))}${'☆'.repeat(5-Math.round(company.avg_rating))} <span style="font-size:11px;color:var(--text-muted);font-family:var(--font-mono);">${Number(company.avg_rating).toFixed(1)}/5 · ${company.review_count} avis</span></div>` : ''}
           </div>
           ${isOwner ? `<a href="/ajouter-offre.html" class="btn btn-primary">+ Publier une offre</a>` : ''}
         </div>
@@ -216,6 +239,21 @@
           <div class="profil-section" id="section-photos">
             <div class="profil-section-label">Photos</div>
             <div class="photo-gallery" id="photo-gallery"></div>
+          </div>
+
+          <div class="profil-section" id="section-avis">
+            <div class="profil-section-label">Avis candidats${company.review_count > 0 ? ` (${company.review_count})` : ''}</div>
+            <div id="reviews-list">
+              ${reviews?.length ? reviews.map(r => `
+                <div class="review-card">
+                  <div class="review-stars">${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}</div>
+                  ${r.title ? `<div class="review-title">${r.title}</div>` : ''}
+                  ${r.comment ? `<div class="review-comment">${r.comment}</div>` : ''}
+                  <div class="review-meta">${r.is_anonymous ? 'Candidat anonyme' : 'Candidat'} · ${new Date(r.created_at).toLocaleDateString('fr-FR', {month:'long', year:'numeric'})}${r.is_verified ? ' · <span style="color:var(--accent)">✓ Candidature vérifiée</span>' : ''}</div>
+                </div>
+              `).join('') : '<p class="text-muted" style="font-size:13px;">Aucun avis pour le moment.</p>'}
+            </div>
+            <div id="review-form-container" style="margin-top:16px;"></div>
           </div>
 
           <div class="profil-section">
@@ -248,13 +286,75 @@
             ${company.size ? `<div style="margin-bottom:8px;font-size:13px;"><strong>Taille</strong><br><span class="text-muted">${company.size}</span></div>` : ''}
             ${company.website ? `<div style="margin-bottom:8px;font-size:13px;"><strong>Site web</strong><br><a href="${company.website}" target="_blank" class="text-muted">${company.website}</a></div>` : ''}
             <div style="margin-bottom:8px;font-size:13px;"><strong>Offres publiées</strong><br><span class="text-muted">${offres?.length ?? 0}</span></div>
-            ${tauxReponse !== null ? `<div style="font-size:13px;"><strong>Taux de réponse</strong><br><span style="color:#2E7D32;font-family:var(--font-mono);font-size:12px;">✓ Répond en ${tauxReponse} jour${tauxReponse > 1 ? 's' : ''} en moy.</span></div>` : ''}
+            ${tauxReponse !== null ? `<div style="margin-bottom:8px;font-size:13px;"><strong>Taux de réponse</strong><br><span style="color:#2E7D32;font-family:var(--font-mono);font-size:12px;">✓ Répond en ${tauxReponse} jour${tauxReponse > 1 ? 's' : ''} en moy.</span></div>` : ''}
+            ${company.avg_rating ? `<div style="font-size:13px;"><strong>Note candidats</strong><br><span style="color:var(--accent);font-size:13px;">${'★'.repeat(Math.round(company.avg_rating))}${'☆'.repeat(5-Math.round(company.avg_rating))}</span> <span class="text-muted" style="font-size:12px;">${Number(company.avg_rating).toFixed(1)}/5</span></div>` : ''}
           </div>
         </div>
       </div>
     `;
 
     renderGallery();
+    initReviewForm(company.id);
+  }
+
+  async function initReviewForm(companyId) {
+    const container = document.getElementById('review-form-container');
+    if (!container) return;
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) {
+      container.innerHTML = `<p style="font-size:12px;color:var(--text-muted);">
+        <a href="/connexion.html" style="color:var(--accent)">Connectez-vous</a> pour laisser un avis.</p>`;
+      return;
+    }
+    const { data: userProfile } = await sb.from('users').select('role').eq('id', session.user.id).maybeSingle();
+    if (userProfile?.role !== 'candidat') return;
+
+    const { data: existing } = await sb.from('company_reviews')
+      .select('id').eq('company_id', companyId).eq('candidate_id', session.user.id).maybeSingle();
+    if (existing) {
+      container.innerHTML = '<p style="font-size:12px;color:var(--text-muted);font-style:italic;">Vous avez déjà laissé un avis sur cette entreprise.</p>';
+      return;
+    }
+
+    const { data: jobsData } = await sb.from('jobs').select('id').eq('company_id', companyId);
+    if (!jobsData?.length) return;
+    const { data: appData } = await sb.from('applications')
+      .select('id').in('job_id', jobsData.map(j => j.id)).eq('user_id', session.user.id).limit(1);
+    if (!appData?.length) return;
+
+    container.innerHTML = `
+      <div style="background:var(--bg-soft);border:1px solid var(--border);border-radius:var(--radius-md);padding:16px;">
+        <div style="font-family:var(--font-mono);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);margin-bottom:12px;">Laisser un avis</div>
+        <div class="star-input" id="star-input">
+          ${[5,4,3,2,1].map(n => `<input type="radio" name="rating" id="star${n}" value="${n}"><label for="star${n}">★</label>`).join('')}
+        </div>
+        <input id="rev-title" placeholder="Titre (optionnel)" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;background:var(--bg-card);margin-bottom:8px;">
+        <textarea id="rev-comment" rows="3" placeholder="Votre expérience avec ce recruteur…" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;background:var(--bg-card);resize:vertical;"></textarea>
+        <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-muted);margin:8px 0;cursor:pointer;">
+          <input type="checkbox" id="rev-anon"> Rester anonyme
+        </label>
+        <button onclick="submitReview('${companyId}','${session.user.id}')" class="btn btn-dark btn-sm">Envoyer l'avis</button>
+        <p id="rev-msg" style="font-size:12px;margin-top:8px;"></p>
+      </div>`;
+  }
+
+  async function submitReview(companyId, userId) {
+    const rating = document.querySelector('input[name="rating"]:checked')?.value;
+    if (!rating) { document.getElementById('rev-msg').textContent = 'Choisissez une note.'; return; }
+    const title   = document.getElementById('rev-title').value.trim();
+    const comment = document.getElementById('rev-comment').value.trim();
+    const anon    = document.getElementById('rev-anon').checked;
+    const btn     = document.querySelector('#review-form-container button');
+    btn.disabled  = true;
+    const { error } = await sb.from('company_reviews').insert({
+      company_id: companyId, candidate_id: userId,
+      rating: parseInt(rating), title: title || null, comment: comment || null,
+      is_anonymous: anon, status: 'pending'
+    });
+    btn.disabled = false;
+    const msg = document.getElementById('rev-msg');
+    if (error) { msg.style.color = 'red'; msg.textContent = 'Erreur : ' + error.message; }
+    else { msg.style.color = 'green'; msg.textContent = 'Merci ! Votre avis sera publié après modération.'; btn.style.display = 'none'; }
   }
 
   const MAX_PHOTOS = 6;

@@ -599,7 +599,8 @@ async function handleOffrePage(req, res) {
       salary_min, salary_max, salary_visible, salary_currency, salary_period,
       city, contract_type, experience_required, education_required,
       work_mode, sector, published_at, expires_at, created_at,
-      companies ( name, logo_url, website, description, sector, city, is_verified )
+      companies ( name, logo_url, website, description, sector, city, is_verified, avg_rating, review_count ),
+      apply_count
     `)
     .eq('id', id)
     .eq('status', 'published')
@@ -699,6 +700,8 @@ body{background:var(--bg,#F9F6F1);color:var(--text,#1a1209);font-family:'Space G
 .company-logo{width:48px;height:48px;border-radius:8px;border:1px solid #EDE8E0;object-fit:contain;background:#fff;padding:4px}
 .company-name{font-size:.9rem;font-weight:600;color:#4a3d2e}
 .company-verified{display:inline-block;width:14px;height:14px;background:#8B4513;border-radius:50%;margin-left:4px;vertical-align:middle;font-size:9px;color:#fff;text-align:center;line-height:14px}
+.company-rating{font-size:12px;color:#8B4513;letter-spacing:.02em;margin-left:6px;vertical-align:middle}
+.apply-count{display:inline-block;font-family:'DM Mono',monospace;font-size:10px;color:var(--text-muted);margin-top:4px}
 h1{font-family:'Instrument Serif',serif;font-style:italic;font-size:clamp(1.6rem,4vw,2.2rem);line-height:1.15;margin-bottom:1rem;color:#1a1209}
 .tags{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:1.5rem}
 .tag{display:inline-flex;align-items:center;gap:.35rem;font-size:.75rem;font-family:'DM Mono',monospace;padding:.3rem .7rem;border-radius:100px;border:1px solid #EDE8E0;background:#fff;color:#4a3d2e}
@@ -726,8 +729,10 @@ hr.sep{border:none;border-top:1px solid #EDE8E0;margin:2rem 0}
   <div class="job-header">
     <div class="company-row">
       ${company.logo_url ? `<img class="company-logo" src="${esc(company.logo_url)}" alt="${esc(nom)}">` : ''}
-      <span class="company-name">${esc(nom)}${company.is_verified ? '<span class="company-verified" title="Entreprise certifiée">✓</span>' : ''}</span>
+      <span class="company-name">${esc(nom)}${company.is_verified ? '<span class="company-verified" title="Entreprise certifiée Talenco">✓</span>' : ''}</span>
+      ${company.avg_rating ? `<span class="company-rating">${'★'.repeat(Math.round(company.avg_rating))}${'☆'.repeat(5 - Math.round(company.avg_rating))} <span style="font-size:11px;color:var(--text-muted)">(${company.review_count})</span></span>` : ''}
     </div>
+    ${job.apply_count > 0 ? `<div class="apply-count">${job.apply_count} candidat${job.apply_count > 1 ? 's' : ''} ont postulé</div>` : ''}
     <h1>${esc(job.title)}</h1>
     <div class="tags">
       ${job.city ? `<span class="tag">📍 ${esc(job.city)}</span>` : ''}
