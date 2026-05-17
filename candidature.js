@@ -399,7 +399,7 @@ async function _soumettreCandidature(supabase, user, jobId, cvPath, container, m
   // 1b. Déduire 1 crédit (actif après la bêta)
   if (!BETA_FREE_APPLY) {
     await supabase.rpc('decrement_candidate_credits', { user_id: user.id })
-      .catch(err => console.warn('Credit deduction non critique:', err));
+      .then(null, err => console.warn('Credit deduction non critique:', err));
   }
 
   // 2. Déclencher la notification recruteur (fire-and-forget)
