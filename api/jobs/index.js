@@ -735,7 +735,7 @@ hr.sep{border:none;border-top:1px solid #EDE8E0;margin:2rem 0}
       ${job.work_mode ? `<span class="tag">🏠 ${esc(job.work_mode)}</span>` : ''}
       ${job.experience_required ? `<span class="tag">⏱ ${esc(job.experience_required)}</span>` : ''}
       ${job.sector ? `<span class="tag">🏷 ${esc(job.sector)}</span>` : ''}
-      ${salaireHtml ? `<span class="tag salary">💰 ${esc(salaireHtml)}</span>` : ''}
+      ${salaireHtml ? `<span class="tag salary">💰 ${esc(salaireHtml)}</span>` : job.salary_visible === false ? `<span class="tag" style="color:var(--text-muted);font-style:italic;">Salaire non communiqué</span>` : ''}
     </div>
   </div>
 
