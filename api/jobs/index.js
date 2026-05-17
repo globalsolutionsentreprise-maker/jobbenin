@@ -777,10 +777,14 @@ async function handleSitemap(req, res) {
     .limit(1000);
 
   const staticPages = [
-    { loc: `${SITE}/presentation.html`, priority: '1.0', freq: 'weekly' },
-    { loc: `${SITE}/offres.html`,        priority: '0.9', freq: 'daily' },
-    { loc: `${SITE}/inscription.html`,   priority: '0.7', freq: 'monthly' },
-    { loc: `${SITE}/connexion.html`,     priority: '0.5', freq: 'monthly' },
+    { loc: `${SITE}/presentation.html`,                    priority: '1.0', freq: 'weekly'  },
+    { loc: `${SITE}/offres.html`,                          priority: '0.9', freq: 'daily'   },
+    { loc: `${SITE}/blog.html`,                            priority: '0.8', freq: 'weekly'  },
+    { loc: `${SITE}/blog/cv-marche-beninois.html`,         priority: '0.7', freq: 'monthly' },
+    { loc: `${SITE}/blog/recruter-au-benin-5-erreurs.html`,priority: '0.7', freq: 'monthly' },
+    { loc: `${SITE}/entreprises.html`,                     priority: '0.7', freq: 'weekly'  },
+    { loc: `${SITE}/inscription.html`,                     priority: '0.6', freq: 'monthly' },
+    { loc: `${SITE}/connexion.html`,                       priority: '0.4', freq: 'monthly' },
   ];
 
   const urls = [
