@@ -236,17 +236,17 @@ async function handleAlerts(req, res) {
     if (!job_id) return res.status(400).json({ error: 'job_id requis.' });
 
     const { data: job } = await supabaseAdmin.from('jobs')
-      .select('id, titre, ville, description, entreprise').eq('id', job_id).single();
+      .select('id, title, city, description, companies(name)').eq('id', job_id).single();
     if (!job) return res.status(404).json({ error: 'Offre introuvable.' });
 
-    const jobText = `${job.titre} ${job.ville ?? ''} ${job.description ?? ''}`.toLowerCase();
+    const jobText = `${job.title} ${job.city ?? ''} ${job.description ?? ''}`.toLowerCase();
     const { data: alerts } = await supabaseAdmin.from('job_alerts')
       .select('id, user_id, keywords, ville, users!job_alerts_user_id_fkey(email)');
     if (!alerts?.length) return res.status(200).json({ sent: 0 });
 
     const matching = alerts.filter(a => {
       const kwMatch    = jobText.includes(a.keywords);
-      const villeMatch = !a.ville || (job.ville ?? '').toLowerCase().includes(a.ville);
+      const villeMatch = !a.ville || (job.city ?? '').toLowerCase().includes(a.ville);
       return kwMatch && villeMatch;
     });
 
@@ -255,12 +255,12 @@ async function handleAlerts(req, res) {
       const email = alert.users?.email;
       if (!email) continue;
       const offreUrl = `${SITE_URL}/offre-detail.html?id=${job.id}`;
-      const titre    = (job.titre ?? 'Offre d\'emploi').replace(/</g, '&lt;');
-      const entreprise = (job.entreprise ?? '').replace(/</g, '&lt;');
+      const titre    = (job.title ?? 'Offre d\'emploi').replace(/</g, '&lt;');
+      const entreprise = (job.companies?.name ?? '').replace(/</g, '&lt;');
       try {
         await sendMail({
           to: email,
-          subject: `🔔 Nouvelle offre : ${job.titre} — Talenco.bj`,
+          subject: `🔔 Nouvelle offre : ${job.title} — Talenco.bj`,
           html: `<div style="font-family:sans-serif;max-width:540px;margin:0 auto;color:#1a1a1a;">
             <div style="background:#8B4513;border-radius:10px 10px 0 0;padding:20px 28px;text-align:center;">
               <p style="margin:0;font-size:18px;font-weight:700;color:#fff;">Talenco.bj 🇧🇯</p>
@@ -268,7 +268,7 @@ async function handleAlerts(req, res) {
             </div>
             <div style="background:#fff;padding:24px 28px;border:1px solid #e8e0d5;border-top:none;">
               <h2 style="font-size:17px;margin:0 0 6px;color:#1a1a1a;">${titre}</h2>
-              <p style="font-size:13px;color:#8B4513;font-weight:600;margin:0 0 16px;">${entreprise}${job.ville ? ` · ${job.ville}` : ''}</p>
+              <p style="font-size:13px;color:#8B4513;font-weight:600;margin:0 0 16px;">${entreprise}${job.city ? ` · ${job.city}` : ''}</p>
               <a href="${offreUrl}" style="display:inline-block;background:#8B4513;color:#fff;text-decoration:none;padding:11px 24px;border-radius:8px;font-size:13px;font-weight:600;">Voir l'offre →</a>
             </div>
             <div style="background:#f9f6f1;border:1px solid #e8e0d5;border-top:none;border-radius:0 0 10px 10px;padding:12px 28px;text-align:center;">

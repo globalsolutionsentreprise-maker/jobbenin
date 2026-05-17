@@ -358,8 +358,8 @@
   // ── Stats ──────────────────────────────────────────────────────────
   async function chargerStats() {
     const [{ count: nbOffres }, { count: nbCandidats }] = await Promise.all([
-      sb.from('jobs').select('*', { count: 'exact', head: true }).eq('statut', 'publie'),
-      sb.from('users').select('*', { count: 'exact', head: true }),
+      sb.from('jobs').select('*', { count: 'exact', head: true }).eq('status', 'published'),
+      sb.from('users').select('*', { count: 'exact', head: true }).eq('role', 'candidate'),
     ]);
     document.getElementById('stat-offres').textContent = nbOffres ?? '—';
     document.getElementById('stat-candidats').textContent = nbCandidats ?? '—';
@@ -369,8 +369,8 @@
   async function chargerOffresRecentes() {
     const { data: offres } = await sb
       .from('jobs')
-      .select('id, titre, entreprise, ville, secteur, type_contrat, created_at')
-      .eq('statut', 'publie')
+      .select('id, title, city, sector, contract_type, created_at, companies(name)')
+      .eq('status', 'published')
       .order('created_at', { ascending: false })
       .limit(6);
 
@@ -381,12 +381,12 @@
       <a href="/offre-detail.html?id=${j.id}" class="job-card badge-nouveau-host">
         ${badgeNouveau.badge(j.created_at)}
         <div class="job-body">
-          <p class="job-title">${j.titre}</p>
-          <p class="job-company">${j.entreprise ?? 'Entreprise'}</p>
+          <p class="job-title">${j.title}</p>
+          <p class="job-company">${j.companies?.name ?? 'Entreprise'}</p>
           <div class="job-tags">
-            <span class="tag">${j.ville ?? ''}</span>
-            <span class="tag">${j.type_contrat ?? ''}</span>
-            <span class="tag tag-accent">${j.secteur ?? ''}</span>
+            <span class="tag">${j.city ?? ''}</span>
+            <span class="tag">${j.contract_type ?? ''}</span>
+            <span class="tag tag-accent">${j.sector ?? ''}</span>
           </div>
         </div>
         <span class="job-time">${badgeNouveau.tempsRelatif(j.created_at)}</span>
