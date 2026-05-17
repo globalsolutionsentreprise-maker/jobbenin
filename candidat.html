@@ -189,6 +189,7 @@
         <li><a href="#candidatures"><span data-icon="briefcase" data-size="13"></span> <span data-i18n="cand.nav.candidatures">Candidatures</span></a></li>
         <li><a href="#alertes"><span data-icon="bell" data-size="13"></span> <span data-i18n="cand.nav.alertes">Alertes email</span></a></li>
         <li><a href="#whatsapp"><span data-icon="whatsapp" data-size="13"></span> <span data-i18n="cand.nav.whatsapp">Alertes WhatsApp</span></a></li>
+        <li><a href="#credits"><span data-icon="star" data-size="13"></span> Mes crédits</a></li>
         <li><a href="/coach.html"><span data-icon="ai" data-size="13"></span> <span data-i18n="cand.nav.coach">Coach IA</span></a></li>
       </ul>
       <hr class="sidebar-divider">
@@ -538,6 +539,35 @@
         </section>
       </div>
 
+      <!-- Crédits candidat -->
+      <div class="section-card" id="credits">
+        <div class="section-card-header">
+          <h2 class="section-card-title">Mes crédits</h2>
+          <span class="badge badge-info" id="credits-count">—</span>
+        </div>
+        <div class="section-card-body">
+          <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:16px;">
+            <div style="text-align:center;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px 24px;min-width:120px;">
+              <div style="font-family:var(--font-serif);font-style:italic;font-size:32px;font-weight:400;color:var(--accent);" id="credits-display">—</div>
+              <div style="font-size:11px;color:var(--text-muted);margin-top:4px;">crédits disponibles</div>
+            </div>
+            <div style="flex:1;min-width:180px;">
+              <p style="font-size:13px;color:var(--text-muted);line-height:1.6;margin-bottom:12px;">
+                <strong>1 crédit = 1 candidature.</strong> Les crédits n'expirent jamais.<br>
+                Profil, CV et Coach IA restent 100 % gratuits.
+              </p>
+              <a href="/paiement-candidat-credits.html" class="btn btn-dark btn-sm">🎟️ Acheter des crédits</a>
+            </div>
+          </div>
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 16px;font-size:12px;color:var(--text-muted);">
+            <strong style="color:var(--text);">Packs disponibles :</strong>
+            Starter 5 cr · 1 500 FCFA &nbsp;|&nbsp;
+            Actif 15 cr · 3 500 FCFA &nbsp;|&nbsp;
+            Pro 50 cr · 8 000 FCFA
+          </div>
+        </div>
+      </div>
+
     </main>
   </div>
 </div>
@@ -644,6 +674,11 @@
 
     // Alertes
     chargerAlertes();
+
+    // Crédits
+    const credits = profile?.credits ?? 0;
+    document.getElementById('credits-display').textContent = credits;
+    document.getElementById('credits-count').textContent   = credits + ' cr';
   }
 
   // Sauvegarder profil

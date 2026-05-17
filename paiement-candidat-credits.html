@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Crédits Candidat — Talenco.bj</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Outfit:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--navy:#040D1C;--navy2:#091628;--gold:#F0A500;--gold-light:#FFD166;--white:#fff;--muted:#7B90B0;--card-border:rgba(255,255,255,0.09)}
+body{background:var(--navy);color:var(--white);font-family:'Outfit',sans-serif;min-height:100vh}
+nav{height:60px;background:rgba(4,13,28,0.9);border-bottom:1px solid var(--card-border);display:flex;align-items:center;padding:0 2rem}
+.logo{font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:800;color:var(--white);text-decoration:none}.logo span{color:var(--gold)}
+main{max-width:860px;margin:0 auto;padding:3rem 2rem}
+h1{font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;margin-bottom:.5rem}
+.sub{color:var(--muted);margin-bottom:2.5rem;font-size:.95rem}
+
+/* Comment ça marche */
+.how-it-works{display:flex;gap:.75rem;margin-bottom:2rem;flex-wrap:wrap}
+.how-item{flex:1;min-width:150px;background:var(--navy2);border:1px solid var(--card-border);border-radius:12px;padding:1rem;text-align:center}
+.how-icon{font-size:1.5rem;margin-bottom:.4rem}
+.how-label{font-size:.78rem;color:var(--muted);line-height:1.4}
+.how-label strong{color:var(--white);display:block;font-size:.88rem;margin-bottom:.15rem}
+
+/* Grille packs */
+.packs-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:2.5rem}
+.pack{background:var(--navy2);border:2px solid var(--card-border);border-radius:16px;padding:1.5rem;cursor:pointer;transition:all .2s;position:relative}
+.pack:hover,.pack.selected{border-color:rgba(240,165,0,.45);background:rgba(240,165,0,.04)}
+.pack-name{font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;margin-bottom:.3rem}
+.pack-credits{font-size:.8rem;color:var(--muted);margin-bottom:.8rem}
+.pack-amount{font-family:'Syne',sans-serif;font-size:1.9rem;font-weight:800;color:var(--gold)}
+.pack-unit{font-size:.78rem;color:var(--muted)}
+.pack-ppu{font-size:.75rem;color:var(--muted);margin-top:.3rem}
+.best{position:absolute;top:.8rem;right:.8rem;background:var(--gold);color:#000;font-size:.62rem;font-weight:800;padding:.2rem .5rem;border-radius:100px}
+
+/* Formulaire */
+.form-section{background:var(--navy2);border:1px solid var(--card-border);border-radius:16px;padding:2rem}
+.form-section h2{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700;margin-bottom:1.2rem}
+.field{display:flex;flex-direction:column;gap:.35rem;margin-bottom:1rem}
+.field label{font-size:.75rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.07em}
+.field input{background:rgba(255,255,255,0.06);border:1px solid var(--card-border);border-radius:10px;padding:.75rem 1rem;color:var(--white);font-family:'Outfit',sans-serif;font-size:.93rem;outline:none;transition:border-color .2s;width:100%}
+.field input:focus{border-color:rgba(240,165,0,.5)}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:.8rem}
+.cgv-check{display:flex;align-items:flex-start;gap:.6rem;margin:1rem 0;font-size:.82rem;color:var(--muted)}
+.cgv-check input{margin-top:2px;accent-color:var(--gold)}
+.cgv-check a{color:var(--gold);text-decoration:none}
+.summary{background:rgba(240,165,0,.06);border:1px solid rgba(240,165,0,.2);border-radius:10px;padding:1rem;margin-bottom:1.2rem;font-size:.9rem}
+.summary strong{color:var(--gold)}
+.submit-btn{width:100%;background:var(--gold);color:#000;border:none;border-radius:12px;padding:1rem;font-family:'Outfit',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;transition:all .25s;margin-top:.5rem}
+.submit-btn:hover{background:var(--gold-light)}.submit-btn:disabled{opacity:.5;cursor:not-allowed}
+.error-msg{background:rgba(232,64,64,.1);border:1px solid rgba(232,64,64,.3);border-radius:8px;padding:.75rem 1rem;font-size:.85rem;color:#F08080;margin-top:.8rem;display:none}
+.note{font-size:.78rem;color:var(--muted);text-align:center;margin-top:.8rem;line-height:1.5}
+.note strong{color:var(--gold)}
+.back-link{display:inline-flex;align-items:center;gap:.4rem;font-size:.83rem;color:var(--muted);text-decoration:none;margin-bottom:1.5rem;transition:color .2s}
+.back-link:hover{color:var(--white)}
+@media(max-width:600px){.packs-grid,.field-row,.how-it-works{grid-template-columns:1fr;flex-direction:column}}
+</style>
+</head>
+<body>
+<nav><a href="/candidat.html" class="logo">Talen<span>co</span>.bj</a></nav>
+
+<main>
+  <a href="/candidat.html" class="back-link">← Mon espace candidat</a>
+  <h1>Crédits candidat</h1>
+  <p class="sub">Pay as you go · Sans abonnement · Crédits sans expiration</p>
+
+  <div class="how-it-works">
+    <div class="how-item">
+      <div class="how-icon">🎟️</div>
+      <div class="how-label"><strong>1 crédit</strong>= 1 candidature envoyée</div>
+    </div>
+    <div class="how-item">
+      <div class="how-icon">♾️</div>
+      <div class="how-label"><strong>Sans expiration</strong>Utilisez vos crédits à votre rythme</div>
+    </div>
+    <div class="how-item">
+      <div class="how-icon">✅</div>
+      <div class="how-label"><strong>Profil & Coach IA</strong>Toujours 100% gratuits</div>
+    </div>
+    <div class="how-item">
+      <div class="how-icon">🏦</div>
+      <div class="how-label"><strong>Mobile Money</strong>MTN, Moov, Visa/Mastercard</div>
+    </div>
+  </div>
+
+  <div class="packs-grid">
+    <div class="pack" id="p-starter" onclick="selectPack('starter')">
+      <div class="pack-name">Starter</div>
+      <div class="pack-credits">5 crédits</div>
+      <div class="pack-amount">1 500</div>
+      <div class="pack-unit">FCFA</div>
+      <div class="pack-ppu">300 FCFA / candidature</div>
+    </div>
+    <div class="pack selected" id="p-actif" onclick="selectPack('actif')">
+      <span class="best">Meilleur rapport</span>
+      <div class="pack-name">Actif</div>
+      <div class="pack-credits">15 crédits</div>
+      <div class="pack-amount">3 500</div>
+      <div class="pack-unit">FCFA</div>
+      <div class="pack-ppu">233 FCFA / candidature · -22%</div>
+    </div>
+    <div class="pack" id="p-pro" onclick="selectPack('pro')">
+      <div class="pack-name">Pro</div>
+      <div class="pack-credits">50 crédits</div>
+      <div class="pack-amount">8 000</div>
+      <div class="pack-unit">FCFA</div>
+      <div class="pack-ppu">160 FCFA / candidature · -47%</div>
+    </div>
+  </div>
+
+  <div class="form-section">
+    <h2>Vos informations</h2>
+    <div class="summary" id="summary"><strong>Pack Actif</strong> — 15 crédits · 3 500 FCFA</div>
+    <div class="field-row">
+      <div class="field"><label>Prénom</label><input type="text" id="prenom" placeholder="Adjoua" required autocomplete="given-name"></div>
+      <div class="field"><label>Nom</label><input type="text" id="nom" placeholder="Kolade" required autocomplete="family-name"></div>
+    </div>
+    <div class="field"><label>Adresse email</label><input type="email" id="email" placeholder="votre@email.com" required autocomplete="email"></div>
+    <div class="field"><label>Téléphone (Mobile Money)</label><input type="tel" id="telephone" placeholder="97000000" required autocomplete="tel"></div>
+    <div class="cgv-check">
+      <input type="checkbox" id="cgv">
+      <label for="cgv">J'accepte les <a href="/cgv.html" target="_blank">Conditions Générales de Vente</a> de Talenco.bj.</label>
+    </div>
+    <button class="submit-btn" id="pay-btn" onclick="submitPayment()">Payer via Mobile Money →</button>
+    <div class="error-msg" id="error-msg"></div>
+    <p class="note">Paiement sécurisé <strong>FedaPay</strong> · MTN Mobile Money, Moov Money, Visa/Mastercard<br>Crédits disponibles immédiatement après confirmation de paiement.</p>
+  </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+const SUPABASE_URL      = 'https://ywteoxnkkdgdpbkrlkar.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl3dGVveG5ra2RnZHBia3Jsa2FyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1MjA1MjYsImV4cCI6MjA5MDA5NjUyNn0.jzgNVgYR6iCEV_GIpvBTs4aN3RzK3E3MJW9YtBmLI3c';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+const PACKS = {
+  starter: { name: 'Starter', credits: 5,  amount: 1500 },
+  actif:   { name: 'Actif',   credits: 15, amount: 3500 },
+  pro:     { name: 'Pro',     credits: 50, amount: 8000 },
+};
+let selectedPack = 'actif';
+
+function selectPack(pack) {
+  selectedPack = pack;
+  document.querySelectorAll('.pack').forEach(p => p.classList.remove('selected'));
+  document.getElementById('p-' + pack).classList.add('selected');
+  const p = PACKS[pack];
+  document.getElementById('summary').innerHTML =
+    `<strong>Pack ${p.name}</strong> — ${p.credits} crédits · ${p.amount.toLocaleString('fr-FR')} FCFA`;
+  document.getElementById('pay-btn').textContent =
+    `Payer ${p.amount.toLocaleString('fr-FR')} FCFA via Mobile Money →`;
+}
+
+// Pré-remplir depuis la session Supabase si connecté
+sb.auth.getSession().then(async ({ data: { session } }) => {
+  if (!session) return;
+  const { data: profile } = await sb
+    .from('users')
+    .select('full_name, email, phone')
+    .eq('id', session.user.id)
+    .single();
+  if (!profile) return;
+  if (profile.full_name) {
+    const parts = profile.full_name.trim().split(/\s+/);
+    document.getElementById('prenom').value = parts[0] || '';
+    document.getElementById('nom').value    = parts.slice(1).join(' ') || '';
+  }
+  document.getElementById('email').value     = profile.email || session.user.email || '';
+  document.getElementById('telephone').value = profile.phone || '';
+});
+
+async function submitPayment() {
+  const prenom    = document.getElementById('prenom').value.trim();
+  const nom       = document.getElementById('nom').value.trim();
+  const email     = document.getElementById('email').value.trim();
+  const telephone = document.getElementById('telephone').value.trim();
+  const cgv       = document.getElementById('cgv').checked;
+  const btn       = document.getElementById('pay-btn');
+
+  document.getElementById('error-msg').style.display = 'none';
+  if (!prenom || !nom || !email || !telephone) return showError('Veuillez remplir tous les champs obligatoires.');
+  if (!cgv) return showError('Veuillez accepter les Conditions Générales de Vente.');
+
+  btn.disabled    = true;
+  btn.textContent = 'Connexion au paiement…';
+
+  try {
+    const res = await fetch('/api/payment/candidate-credits', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        pack: selectedPack,
+        nom:  `${prenom} ${nom}`.trim(),
+        email,
+        telephone,
+      }),
+    });
+    const data = await res.json();
+    if (data.payment_url) {
+      window.location.href = data.payment_url;
+    } else {
+      showError(data.error || 'Erreur lors du paiement. Réessayez.');
+    }
+  } catch (e) {
+    showError('Erreur réseau. Vérifiez votre connexion.');
+  } finally {
+    const p = PACKS[selectedPack];
+    btn.disabled    = false;
+    btn.textContent = `Payer ${p.amount.toLocaleString('fr-FR')} FCFA via Mobile Money →`;
+  }
+}
+
+function showError(msg) {
+  const el = document.getElementById('error-msg');
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+
+// Sélection initiale
+selectPack('actif');
+</script>
+<script src="/nav-mobile.js"></script>
+<script src="/i18n.js"></script>
+</body>
+</html>

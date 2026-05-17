@@ -28,12 +28,18 @@ h1{font-family:'Syne',sans-serif;font-size:1.7rem;font-weight:800;margin-bottom:
 <script>
 const type=new URLSearchParams(window.location.search).get('type');
 const pack=new URLSearchParams(window.location.search).get('pack');
-const packs={starter:'10 crédits',growth:'30 crédits',business:'100 crédits'};
+const packsEntreprise={starter:'10 crédits',growth:'30 crédits',business:'100 crédits'};
+const packsCandidats={starter:'5 crédits',actif:'15 crédits',pro:'50 crédits'};
 if(type==='enterprise'){
   document.getElementById('title').textContent='Crédits ajoutés !';
-  document.getElementById('message').textContent=`Votre achat de ${packs[pack]||'crédits'} est confirmé. Disponibles immédiatement dans votre espace recruteur.`;
+  document.getElementById('message').textContent=`Votre achat de ${packsEntreprise[pack]||'crédits'} est confirmé. Disponibles immédiatement dans votre espace recruteur.`;
   document.getElementById('cta-btn').textContent='Accéder à mon espace →';
   document.getElementById('cta-btn').href='entreprises.html';
+}else if(type==='candidat_credits'){
+  document.getElementById('title').textContent='Crédits ajoutés !';
+  document.getElementById('message').textContent=`Votre achat de ${packsCandidats[pack]||'crédits'} est confirmé. Disponibles immédiatement dans votre espace candidat.`;
+  document.getElementById('cta-btn').textContent='Voir mes crédits →';
+  document.getElementById('cta-btn').href='candidat.html#credits';
 }else if(type==='reactivation'){
   document.getElementById('title').textContent='Compte réactivé !';
   document.getElementById('message').textContent="Votre compte Talenco.bj est de nouveau actif. Accédez à toutes les offres.";
