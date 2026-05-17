@@ -480,8 +480,16 @@ function showTab(id, btn) {
 sb.auth.getSession().then(async ({ data: { session } }) => {
   if (!session) { document.getElementById('auth-wall').style.display = 'flex'; return; }
   currentSession = session;
-  const { data: profile } = await sb.from('users').select('role').eq('id', session.user.id).maybeSingle();
-  if (profile?.role !== 'admin') { document.getElementById('auth-wall').style.display = 'flex'; return; }
+  // Vérification via backend (service key, bypass RLS)
+  try {
+    const meRes = await fetch('/api/admin/me', {
+      headers: { 'Authorization': `Bearer ${session.access_token}` }
+    });
+    const me = await meRes.json();
+    if (me.role !== 'admin') { document.getElementById('auth-wall').style.display = 'flex'; return; }
+  } catch (e) {
+    document.getElementById('auth-wall').style.display = 'flex'; return;
+  }
   document.getElementById('admin-dashboard').style.display = 'block';
   chargerStats();
   chargerNotifications();
