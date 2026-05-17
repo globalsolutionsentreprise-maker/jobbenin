@@ -217,11 +217,25 @@ async function handleMe(req, res) {
   return res.status(200).json({ role: profile?.role || null, name: profile?.full_name || null });
 }
 
+// ── GET list_users : tous les utilisateurs (admin uniquement) ────────────────
+async function handleListUsers(req, res) {
+  const adminUser = await requireAdmin(req);
+  if (!adminUser) return res.status(403).json({ error: 'Admin requis.' });
+  const { data, error } = await supabaseAdmin
+    .from('users')
+    .select('id, email, full_name, role, status, credits, created_at, telephone')
+    .order('created_at', { ascending: false })
+    .limit(200);
+  if (error) return res.status(500).json({ error: error.message });
+  return res.status(200).json({ users: data });
+}
+
 // ── Router ────────────────────────────────────────────────────────────────────
 module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method === 'GET' && req.query.action === 'me') return handleMe(req, res);
+  if (req.method === 'GET' && req.query.action === 'list_users') return handleListUsers(req, res);
   if (req.method === 'GET' && req.query.action === 'cv_signed_url') return handleCvSignedUrl(req, res);
   if (req.method === 'DELETE') return handleDeleteUser(req, res);
   if (req.method === 'POST') {
