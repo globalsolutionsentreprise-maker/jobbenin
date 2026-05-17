@@ -158,15 +158,19 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Email du recruteur
-    const { data: recruteur } = await sb
-      .from('users')
-      .select('email')
+    // jobs.company_id → companies.owner_id → users.email
+    const { data: company } = await sb
+      .from('companies')
+      .select('owner_id')
       .eq('id', job.company_id)
       .single();
 
+    const { data: recruteur } = company?.owner_id
+      ? await sb.from('users').select('email').eq('id', company.owner_id).single()
+      : { data: null };
+
     if (!recruteur?.email) {
-      console.warn(`Recruteur ${job.user_id} sans email, notification ignorée`);
+      console.warn(`Recruteur introuvable pour company_id=${job.company_id}, notification ignorée`);
       return new Response(JSON.stringify({ success: true, sent: false, reason: 'Recruteur sans email' }), {
         headers: { ...CORS, 'Content-Type': 'application/json' },
       });
