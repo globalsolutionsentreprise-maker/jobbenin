@@ -54,6 +54,7 @@ module.exports = async (req, res) => {
       status:           'active',
       company_name:     company,
       sector:           sector  || null,
+      company_sector:   sector  || null,
       company_size:     size    || null,
       city:             city    || null,
       phone:            phone   || null,
