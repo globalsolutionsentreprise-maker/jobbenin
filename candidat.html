@@ -1143,8 +1143,8 @@
       const { data: { session } } = await sb.auth.getSession();
       if (!session) throw new Error('Non connecté');
 
-      const cvPath = `cvs/${session.user.id}/cv.pdf`;
-      const { data: urlData, error: urlErr } = await sb.storage.from('cvs').createSignedUrl(cvPath, 120);
+      const cvPath = `${session.user.id}/cv.pdf`;
+      const { data: urlData, error: urlErr } = await sb.storage.from('CVS').createSignedUrl(cvPath, 120);
       if (urlErr || !urlData?.signedUrl) throw new Error('CV introuvable — uploadez votre CV d\'abord');
 
       const cvText = await extrairePdf(urlData.signedUrl);

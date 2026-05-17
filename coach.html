@@ -395,7 +395,7 @@
   async function init() {
     const { data: { session: s } } = await sb.auth.getSession();
     if (!s) {
-      window.location.href = '/candidat.html?redirect=coach';
+      window.location.href = '/connexion.html?next=/coach.html';
       return;
     }
     session = s;
