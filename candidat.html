@@ -457,6 +457,18 @@
         </div>
       </div>
 
+      <!-- Alertes push navigateur -->
+      <div class="section-card" id="push-card" style="margin-bottom:16px;">
+        <div class="section-card-body" style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;">
+          <div>
+            <div style="font-family:var(--font-sans);font-weight:700;font-size:13px;margin-bottom:2px;">🔔 Notifications push</div>
+            <div style="font-family:var(--font-mono);font-size:9px;color:var(--text-muted);">Recevez une notification dès qu'une offre correspond à vos alertes, même si le site est fermé.</div>
+          </div>
+          <button class="btn btn-outline btn-sm" id="btn-push" onclick="togglePushSubscription()">Activer</button>
+        </div>
+        <div id="push-msg" style="display:none;font-family:var(--font-mono);font-size:10px;padding:8px 18px 12px;"></div>
+      </div>
+
       <!-- Alertes WhatsApp (snippet intégré) -->
       <div id="whatsapp">
         <section id="section-whatsapp" style="margin-top:0;">
@@ -739,6 +751,7 @@
 
     // Alertes
     chargerAlertes();
+    initPushUI();
 
     // Crédits
     const credits = profile?.credits ?? 0;
@@ -896,6 +909,91 @@
         <span class="badge badge-${a.statut === 'entretien' ? 'success' : a.statut === 'refusée' ? 'danger' : a.statut === 'vue' ? 'info' : 'warning'}">${a.statut ?? 'Envoyée'}</span>
       </div>
     `).join('');
+  }
+
+  const VAPID_PUBLIC_KEY = 'BG1DLASrDyRdnmryP-u3k9I2Eu1-kv46LQMkCrh5e5qodguq-5QS8oTSPEFOccGotY6x7o6FXGJJNrsaha9DIw4';
+
+  function urlBase64ToUint8Array(base64String) {
+    const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
+    const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+    const rawData = atob(base64);
+    return Uint8Array.from([...rawData].map(c => c.charCodeAt(0)));
+  }
+
+  async function initPushUI() {
+    const btn = document.getElementById('btn-push');
+    const msg = document.getElementById('push-msg');
+    if (!btn || !('serviceWorker' in navigator) || !('PushManager' in window)) {
+      if (btn) { btn.textContent = 'Non supporté'; btn.disabled = true; }
+      return;
+    }
+    const perm = Notification.permission;
+    if (perm === 'denied') {
+      btn.textContent = 'Bloqué par le navigateur';
+      btn.disabled = true;
+      return;
+    }
+    // Vérifier si déjà abonné
+    const reg = await navigator.serviceWorker.ready;
+    const existing = await reg.pushManager.getSubscription();
+    if (existing) {
+      btn.textContent = 'Désactiver';
+      btn.classList.add('btn-dark');
+      if (msg) { msg.style.display = 'block'; msg.style.color = 'var(--accent)'; msg.textContent = '✓ Notifications push activées'; }
+    } else {
+      btn.textContent = 'Activer';
+    }
+  }
+
+  async function togglePushSubscription() {
+    const btn = document.getElementById('btn-push');
+    const msg = document.getElementById('push-msg');
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) { if (msg) { msg.style.display='block'; msg.textContent='Connectez-vous pour activer les notifications.'; } return; }
+
+    btn.disabled = true;
+    try {
+      const reg = await navigator.serviceWorker.register('/sw.js');
+      await navigator.serviceWorker.ready;
+      const existing = await reg.pushManager.getSubscription();
+
+      if (existing) {
+        // Désabonnement
+        await existing.unsubscribe();
+        await fetch('/api/jobs', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
+          body: JSON.stringify({ action: 'unsubscribe_push' }),
+        });
+        btn.textContent = 'Activer';
+        btn.classList.remove('btn-dark');
+        if (msg) { msg.style.display='block'; msg.style.color='var(--text-muted)'; msg.textContent='Notifications désactivées.'; }
+      } else {
+        // Abonnement
+        const perm = await Notification.requestPermission();
+        if (perm !== 'granted') {
+          if (msg) { msg.style.display='block'; msg.style.color='#c0392b'; msg.textContent='Permission refusée. Autorisez les notifications dans les paramètres du navigateur.'; }
+          return;
+        }
+        const sub = await reg.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
+        });
+        await fetch('/api/jobs', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
+          body: JSON.stringify({ action: 'subscribe_push', subscription: sub.toJSON() }),
+        });
+        btn.textContent = 'Désactiver';
+        btn.classList.add('btn-dark');
+        if (msg) { msg.style.display='block'; msg.style.color='var(--accent)'; msg.textContent='✓ Vous recevrez une notification pour chaque nouvelle offre correspondant à vos alertes.'; }
+      }
+    } catch (e) {
+      console.error('push:', e);
+      if (msg) { msg.style.display='block'; msg.style.color='#c0392b'; msg.textContent='Erreur : ' + e.message; }
+    } finally {
+      btn.disabled = false;
+    }
   }
 
   async function chargerAlertes() {

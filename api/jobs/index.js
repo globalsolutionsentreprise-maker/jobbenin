@@ -5,12 +5,22 @@
 //   POST /api/jobs  action=score                  → scoring IA candidature (post-candidature)
 //   POST /api/jobs  action=match                  → score compatibilité candidat ↔ offre (pré-candidature)
 //   POST /api/jobs  action=simulate               → simulation d'entretien (questions + évaluation)
-//   POST /api/jobs  action=subscribe|…            → alertes emploi
+//   POST /api/jobs  action=subscribe|unsubscribe|list|notify → alertes email emploi
+//   POST /api/jobs  action=subscribe_push|unsubscribe_push   → alertes push navigateur
 
 const { createClient } = require('@supabase/supabase-js');
 const { supabase }     = require('../../lib/supabase');
 const { sendMail }     = require('../../lib/mailer');
 const pdf              = require('pdf-parse');
+const webpush          = require('web-push');
+
+if (process.env.VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {
+  webpush.setVapidDetails(
+    'mailto:contact@talenco.bj',
+    process.env.VAPID_PUBLIC_KEY,
+    process.env.VAPID_PRIVATE_KEY
+  );
+}
 
 const SITE_URL = process.env.SITE_URL || 'https://talenco-bj.vercel.app';
 
@@ -196,6 +206,27 @@ async function getAuthUser(req) {
 async function handleAlerts(req, res) {
   const { action } = req.body ?? {};
 
+  if (action === 'subscribe_push' || action === 'unsubscribe_push') {
+    const user = await getAuthUser(req);
+    if (!user) return res.status(401).json({ error: 'Connexion requise.' });
+
+    if (action === 'subscribe_push') {
+      const { subscription } = req.body;
+      if (!subscription?.endpoint) return res.status(400).json({ error: 'Subscription invalide.' });
+      const { error } = await supabaseAdmin.from('push_subscriptions').upsert(
+        { user_id: user.id, subscription },
+        { onConflict: 'user_id' }
+      );
+      if (error) return res.status(500).json({ error: error.message });
+      return res.status(200).json({ success: true });
+    }
+
+    if (action === 'unsubscribe_push') {
+      await supabaseAdmin.from('push_subscriptions').delete().eq('user_id', user.id);
+      return res.status(200).json({ success: true });
+    }
+  }
+
   if (action === 'list' || action === 'subscribe' || action === 'unsubscribe') {
     const user = await getAuthUser(req);
     if (!user) return res.status(401).json({ error: 'Connexion requise.' });
@@ -250,34 +281,61 @@ async function handleAlerts(req, res) {
       return kwMatch && villeMatch;
     });
 
+    // Récupérer les subscriptions push pour les utilisateurs avec des alertes correspondantes
+    const matchingUserIds = [...new Set(matching.map(a => a.user_id))];
+    const { data: pushSubs } = await supabaseAdmin.from('push_subscriptions')
+      .select('user_id, subscription').in('user_id', matchingUserIds);
+    const pushSubMap = Object.fromEntries((pushSubs ?? []).map(p => [p.user_id, p.subscription]));
+
     let sent = 0;
     for (const alert of matching) {
       const email = alert.users?.email;
-      if (!email) continue;
       const offreUrl = `${SITE_URL}/offre/${job.id}`;
       const titre    = (job.title ?? 'Offre d\'emploi').replace(/</g, '&lt;');
       const entreprise = (job.companies?.name ?? '').replace(/</g, '&lt;');
-      try {
-        await sendMail({
-          to: email,
-          subject: `🔔 Nouvelle offre : ${job.title} — Talenco.bj`,
-          html: `<div style="font-family:sans-serif;max-width:540px;margin:0 auto;color:#1a1a1a;">
-            <div style="background:#8B4513;border-radius:10px 10px 0 0;padding:20px 28px;text-align:center;">
-              <p style="margin:0;font-size:18px;font-weight:700;color:#fff;">Talenco.bj 🇧🇯</p>
-              <p style="margin:4px 0 0;font-size:12px;color:#f5deb3;">Alerte emploi — "${alert.keywords}"</p>
-            </div>
-            <div style="background:#fff;padding:24px 28px;border:1px solid #e8e0d5;border-top:none;">
-              <h2 style="font-size:17px;margin:0 0 6px;color:#1a1a1a;">${titre}</h2>
-              <p style="font-size:13px;color:#8B4513;font-weight:600;margin:0 0 16px;">${entreprise}${job.city ? ` · ${job.city}` : ''}</p>
-              <a href="${offreUrl}" style="display:inline-block;background:#8B4513;color:#fff;text-decoration:none;padding:11px 24px;border-radius:8px;font-size:13px;font-weight:600;">Voir l'offre →</a>
-            </div>
-            <div style="background:#f9f6f1;border:1px solid #e8e0d5;border-top:none;border-radius:0 0 10px 10px;padding:12px 28px;text-align:center;">
-              <p style="margin:0;font-size:11px;color:#aaa;">Talenco.bj — <a href="${SITE_URL}/candidat.html#alertes" style="color:#8B4513;">Gérer mes alertes</a></p>
-            </div>
-          </div>`,
-        });
-        sent++;
-      } catch (e) { console.warn('alert email:', e.message); }
+
+      // Email
+      if (email) {
+        try {
+          await sendMail({
+            to: email,
+            subject: `🔔 Nouvelle offre : ${job.title} — Talenco.bj`,
+            html: `<div style="font-family:sans-serif;max-width:540px;margin:0 auto;color:#1a1a1a;">
+              <div style="background:#8B4513;border-radius:10px 10px 0 0;padding:20px 28px;text-align:center;">
+                <p style="margin:0;font-size:18px;font-weight:700;color:#fff;">Talenco.bj 🇧🇯</p>
+                <p style="margin:4px 0 0;font-size:12px;color:#f5deb3;">Alerte emploi — "${alert.keywords}"</p>
+              </div>
+              <div style="background:#fff;padding:24px 28px;border:1px solid #e8e0d5;border-top:none;">
+                <h2 style="font-size:17px;margin:0 0 6px;color:#1a1a1a;">${titre}</h2>
+                <p style="font-size:13px;color:#8B4513;font-weight:600;margin:0 0 16px;">${entreprise}${job.city ? ` · ${job.city}` : ''}</p>
+                <a href="${offreUrl}" style="display:inline-block;background:#8B4513;color:#fff;text-decoration:none;padding:11px 24px;border-radius:8px;font-size:13px;font-weight:600;">Voir l'offre →</a>
+              </div>
+              <div style="background:#f9f6f1;border:1px solid #e8e0d5;border-top:none;border-radius:0 0 10px 10px;padding:12px 28px;text-align:center;">
+                <p style="margin:0;font-size:11px;color:#aaa;">Talenco.bj — <a href="${SITE_URL}/candidat.html#alertes" style="color:#8B4513;">Gérer mes alertes</a></p>
+              </div>
+            </div>`,
+          });
+          sent++;
+        } catch (e) { console.warn('alert email:', e.message); }
+      }
+
+      // Push navigateur
+      const sub = pushSubMap[alert.user_id];
+      if (sub && process.env.VAPID_PUBLIC_KEY) {
+        try {
+          await webpush.sendNotification(sub, JSON.stringify({
+            title: `🔔 Nouvelle offre — ${job.title}`,
+            body: `${entreprise}${job.city ? ' · ' + job.city : ''} · Correspond à votre alerte "${alert.keywords}"`,
+            url: offreUrl,
+          }));
+        } catch (e) {
+          // Subscription expirée → on la supprime
+          if (e.statusCode === 410) {
+            await supabaseAdmin.from('push_subscriptions').delete().eq('user_id', alert.user_id);
+          }
+          console.warn('push notification:', e.message);
+        }
+      }
     }
     return res.status(200).json({ sent, total: matching.length });
   }
