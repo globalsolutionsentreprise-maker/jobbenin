@@ -813,7 +813,7 @@ async function voirProfil(userId) {
     <!-- CV -->
     <div class="profile-section">
       <div class="profile-section-title">CV</div>
-      ${u.cv_url
+      ${u.cv_path || u.cv_url
         ? `<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
              <span style="font-size:13px;color:#15803d;">✅ CV uploadé</span>
              <button class="btn btn-sm" style="border:1px solid var(--border);" onclick="adminPreviewCV('${userId}')">Voir le CV</button>
