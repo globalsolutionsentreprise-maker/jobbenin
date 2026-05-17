@@ -50,6 +50,25 @@ module.exports = async (req, res) => {
       return res.redirect(`${process.env.SITE_URL}/paiement-succes.html?type=reactivation`);
     }
 
+    if (type === 'candidat_credits_purchase') {
+      const { data: txn } = await supabase.from('transactions').select('*').eq('fedapay_id', String(fedapayId)).single();
+      if (txn) {
+        const meta = typeof txn.meta === 'string' ? JSON.parse(txn.meta) : (txn.meta || {});
+        const PACKS = { starter: 5, actif: 15, pro: 50 };
+        const creditsToAdd = PACKS[meta.pack] || 0;
+        if (creditsToAdd > 0) {
+          const { data: user } = await supabase.from('users').select('id, credits').eq('email', txn.email).single();
+          if (user) {
+            await supabase.from('users').update({ credits: (user.credits || 0) + creditsToAdd }).eq('id', user.id);
+          }
+        }
+        await sendMail({ to: txn.email, subject: `Talenco.bj — ${creditsToAdd} crédits ajoutés`,
+          html: `<p>Bonjour ${txn.nom || ''},</p><p><strong>${creditsToAdd} crédits</strong> ajoutés à votre compte. Ils n'expirent jamais.</p><a href="${process.env.SITE_URL}/offres.html" style="background:#8B4513;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;font-weight:bold">Voir les offres →</a>`
+        });
+      }
+      return res.redirect(`${process.env.SITE_URL}/paiement-succes.html?type=candidat_credits&pack=${pack}`);
+    }
+
     if (type === 'enterprise_purchase') {
       const { data: txn } = await supabase.from('transactions').select('*').eq('fedapay_id', String(fedapayId)).single();
       if (txn) {
