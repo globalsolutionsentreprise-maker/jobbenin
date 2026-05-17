@@ -441,11 +441,15 @@ function attachEvents() {
       const cvPath = btn.dataset.cv;
       btn.disabled = true;
       btn.textContent = '⏳';
-      const { data, error } = await _sb.storage.from('cvs').createSignedUrl(cvPath, 3600);
+      let signedUrl = null;
+      for (const bucket of ['CVS', 'cvs']) {
+        const { data } = await _sb.storage.from(bucket).createSignedUrl(cvPath, 3600);
+        if (data?.signedUrl) { signedUrl = data.signedUrl; break; }
+      }
       btn.disabled = false;
       btn.innerHTML = '📄 Voir le CV';
-      if (error || !data?.signedUrl) { alert('Impossible d\'accéder au CV.'); return; }
-      window.open(data.signedUrl, '_blank');
+      if (!signedUrl) { alert('Impossible d\'accéder au CV.'); return; }
+      window.open(signedUrl, '_blank');
     });
   });
 
@@ -551,9 +555,13 @@ function attachColumnEvents() {
   _container.querySelectorAll('.kb-cv-btn').forEach(btn => {
     btn.addEventListener('click', async () => {
       btn.disabled = true; btn.textContent = '⏳';
-      const { data, error } = await _sb.storage.from('cvs').createSignedUrl(btn.dataset.cv, 3600);
+      let signedUrl = null;
+      for (const bucket of ['CVS', 'cvs']) {
+        const { data } = await _sb.storage.from(bucket).createSignedUrl(btn.dataset.cv, 3600);
+        if (data?.signedUrl) { signedUrl = data.signedUrl; break; }
+      }
       btn.disabled = false; btn.innerHTML = '📄 Voir le CV';
-      if (!error && data?.signedUrl) window.open(data.signedUrl, '_blank');
+      if (signedUrl) window.open(signedUrl, '_blank');
     });
   });
 
