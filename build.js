@@ -14,7 +14,7 @@ const EXCLUDE = new Set([
   'node_modules', 'dist', 'api', 'lib', 'supabase',
   'build.js', 'package.json', 'package-lock.json',
   'vercel.json', 'CLAUDE.md',
-  'qa-test.js', 'bug-report.js',
+  'qa-test.js',
   'snippet-ajouter-offre.js', 'snippet-whatsapp-ajouter-offre.js',
   'snippet-badge-integration.md', 'snippet-candidature-integration.md',
   'entreprises.html.patch',
