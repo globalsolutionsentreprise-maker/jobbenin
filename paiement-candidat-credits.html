@@ -184,10 +184,11 @@ async function submitPayment() {
   btn.textContent = 'Connexion au paiement…';
 
   try {
-    const res = await fetch('/api/payment/candidate-credits', {
+    const res = await fetch('/api/payment/candidat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
+        action: 'buy_credits',
         pack: selectedPack,
         nom:  `${prenom} ${nom}`.trim(),
         email,

@@ -206,10 +206,22 @@ async function handleCvSignedUrl(req, res) {
   return res.status(404).json({ error: `CV introuvable (chemin: ${cvRaw})` });
 }
 
+// ── GET me : rôle + nom de l'admin courant ───────────────────────────────────
+async function handleMe(req, res) {
+  const token = req.headers.authorization?.replace('Bearer ', '');
+  if (!token) return res.status(401).json({ role: null });
+  const { data: { user }, error } = await supabaseAdmin.auth.getUser(token);
+  if (error || !user) return res.status(401).json({ role: null });
+  const { data: profile } = await supabaseAdmin
+    .from('users').select('role, full_name').eq('id', user.id).single();
+  return res.status(200).json({ role: profile?.role || null, name: profile?.full_name || null });
+}
+
 // ── Router ────────────────────────────────────────────────────────────────────
 module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   if (req.method === 'OPTIONS') return res.status(200).end();
+  if (req.method === 'GET' && req.query.action === 'me') return handleMe(req, res);
   if (req.method === 'GET' && req.query.action === 'cv_signed_url') return handleCvSignedUrl(req, res);
   if (req.method === 'DELETE') return handleDeleteUser(req, res);
   if (req.method === 'POST') {

@@ -482,7 +482,7 @@ sb.auth.getSession().then(async ({ data: { session } }) => {
   currentSession = session;
   // Vérification via backend (service key, bypass RLS)
   try {
-    const meRes = await fetch('/api/admin/me', {
+    const meRes = await fetch('/api/admin?action=me', {
       headers: { 'Authorization': `Bearer ${session.access_token}` }
     });
     const me = await meRes.json();
