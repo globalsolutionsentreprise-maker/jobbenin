@@ -8,6 +8,13 @@ module.exports = async (req, res) => {
   if (!fedapayId) return res.redirect(`${process.env.SITE_URL}/paiement-erreur.html`);
 
   try {
+    // Idempotence : si déjà traité, on redirige sans re-traiter
+    const { data: existingTxn } = await supabase.from('transactions')
+      .select('status').eq('fedapay_id', String(fedapayId)).single();
+    if (existingTxn?.status === 'success') {
+      return res.redirect(`${process.env.SITE_URL}/paiement-succes.html?type=${type}&pack=${pack}`);
+    }
+
     const fTransaction = await Transaction.retrieve(fedapayId);
     const status = fTransaction.status;
     await supabase.from('transactions')
@@ -60,6 +67,9 @@ module.exports = async (req, res) => {
           const { data: user } = await supabase.from('users').select('id, credits').eq('email', txn.email).single();
           if (user) {
             await supabase.from('users').update({ credits: (user.credits || 0) + creditsToAdd }).eq('id', user.id);
+          } else {
+            // Compte inexistant : créer un compte candidat avec les crédits
+            await supabase.from('users').insert({ email: txn.email, full_name: txn.nom, telephone: txn.telephone, role: 'candidat', status: 'active', credits: creditsToAdd });
           }
         }
         await sendMail({ to: txn.email, subject: `Talenco.bj — ${creditsToAdd} crédits ajoutés`,
