@@ -42,6 +42,26 @@
       .profil-hero { padding: 24px 16px; }
       .profil-body { padding: 20px 16px; }
     }
+
+    /* ── Galerie photos ── */
+    .photo-gallery { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 12px; }
+    @media (max-width: 600px) { .photo-gallery { grid-template-columns: repeat(2, 1fr); } }
+    .photo-item { position: relative; aspect-ratio: 4/3; border-radius: var(--radius-sm); overflow: hidden; background: var(--bg-soft); border: 1px solid var(--border); }
+    .photo-item img { width: 100%; height: 100%; object-fit: cover; display: block; cursor: pointer; transition: transform .3s; }
+    .photo-item img:hover { transform: scale(1.03); }
+    .photo-delete-btn { position: absolute; top: 6px; right: 6px; background: rgba(0,0,0,.6); color: #fff; border: none; border-radius: 50%; width: 26px; height: 26px; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity .2s; }
+    .photo-item:hover .photo-delete-btn { opacity: 1; }
+    .photo-upload-slot { aspect-ratio: 4/3; border-radius: var(--radius-sm); border: 2px dashed var(--border); background: var(--bg-soft); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; cursor: pointer; transition: border-color .2s, background .2s; }
+    .photo-upload-slot:hover { border-color: var(--accent); background: rgba(139,69,19,.04); }
+    .photo-upload-slot svg { opacity: .3; }
+    .photo-upload-slot span { font-size: 11px; font-family: var(--font-mono); color: var(--text-muted); }
+    .photo-upload-slot.loading { opacity: .5; pointer-events: none; }
+
+    /* ── Lightbox ── */
+    .lightbox { position: fixed; inset: 0; background: rgba(0,0,0,.88); z-index: 9999; display: none; align-items: center; justify-content: center; }
+    .lightbox.open { display: flex; }
+    .lightbox img { max-width: 90vw; max-height: 90vh; border-radius: 8px; object-fit: contain; }
+    .lightbox-close { position: fixed; top: 20px; right: 24px; color: #fff; font-size: 28px; cursor: pointer; background: none; border: none; line-height: 1; }
   </style>
 </head>
 <body>
@@ -152,19 +172,28 @@
     const { data: offres } = await sb.from('jobs').select('id, title, city, contract_type, created_at')
       .eq('company_id', company.id).eq('status', 'published').order('created_at', { ascending: false }).limit(6);
 
+    const isOwner = !companyId; // pas de ?company_id dans l'URL = propriétaire
+    window._companyId   = company.id;
+    window._isOwner     = isOwner;
+    window._photos      = company.photos || [];
+    window._sbClient    = sb;
+
     document.getElementById('profil-main').innerHTML = `
       <div class="profil-hero">
         <div class="profil-hero-inner">
-          <div class="company-logo">🏢</div>
+          <div class="company-logo">
+            ${company.logo_url ? `<img src="${company.logo_url}" alt="${company.name}" style="width:100%;height:100%;object-fit:contain;border-radius:inherit;">` : '🏢'}
+          </div>
           <div class="company-info">
             <h1 class="company-name">${company.name ?? 'Entreprise'}</h1>
             <div class="company-meta">
               ${company.city ? `<span>📍 ${company.city}</span>` : ''}
               ${company.sector ? `<span>🏷 ${company.sector}</span>` : ''}
               ${company.email ? `<span>✉️ ${company.email}</span>` : ''}
+              ${company.is_verified ? `<span style="color:var(--accent);font-weight:600;">✓ Certifiée</span>` : ''}
             </div>
           </div>
-          ${!companyId ? `<a href="/ajouter-offre.html" class="btn btn-primary">+ Publier une offre</a>` : ''}
+          ${isOwner ? `<a href="/ajouter-offre.html" class="btn btn-primary">+ Publier une offre</a>` : ''}
         </div>
       </div>
 
@@ -176,6 +205,11 @@
               <p class="profil-text">${company.description}</p>
             </div>
           ` : ''}
+
+          <div class="profil-section" id="section-photos">
+            <div class="profil-section-label">Photos</div>
+            <div class="photo-gallery" id="photo-gallery"></div>
+          </div>
 
           <div class="profil-section">
             <div class="profil-section-label">Offres en cours (${offres?.length ?? 0})</div>
@@ -204,16 +238,110 @@
             <div class="profil-section-label" style="margin-bottom:12px;">Informations</div>
             ${company.city ? `<div style="margin-bottom:8px;font-size:13px;"><strong>Ville</strong><br><span class="text-muted">${company.city}</span></div>` : ''}
             ${company.sector ? `<div style="margin-bottom:8px;font-size:13px;"><strong>Secteur</strong><br><span class="text-muted">${company.sector}</span></div>` : ''}
+            ${company.size ? `<div style="margin-bottom:8px;font-size:13px;"><strong>Taille</strong><br><span class="text-muted">${company.size}</span></div>` : ''}
             ${company.website ? `<div style="margin-bottom:8px;font-size:13px;"><strong>Site web</strong><br><a href="${company.website}" target="_blank" class="text-muted">${company.website}</a></div>` : ''}
             <div style="font-size:13px;"><strong>Offres publiées</strong><br><span class="text-muted">${offres?.length ?? 0}</span></div>
           </div>
         </div>
       </div>
     `;
+
+    renderGallery();
+  }
+
+  const MAX_PHOTOS = 6;
+
+  function renderGallery() {
+    const gallery = document.getElementById('photo-gallery');
+    if (!gallery) return;
+    const photos  = window._photos || [];
+    const isOwner = window._isOwner;
+
+    let html = photos.map((url, i) => `
+      <div class="photo-item">
+        <img src="${url}" alt="Photo ${i + 1}" onclick="openLightbox('${url}')">
+        ${isOwner ? `<button class="photo-delete-btn" onclick="deletePhoto(${i})" title="Supprimer">✕</button>` : ''}
+      </div>
+    `).join('');
+
+    if (isOwner && photos.length < MAX_PHOTOS) {
+      html += `
+        <label class="photo-upload-slot" id="upload-slot" title="Ajouter une photo">
+          <input type="file" accept="image/jpeg,image/png,image/webp" style="display:none" onchange="uploadPhoto(this)">
+          <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+            <path d="M12 5v14M5 12h14" stroke-linecap="round"/>
+          </svg>
+          <span>Ajouter une photo</span>
+        </label>
+      `;
+    }
+
+    gallery.innerHTML = html;
+
+    const section = document.getElementById('section-photos');
+    if (section) section.style.display = (photos.length > 0 || isOwner) ? '' : 'none';
+  }
+
+  async function uploadPhoto(input) {
+    const file = input.files?.[0];
+    if (!file) return;
+    const slot = document.getElementById('upload-slot');
+    if (slot) slot.classList.add('loading');
+
+    try {
+      const ext  = file.name.split('.').pop() || 'jpg';
+      const path = `${window._companyId}/${Date.now()}.${ext}`;
+      const { error: upErr } = await window._sbClient.storage.from('company-photos').upload(path, file, { upsert: false });
+      if (upErr) throw upErr;
+
+      const { data: { publicUrl } } = window._sbClient.storage.from('company-photos').getPublicUrl(path);
+
+      const newPhotos = [...(window._photos || []), publicUrl];
+      const { error: dbErr } = await window._sbClient.from('companies').update({ photos: newPhotos }).eq('id', window._companyId);
+      if (dbErr) throw dbErr;
+
+      window._photos = newPhotos;
+      renderGallery();
+    } catch (e) {
+      alert('Erreur upload : ' + e.message);
+    } finally {
+      if (slot) slot.classList.remove('loading');
+    }
+  }
+
+  async function deletePhoto(index) {
+    if (!confirm('Supprimer cette photo ?')) return;
+    const photos    = [...(window._photos || [])];
+    const [removed] = photos.splice(index, 1);
+
+    const { error } = await window._sbClient.from('companies').update({ photos }).eq('id', window._companyId);
+    if (error) { alert('Erreur : ' + error.message); return; }
+
+    // Supprimer du storage
+    try {
+      const path = new URL(removed).pathname.split('/company-photos/')[1];
+      if (path) await window._sbClient.storage.from('company-photos').remove([path]);
+    } catch (_) {}
+
+    window._photos = photos;
+    renderGallery();
+  }
+
+  function openLightbox(url) {
+    const lb = document.getElementById('lightbox');
+    document.getElementById('lightbox-img').src = url;
+    lb.classList.add('open');
   }
 
   chargerProfil();
 </script>
+
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox" onclick="this.classList.remove('open')">
+  <button class="lightbox-close" onclick="document.getElementById('lightbox').classList.remove('open')">✕</button>
+  <img id="lightbox-img" src="" alt="Photo">
+</div>
+
 <script src="/i18n.js"></script>
 </body>
 </html>
