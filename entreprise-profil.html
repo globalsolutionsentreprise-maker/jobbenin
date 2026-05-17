@@ -182,7 +182,7 @@
             ${offres?.length ? `
               <div class="jobs-grid" style="margin-top:12px;">
                 ${offres.map(j => `
-                  <a href="/offre-detail.html?id=${j.id}" class="job-card badge-nouveau-host">
+                  <a href="/offre/${j.id}" class="job-card badge-nouveau-host">
                     ${badgeNouveau.badge(j.created_at)}
                     <div class="job-body">
                       <p class="job-title">${j.title}</p>

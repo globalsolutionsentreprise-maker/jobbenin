@@ -254,7 +254,7 @@ async function handleAlerts(req, res) {
     for (const alert of matching) {
       const email = alert.users?.email;
       if (!email) continue;
-      const offreUrl = `${SITE_URL}/offre-detail.html?id=${job.id}`;
+      const offreUrl = `${SITE_URL}/offre/${job.id}`;
       const titre    = (job.title ?? 'Offre d\'emploi').replace(/</g, '&lt;');
       const entreprise = (job.companies?.name ?? '').replace(/</g, '&lt;');
       try {
@@ -572,6 +572,244 @@ ${content.substring(0, 3000)}`;
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════════════════════
+// SSR : page offre individuelle (Google Jobs)
+// ══════════════════════════════════════════════════════════════════════════════
+
+const CONTRACT_SCHEMA = {
+  'CDI': 'FULL_TIME', 'Temps plein': 'FULL_TIME',
+  'CDD': 'TEMPORARY', 'Intérim': 'TEMPORARY',
+  'Stage': 'INTERN', 'Alternance': 'INTERN',
+  'Freelance': 'CONTRACTOR', 'Consultant': 'CONTRACTOR',
+  'Temps partiel': 'PART_TIME',
+};
+
+function esc(s) {
+  return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+async function handleOffrePage(req, res) {
+  const id = req.query.id;
+  if (!id) return res.status(400).send('<h1>id requis</h1>');
+
+  const { data: job, error } = await supabaseAdmin
+    .from('jobs')
+    .select(`
+      id, title, description, requirements, benefits,
+      salary_min, salary_max, salary_visible, salary_currency, salary_period,
+      city, contract_type, experience_required, education_required,
+      work_mode, sector, published_at, expires_at, created_at,
+      companies ( name, logo_url, website, description, sector, city, is_verified )
+    `)
+    .eq('id', id)
+    .eq('status', 'published')
+    .single();
+
+  if (error || !job) {
+    res.setHeader('Location', '/offres.html');
+    return res.status(302).end();
+  }
+
+  const SITE = process.env.SITE_URL || 'https://talenco.bj';
+  const company = job.companies || {};
+  const nom = company.name || 'Entreprise';
+  const salairePeriod = job.salary_period === 'year' ? 'YEAR' : 'MONTH';
+  const contractSchema = CONTRACT_SCHEMA[job.contract_type] || 'FULL_TIME';
+
+  // ── JSON-LD ──────────────────────────────────────────────────────────────
+  const jsonLd = {
+    '@context': 'https://schema.org/',
+    '@type': 'JobPosting',
+    title: job.title,
+    description: (job.description || '') + (job.requirements ? '\n\nProfil requis :\n' + job.requirements : ''),
+    datePosted: (job.published_at || job.created_at || '').slice(0, 10),
+    validThrough: job.expires_at ? job.expires_at.slice(0, 10) : undefined,
+    employmentType: contractSchema,
+    hiringOrganization: {
+      '@type': 'Organization',
+      name: nom,
+      sameAs: company.website || SITE,
+      logo: company.logo_url || undefined,
+    },
+    jobLocation: {
+      '@type': 'Place',
+      address: {
+        '@type': 'PostalAddress',
+        addressLocality: job.city || 'Cotonou',
+        addressCountry: 'BJ',
+      },
+    },
+    ...(job.salary_visible && job.salary_min ? {
+      baseSalary: {
+        '@type': 'MonetaryAmount',
+        currency: job.salary_currency || 'XOF',
+        value: {
+          '@type': 'QuantitativeValue',
+          minValue: job.salary_min,
+          maxValue: job.salary_max || job.salary_min,
+          unitText: salairePeriod,
+        },
+      },
+    } : {}),
+  };
+
+  // ── Formatage salaire affiché ────────────────────────────────────────────
+  let salaireHtml = '';
+  if (job.salary_visible && job.salary_min) {
+    const fmt = n => n.toLocaleString('fr-FR');
+    const cur = job.salary_currency || 'FCFA';
+    const per = job.salary_period === 'year' ? '/an' : '/mois';
+    salaireHtml = job.salary_max && job.salary_max !== job.salary_min
+      ? `${fmt(job.salary_min)} – ${fmt(job.salary_max)} ${cur}${per}`
+      : `${fmt(job.salary_min)} ${cur}${per}`;
+  }
+
+  const metaDesc = `${job.title} chez ${nom} — ${job.city || 'Cotonou'}, Bénin. ${(job.description || '').slice(0, 120).replace(/\n/g, ' ')}…`;
+  const canonical = `${SITE}/offre/${job.id}`;
+
+  const html = `<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>${esc(job.title)} — ${esc(nom)} | Talenco.bj</title>
+<meta name="description" content="${esc(metaDesc)}">
+<link rel="canonical" href="${canonical}">
+<meta property="og:title" content="${esc(job.title)} — ${esc(nom)}">
+<meta property="og:description" content="${esc(metaDesc)}">
+<meta property="og:url" content="${canonical}">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Talenco.bj">
+<script type="application/ld+json">${JSON.stringify(jsonLd)}</script>
+<link rel="stylesheet" href="/design-system.css">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg,#F9F6F1);color:var(--text,#1a1209);font-family:'Space Grotesk',sans-serif;min-height:100vh}
+.nav{height:56px;background:#fff;border-bottom:1px solid #EDE8E0;display:flex;align-items:center;padding:0 1.5rem;gap:1rem}
+.nav-logo{font-family:'Instrument Serif',serif;font-style:italic;font-size:1.25rem;color:#1a1209;text-decoration:none}
+.nav-back{font-size:.82rem;color:#7a6e61;text-decoration:none;margin-left:auto}
+.nav-back:hover{color:#8B4513}
+.wrapper{max-width:800px;margin:0 auto;padding:2.5rem 1.5rem 4rem}
+.breadcrumb{font-size:.75rem;color:#9a8e80;font-family:'DM Mono',monospace;margin-bottom:1.5rem}
+.breadcrumb a{color:#9a8e80;text-decoration:none}
+.breadcrumb a:hover{color:#8B4513}
+.job-header{margin-bottom:2rem}
+.company-row{display:flex;align-items:center;gap:.75rem;margin-bottom:1rem}
+.company-logo{width:48px;height:48px;border-radius:8px;border:1px solid #EDE8E0;object-fit:contain;background:#fff;padding:4px}
+.company-name{font-size:.9rem;font-weight:600;color:#4a3d2e}
+.company-verified{display:inline-block;width:14px;height:14px;background:#8B4513;border-radius:50%;margin-left:4px;vertical-align:middle;font-size:9px;color:#fff;text-align:center;line-height:14px}
+h1{font-family:'Instrument Serif',serif;font-style:italic;font-size:clamp(1.6rem,4vw,2.2rem);line-height:1.15;margin-bottom:1rem;color:#1a1209}
+.tags{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:1.5rem}
+.tag{display:inline-flex;align-items:center;gap:.35rem;font-size:.75rem;font-family:'DM Mono',monospace;padding:.3rem .7rem;border-radius:100px;border:1px solid #EDE8E0;background:#fff;color:#4a3d2e}
+.tag.salary{background:#FEF3E2;border-color:#F0A500;color:#8B4513;font-weight:600}
+.apply-bar{background:#fff;border:1px solid #EDE8E0;border-radius:12px;padding:1.25rem 1.5rem;margin-bottom:2rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+.apply-bar p{font-size:.85rem;color:#7a6e61;line-height:1.5}
+.btn-apply{background:#8B4513;color:#fff;border:none;border-radius:8px;padding:.75rem 1.5rem;font-family:'Space Grotesk',sans-serif;font-size:.93rem;font-weight:600;cursor:pointer;text-decoration:none;white-space:nowrap;transition:background .2s}
+.btn-apply:hover{background:#6d3510}
+.section-title{font-family:'DM Mono',monospace;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:#9a8e80;margin-bottom:.75rem;margin-top:1.75rem}
+.prose{font-size:.93rem;line-height:1.78;color:#2a2018;white-space:pre-wrap}
+hr.sep{border:none;border-top:1px solid #EDE8E0;margin:2rem 0}
+</style>
+</head>
+<body>
+<nav class="nav">
+  <a href="/" class="nav-logo">Talenco.bj</a>
+  <a href="/offres.html" class="nav-back">← Toutes les offres</a>
+</nav>
+
+<div class="wrapper">
+  <div class="breadcrumb">
+    <a href="/">Accueil</a> › <a href="/offres.html">Offres</a> › ${esc(job.title)}
+  </div>
+
+  <div class="job-header">
+    <div class="company-row">
+      ${company.logo_url ? `<img class="company-logo" src="${esc(company.logo_url)}" alt="${esc(nom)}">` : ''}
+      <span class="company-name">${esc(nom)}${company.is_verified ? '<span class="company-verified" title="Entreprise certifiée">✓</span>' : ''}</span>
+    </div>
+    <h1>${esc(job.title)}</h1>
+    <div class="tags">
+      ${job.city ? `<span class="tag">📍 ${esc(job.city)}</span>` : ''}
+      ${job.contract_type ? `<span class="tag">📄 ${esc(job.contract_type)}</span>` : ''}
+      ${job.work_mode ? `<span class="tag">🏠 ${esc(job.work_mode)}</span>` : ''}
+      ${job.experience_required ? `<span class="tag">⏱ ${esc(job.experience_required)}</span>` : ''}
+      ${job.sector ? `<span class="tag">🏷 ${esc(job.sector)}</span>` : ''}
+      ${salaireHtml ? `<span class="tag salary">💰 ${esc(salaireHtml)}</span>` : ''}
+    </div>
+  </div>
+
+  <div class="apply-bar">
+    <p>Postulez via Talenco.bj — profil vérifié, suivi de candidature inclus.</p>
+    <a href="/offre-detail.html?id=${esc(job.id)}" class="btn-apply">Postuler à cette offre →</a>
+  </div>
+
+  ${job.description ? `<div class="section-title">Description du poste</div><div class="prose">${esc(job.description)}</div>` : ''}
+  ${job.requirements ? `<hr class="sep"><div class="section-title">Profil recherché</div><div class="prose">${esc(job.requirements)}</div>` : ''}
+  ${job.benefits ? `<hr class="sep"><div class="section-title">Avantages</div><div class="prose">${esc(job.benefits)}</div>` : ''}
+  ${job.education_required ? `<hr class="sep"><div class="section-title">Formation requise</div><div class="prose">${esc(job.education_required)}</div>` : ''}
+
+  <hr class="sep">
+  <div style="text-align:center;padding:1.5rem 0">
+    <a href="/offre-detail.html?id=${esc(job.id)}" class="btn-apply">Postuler à cette offre →</a>
+  </div>
+</div>
+</body>
+</html>`;
+
+  res.setHeader('Content-Type', 'text/html; charset=utf-8');
+  res.setHeader('Cache-Control', 'public, max-age=3600, s-maxage=3600');
+  return res.status(200).send(html);
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// SSR : sitemap.xml
+// ══════════════════════════════════════════════════════════════════════════════
+
+async function handleSitemap(req, res) {
+  const SITE = process.env.SITE_URL || 'https://talenco.bj';
+
+  const { data: jobs } = await supabaseAdmin
+    .from('jobs')
+    .select('id, updated_at, published_at')
+    .eq('status', 'published')
+    .order('published_at', { ascending: false })
+    .limit(1000);
+
+  const staticPages = [
+    { loc: `${SITE}/presentation.html`, priority: '1.0', freq: 'weekly' },
+    { loc: `${SITE}/offres.html`,        priority: '0.9', freq: 'daily' },
+    { loc: `${SITE}/inscription.html`,   priority: '0.7', freq: 'monthly' },
+    { loc: `${SITE}/connexion.html`,     priority: '0.5', freq: 'monthly' },
+  ];
+
+  const urls = [
+    ...staticPages.map(p => `  <url>
+    <loc>${p.loc}</loc>
+    <changefreq>${p.freq}</changefreq>
+    <priority>${p.priority}</priority>
+  </url>`),
+    ...(jobs || []).map(j => {
+      const lastmod = (j.updated_at || j.published_at || '').slice(0, 10);
+      return `  <url>
+    <loc>${SITE}/offre/${j.id}</loc>
+    ${lastmod ? `<lastmod>${lastmod}</lastmod>` : ''}
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>`;
+    }),
+  ];
+
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${urls.join('\n')}
+</urlset>`;
+
+  res.setHeader('Content-Type', 'application/xml; charset=utf-8');
+  res.setHeader('Cache-Control', 'public, max-age=3600, s-maxage=3600');
+  return res.status(200).send(xml);
+}
+
 // ROUTER PRINCIPAL
 // ══════════════════════════════════════════════════════════════════════════════
 
@@ -580,8 +818,11 @@ module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   if (req.method === 'OPTIONS') return res.status(200).end();
 
-  // GET → offres internationales
-  if (req.method === 'GET') return handleInternational(req, res);
+  if (req.method === 'GET') {
+    if (req.query.render === 'offre')    return handleOffrePage(req, res);
+    if (req.query.render === 'sitemap')  return handleSitemap(req, res);
+    return handleInternational(req, res);
+  }
 
   // POST → dispatcher sur action
   if (req.method === 'POST') {

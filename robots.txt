@@ -1,0 +1,14 @@
+User-agent: *
+Allow: /
+Allow: /offre/
+Allow: /offres.html
+Allow: /presentation.html
+Allow: /sitemap.xml
+Disallow: /api/
+Disallow: /admin.html
+Disallow: /admin-analytics.html
+Disallow: /candidat.html
+Disallow: /entreprise-profil.html
+Disallow: /cvtheque.html
+
+Sitemap: https://talenco.bj/sitemap.xml

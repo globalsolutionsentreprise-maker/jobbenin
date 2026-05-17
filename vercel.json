@@ -8,6 +8,10 @@
       "maxDuration": 30
     }
   },
+  "rewrites": [
+    { "source": "/offre/:id", "destination": "/api/jobs?render=offre&id=:id" },
+    { "source": "/sitemap.xml", "destination": "/api/jobs?render=sitemap" }
+  ],
   "redirects": [
     {
       "source": "/",

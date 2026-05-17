@@ -411,7 +411,7 @@
             <div style="font-family:var(--font-mono);font-size:9px;color:var(--text-muted);margin-top:2px;">${o.city ?? ''} · ${o.contract_type ?? ''}${o.time_type ? ' · ' + o.time_type : ''}${o.work_mode ? ' · ' + (modeLabel[o.work_mode] ?? o.work_mode) : ''}</div>
           </div>
           <span class="badge badge-${o.status === 'published' ? 'success' : 'warning'}">${o.status}</span>
-          <a href="/offre-detail.html?id=${o.id}" class="btn btn-outline btn-sm">Voir</a>
+          <a href="/offre/${o.id}" class="btn btn-outline btn-sm">Voir</a>
         </div>
         <div style="display:flex;gap:16px;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);flex-wrap:wrap;">
           <span style="font-size:11px;color:var(--text-muted);">👁 <strong>${views}</strong> vue${views !== 1 ? 's' : ''}</span>
