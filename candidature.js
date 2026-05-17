@@ -318,7 +318,7 @@ async function initPostulerBtn(supabase, jobId, containerId, opts = {}) {
 function _btnHtml(state, jobId = '') {
   switch (state) {
     case 'login':
-      return `<a href="${SITE_URL}/connexion.html?redirect=/offre-detail.html?id=${jobId}"
+      return `<a href="${SITE_URL}/connexion.html?next=/offre-detail.html?id=${jobId}"
                  style="${_btnStyle('#6b7280')}text-decoration:none;display:inline-block;">
                 🔑 Se connecter pour postuler
               </a>`;
@@ -416,7 +416,7 @@ async function _soumettreCandidature(supabase, user, jobId, cvPath, container, m
   fetch(`${SITE_URL}/api/jobs`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ application_id: app.id }),
+    body: JSON.stringify({ action: 'score', application_id: app.id }),
   }).catch((err) => console.warn('Score IA non critique:', err));
 
   // 3. Confirmation inline

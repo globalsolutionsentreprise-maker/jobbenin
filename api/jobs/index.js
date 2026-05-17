@@ -130,9 +130,13 @@ async function handleScore(req, res) {
   let cvText = '';
   const cvPath = app.cv_path ?? `${app.user_id}/cv.pdf`;
   try {
-    const { data: urlData } = await supabase.storage.from('cvs').createSignedUrl(cvPath, 120);
-    if (urlData?.signedUrl) {
-      const pdfBuf = await fetch(urlData.signedUrl).then(r => r.arrayBuffer());
+    let signedUrl = null;
+    for (const bucket of ['CVS', 'cvs']) {
+      const { data: urlData } = await supabase.storage.from(bucket).createSignedUrl(cvPath, 120);
+      if (urlData?.signedUrl) { signedUrl = urlData.signedUrl; break; }
+    }
+    if (signedUrl) {
+      const pdfBuf = await fetch(signedUrl).then(r => r.arrayBuffer());
       const parsed = await pdf(Buffer.from(pdfBuf));
       cvText = parsed.text.replace(/\s+/g, ' ').trim().substring(0, 4000);
     }
