@@ -92,6 +92,31 @@
       width: auto;
     }
     @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+    .job-card { position: relative; }
+    .save-btn {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 17px;
+      color: var(--text-muted);
+      padding: 4px;
+      line-height: 1;
+      transition: color .15s, transform .15s;
+      z-index: 2;
+      text-decoration: none;
+    }
+    .save-btn:hover { color: var(--accent); transform: scale(1.15); }
+    .save-btn.saved { color: var(--accent); }
+    .salary-nc {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-muted);
+      font-style: italic;
+      margin-bottom: 6px;
+    }
     @media (max-width: 768px) {
       .page-layout { grid-template-columns: 1fr; }
       .filters-panel {
@@ -393,17 +418,46 @@
   document.getElementById('sort-select').addEventListener('change', () => { currentPage = 0; chargerOffres(false); });
   document.getElementById('load-more').addEventListener('click', () => { currentPage++; chargerOffres(true); });
 
+  // ── Favoris ─────────────────────────────────────────────────────────
+  let savedIds = new Set();
+
+  async function loadSavedJobs(userId) {
+    const { data } = await sb.from('saved_jobs').select('job_id').eq('user_id', userId);
+    savedIds = new Set((data ?? []).map(r => r.job_id));
+  }
+
+  async function toggleSave(event, jobId) {
+    event.preventDefault();
+    event.stopPropagation();
+    if (!currentSession) return;
+    const userId = currentSession.user.id;
+    const btn = event.currentTarget;
+    if (savedIds.has(jobId)) {
+      await sb.from('saved_jobs').delete().eq('user_id', userId).eq('job_id', jobId);
+      savedIds.delete(jobId);
+      btn.classList.remove('saved');
+      btn.title = 'Sauvegarder';
+    } else {
+      await sb.from('saved_jobs').insert({ user_id: userId, job_id: jobId });
+      savedIds.add(jobId);
+      btn.classList.add('saved');
+      btn.title = 'Retirer des favoris';
+    }
+  }
+
   // ── Auth ────────────────────────────────────────────────────────────
   let currentSession = null;
-  sb.auth.getSession().then(({ data: { session } }) => {
+  sb.auth.getSession().then(async ({ data: { session } }) => {
     currentSession = session;
     if (session) {
       document.querySelector('.navbar-actions').innerHTML = `
         <a href="/candidat.html" class="btn btn-outline btn-sm">Mon profil</a>
         <button class="btn btn-dark btn-sm" onclick="sb.auth.signOut().then(()=>location.reload())">Déconnexion</button>
       `;
+      await loadSavedJobs(session.user.id);
       candidature?.initPostuler?.(sb);
     }
+    chargerOffres();
   });
 
   // ── Chargement des offres ────────────────────────────────────────────
@@ -427,7 +481,7 @@
     }
 
     let query = sb.from('jobs')
-      .select('id, title, city, sector, contract_type, created_at, score, salary_min, salary_max, salary_currency, salary_period, is_diaspora_open, is_remote, companies!company_id(name)', { count: 'exact' })
+      .select('id, title, city, sector, contract_type, created_at, score, salary_min, salary_max, salary_currency, salary_period, salary_visible, is_diaspora_open, is_remote, companies!company_id(name)', { count: 'exact' })
       .eq('status', 'published')
       .range(currentPage * PAGE_SIZE, (currentPage + 1) * PAGE_SIZE - 1);
 
@@ -450,13 +504,24 @@
 
     if (!append) countEl.textContent = `${count ?? 0} offre${(count ?? 0) > 1 ? 's' : ''}`;
 
-    const html = (offres ?? []).map(j => `
+    const html = (offres ?? []).map(j => {
+      const salaryHtml = j.salary_visible && j.salary_min
+        ? `<div style="font-family:var(--font-mono);font-size:11px;color:var(--accent);margin-bottom:6px;">${j.salary_min.toLocaleString('fr-FR')} ${j.salary_currency||'FCFA'}${j.salary_max ? ' – ' + j.salary_max.toLocaleString('fr-FR') : ''} / ${j.salary_period||'mois'}</div>`
+        : j.salary_visible === false
+          ? `<div class="salary-nc">Salaire non communiqué</div>`
+          : '';
+      const isSaved = savedIds.has(j.id);
+      const saveBtn = currentSession
+        ? `<button class="save-btn${isSaved ? ' saved' : ''}" data-id="${j.id}" onclick="toggleSave(event,'${j.id}')" title="${isSaved ? 'Retirer des favoris' : 'Sauvegarder'}">${isSaved ? '🔖' : '🔖'}</button>`
+        : '';
+      return `
       <a href="/offre/${j.id}" class="job-card badge-nouveau-host">
         ${badgeNouveau.badge(j.created_at)}
+        ${saveBtn}
         <div class="job-body">
           <p class="job-title">${j.title}</p>
           <p class="job-company">${j.companies?.name || 'Entreprise'}</p>
-          ${j.salary_min ? `<div style="font-family:var(--font-mono);font-size:11px;color:var(--accent);margin-bottom:6px;">${j.salary_min.toLocaleString('fr-FR')} ${j.salary_currency||'FCFA'}${j.salary_max ? ' – ' + j.salary_max.toLocaleString('fr-FR') : ''} / ${j.salary_period||'mois'}</div>` : ''}
+          ${salaryHtml}
           <div class="job-tags">
             <span class="tag">${j.city ?? ''}</span>
             <span class="tag">${j.contract_type ?? ''}</span>
@@ -467,8 +532,8 @@
           </div>
         </div>
         <span class="job-time">${badgeNouveau.tempsRelatif(j.created_at)}</span>
-      </a>
-    `).join('');
+      </a>`;
+    }).join('');
 
     if (append) {
       container.insertAdjacentHTML('beforeend', html);
@@ -479,8 +544,6 @@
     const hasMore = (currentPage + 1) * PAGE_SIZE < (count ?? 0);
     loadMoreBtn.style.display = hasMore ? 'block' : 'none';
   }
-
-  chargerOffres();
 
   async function chargerFilActualites() {
     const { data: news } = await sb.from('company_news')

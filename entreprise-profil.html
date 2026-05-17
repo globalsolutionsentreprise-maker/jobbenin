@@ -172,6 +172,13 @@
     const { data: offres } = await sb.from('jobs').select('id, title, city, contract_type, created_at')
       .eq('company_id', company.id).eq('status', 'published').order('created_at', { ascending: false }).limit(6);
 
+    // Taux de réponse via RPC SECURITY DEFINER (bypasse RLS, visible publiquement)
+    let tauxReponse = null;
+    const { data: responseData } = await sb.rpc('get_company_response_days', { p_company_id: company.id });
+    if (responseData !== null && responseData !== undefined) {
+      tauxReponse = responseData;
+    }
+
     const isOwner = !companyId; // pas de ?company_id dans l'URL = propriétaire
     window._companyId   = company.id;
     window._isOwner     = isOwner;
@@ -240,7 +247,8 @@
             ${company.sector ? `<div style="margin-bottom:8px;font-size:13px;"><strong>Secteur</strong><br><span class="text-muted">${company.sector}</span></div>` : ''}
             ${company.size ? `<div style="margin-bottom:8px;font-size:13px;"><strong>Taille</strong><br><span class="text-muted">${company.size}</span></div>` : ''}
             ${company.website ? `<div style="margin-bottom:8px;font-size:13px;"><strong>Site web</strong><br><a href="${company.website}" target="_blank" class="text-muted">${company.website}</a></div>` : ''}
-            <div style="font-size:13px;"><strong>Offres publiées</strong><br><span class="text-muted">${offres?.length ?? 0}</span></div>
+            <div style="margin-bottom:8px;font-size:13px;"><strong>Offres publiées</strong><br><span class="text-muted">${offres?.length ?? 0}</span></div>
+            ${tauxReponse !== null ? `<div style="font-size:13px;"><strong>Taux de réponse</strong><br><span style="color:#2E7D32;font-family:var(--font-mono);font-size:12px;">✓ Répond en ${tauxReponse} jour${tauxReponse > 1 ? 's' : ''} en moy.</span></div>` : ''}
           </div>
         </div>
       </div>
