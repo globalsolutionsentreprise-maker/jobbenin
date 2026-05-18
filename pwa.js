@@ -1,4 +1,3 @@
-// ── Clé publique VAPID (générée via npx web-push generate-vapid-keys) ──
 // ── Favicon injection globale ──────────────────────────
 (function() {
   if (!document.querySelector('link[rel="icon"]')) {
@@ -7,9 +6,6 @@
     document.head.appendChild(lnk);
   }
 })();
-
-const VAPID_PUBLIC_KEY =
-  'BM4Xv-k-mb4QfCxNxx5H5LNqASlJalpwsUqwDFVB-EHGxNcx98ILu8uwUeeaJc6tnhqbYdSvpCCrXpkINu8u-ck';
 
 // ── Conversion base64url → Uint8Array pour pushManager.subscribe() ──
 function urlBase64ToUint8Array(b64) {
