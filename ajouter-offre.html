@@ -174,7 +174,7 @@
           <div class="form-row">
             <div class="form-field">
               <label class="form-label" for="champ-type-contrat">Type de contrat <span style="color:var(--accent)">*</span></label>
-              <select id="champ-type-contrat" required>
+              <select id="champ-type-contrat" required onchange="toggleContratType()">
                 <option value="">Sélectionnez</option>
                 <option>CDI</option>
                 <option>CDD</option>
@@ -265,31 +265,81 @@
       <!-- Section 5 : Conditions -->
       <div class="form-section">
         <div class="form-section-header">
-          <p class="form-section-title">Conditions <span style="color:var(--accent)">*</span></p>
+          <p class="form-section-title" id="conditions-title">Conditions <span style="color:var(--accent)">*</span></p>
         </div>
         <div class="form-section-body">
-          <div class="form-field">
-            <label class="form-label">Rémunération <span style="color:var(--accent)">*</span></label>
-            <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:center;">
-              <input type="number" id="champ-salary-min" placeholder="Min (obligatoire)" min="0" required style="padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-card);color:var(--text);font-family:var(--font-body);font-size:13px;">
-              <input type="number" id="champ-salary-max" placeholder="Max (fourchette)" min="0" style="padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-card);color:var(--text);font-family:var(--font-body);font-size:13px;">
-              <select id="champ-salary-currency" style="padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-card);color:var(--text);font-family:var(--font-body);font-size:13px;cursor:pointer;">
-                <option value="FCFA">FCFA</option>
-                <option value="EUR">EUR €</option>
-                <option value="USD">USD $</option>
+
+          <!-- Champs salaire (masqués pour Stage) -->
+          <div id="salary-fields">
+            <div class="form-field">
+              <label class="form-label">Rémunération <span style="color:var(--accent)">*</span></label>
+              <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:center;">
+                <input type="number" id="champ-salary-min" placeholder="Min (obligatoire)" min="0" style="padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-card);color:var(--text);font-family:var(--font-body);font-size:13px;">
+                <input type="number" id="champ-salary-max" placeholder="Max (fourchette)" min="0" style="padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-card);color:var(--text);font-family:var(--font-body);font-size:13px;">
+                <select id="champ-salary-currency" style="padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-card);color:var(--text);font-family:var(--font-body);font-size:13px;cursor:pointer;">
+                  <option value="FCFA">FCFA</option>
+                  <option value="EUR">EUR €</option>
+                  <option value="USD">USD $</option>
+                </select>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px;margin-top:8px;">
+                <span style="font-size:12px;color:var(--text-muted);">Période :</span>
+                <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer;">
+                  <input type="radio" name="salary-period" value="mois" checked> par mois
+                </label>
+                <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer;">
+                  <input type="radio" name="salary-period" value="an"> par an
+                </label>
+              </div>
+              <div id="salary-preview" style="margin-top:10px;display:none;font-size:12px;color:var(--text-muted);padding:8px 12px;background:var(--bg-soft);border-radius:var(--radius-sm);"></div>
+            </div>
+          </div>
+
+          <!-- Champs dédiés Stage (affichés uniquement si Stage sélectionné) -->
+          <div id="stage-fields" style="display:none;">
+            <div class="form-field">
+              <label class="form-label">Durée du stage <span style="color:var(--accent)">*</span></label>
+              <select id="champ-stage-duree" style="padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-card);color:var(--text);font-family:var(--font-body);font-size:13px;width:100%;cursor:pointer;">
+                <option value="">Sélectionnez une durée</option>
+                <option value="1 mois">1 mois</option>
+                <option value="2 mois">2 mois</option>
+                <option value="3 mois">3 mois</option>
+                <option value="4 mois">4 mois</option>
+                <option value="6 mois">6 mois</option>
+                <option value="12 mois">12 mois</option>
               </select>
             </div>
-            <div style="display:flex;align-items:center;gap:8px;margin-top:8px;">
-              <span style="font-size:12px;color:var(--text-muted);">Période :</span>
-              <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer;">
-                <input type="radio" name="salary-period" value="mois" checked> par mois
-              </label>
-              <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer;">
-                <input type="radio" name="salary-period" value="an"> par an
-              </label>
+            <div class="form-field">
+              <label class="form-label">Gratification <span style="color:var(--accent)">*</span></label>
+              <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                <label style="display:flex;align-items:center;gap:8px;padding:10px 16px;border:1px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;font-size:13px;">
+                  <input type="radio" name="stage-gratif" value="non" checked onchange="toggleStageMontant()"> Non rémunéré
+                </label>
+                <label style="display:flex;align-items:center;gap:8px;padding:10px 16px;border:1px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;font-size:13px;">
+                  <input type="radio" name="stage-gratif" value="remunere" onchange="toggleStageMontant()"> Rémunéré
+                </label>
+              </div>
+              <div id="stage-montant-wrap" style="display:none;margin-top:10px;">
+                <div style="display:flex;align-items:center;gap:8px;">
+                  <input type="number" id="champ-stage-montant" placeholder="Montant mensuel" min="0" style="flex:1;padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-card);color:var(--text);font-family:var(--font-body);font-size:13px;">
+                  <span style="font-size:13px;color:var(--text-muted);white-space:nowrap;">FCFA / mois</span>
+                </div>
+              </div>
             </div>
-            <div id="salary-preview" style="margin-top:10px;display:none;font-size:12px;color:var(--text-muted);padding:8px 12px;background:var(--bg-soft);border-radius:var(--radius-sm);"></div>
+            <div class="form-field">
+              <label class="form-label">Profil ciblé <span style="color:var(--accent)">*</span></label>
+              <select id="champ-stage-profil" style="padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-card);color:var(--text);font-family:var(--font-body);font-size:13px;width:100%;cursor:pointer;">
+                <option value="">Sélectionnez un profil</option>
+                <option value="Lycéen / Terminale">Lycéen / Terminale</option>
+                <option value="BTS / Bac+2">BTS / Bac+2</option>
+                <option value="Licence / Bac+3">Licence / Bac+3</option>
+                <option value="Master 1 / Bac+4">Master 1 / Bac+4</option>
+                <option value="Master 2 / Bac+5">Master 2 / Bac+5</option>
+                <option value="Jeune diplômé (0–1 an)">Jeune diplômé (0–1 an)</option>
+              </select>
+            </div>
           </div>
+
           <div class="form-field">
             <label class="form-label">Avantages supplémentaires <span style="color:var(--text-muted);font-weight:400;">(optionnel)</span></label>
             <textarea id="champ-avantages" rows="2" placeholder="Assurance, tickets repas, véhicule de fonction…"></textarea>
@@ -395,10 +445,25 @@
     }
 
     // Validation manuelle des champs obligatoires
-    const salaryMin = parseInt(document.getElementById('champ-salary-min').value);
-    if (!salaryMin || isNaN(salaryMin)) {
-      msgEl.className = 'alert alert-error'; msgEl.textContent = '❌ La rémunération (min) est obligatoire.'; msgEl.style.display = 'block';
-      btnSubmit.disabled = false; btnSubmit.textContent = 'Publier l\'offre'; return;
+    const isStage = document.getElementById('champ-type-contrat').value === 'Stage';
+    let salaryMin = null;
+    if (!isStage) {
+      salaryMin = parseInt(document.getElementById('champ-salary-min').value);
+      if (!salaryMin || isNaN(salaryMin)) {
+        msgEl.className = 'alert alert-error'; msgEl.textContent = '❌ La rémunération (min) est obligatoire.'; msgEl.style.display = 'block';
+        btnSubmit.disabled = false; btnSubmit.textContent = 'Publier l\'offre'; return;
+      }
+    } else {
+      const stageDuree = document.getElementById('champ-stage-duree').value;
+      const stageProfil = document.getElementById('champ-stage-profil').value;
+      if (!stageDuree) {
+        msgEl.className = 'alert alert-error'; msgEl.textContent = '❌ La durée du stage est obligatoire.'; msgEl.style.display = 'block';
+        btnSubmit.disabled = false; btnSubmit.textContent = 'Publier l\'offre'; return;
+      }
+      if (!stageProfil) {
+        msgEl.className = 'alert alert-error'; msgEl.textContent = '❌ Le profil ciblé est obligatoire.'; msgEl.style.display = 'block';
+        btnSubmit.disabled = false; btnSubmit.textContent = 'Publier l\'offre'; return;
+      }
     }
     const fieldsReq = [
       ['champ-time-type','Temps de travail'],['champ-work-mode','Mode de travail'],
@@ -448,6 +513,7 @@
 
     btnSubmit.textContent = '⏳ Publication…';
 
+    const stageGratifRemunere = document.querySelector('input[name="stage-gratif"]:checked')?.value === 'remunere';
     const payload = {
       company_id:          currentCompanyId,
       title:               document.getElementById('champ-titre').value.trim() || document.getElementById('champ-poste').value.trim(),
@@ -462,10 +528,14 @@
       competences_requises: document.getElementById('champ-competences').value.trim() || null,
       futur_employeur:     document.getElementById('champ-futur-employeur').value.trim(),
       benefits:            document.getElementById('champ-avantages').value.trim() || null,
-      salary_min:          salaryMin,
-      salary_max:          parseInt(document.getElementById('champ-salary-max').value) || null,
-      salary_currency:     document.getElementById('champ-salary-currency').value || 'FCFA',
-      salary_period:       document.querySelector('input[name="salary-period"]:checked')?.value || 'mois',
+      salary_min:          isStage ? null : salaryMin,
+      salary_max:          isStage ? null : (parseInt(document.getElementById('champ-salary-max').value) || null),
+      salary_currency:     isStage ? null : (document.getElementById('champ-salary-currency').value || 'FCFA'),
+      salary_period:       isStage ? null : (document.querySelector('input[name="salary-period"]:checked')?.value || 'mois'),
+      stage_duree:         isStage ? document.getElementById('champ-stage-duree').value : null,
+      stage_gratification: isStage ? stageGratifRemunere : null,
+      stage_gratification_montant: isStage && stageGratifRemunere ? (parseInt(document.getElementById('champ-stage-montant').value) || null) : null,
+      stage_profil_cible:  isStage ? document.getElementById('champ-stage-profil').value : null,
       is_diaspora_open:    document.getElementById('champ-diaspora').checked,
       is_remote:           document.getElementById('champ-work-mode').value !== 'presentiel',
       status:              'pending',
@@ -499,6 +569,21 @@
     // Redirection
     window.location.href = `/offre/${newJob.id}`;
   });
+
+  function toggleContratType() {
+    const val = document.getElementById('champ-type-contrat').value;
+    const isStage = val === 'Stage';
+    document.getElementById('salary-fields').style.display = isStage ? 'none' : '';
+    document.getElementById('stage-fields').style.display = isStage ? '' : 'none';
+    document.getElementById('conditions-title').innerHTML = isStage
+      ? 'Conditions de stage <span style="color:var(--accent)">*</span>'
+      : 'Conditions <span style="color:var(--accent)">*</span>';
+  }
+
+  function toggleStageMontant() {
+    const remunere = document.querySelector('input[name="stage-gratif"]:checked')?.value === 'remunere';
+    document.getElementById('stage-montant-wrap').style.display = remunere ? '' : 'none';
+  }
 </script>
 
 <!-- ── Script IA (snippet generate-offre) ──────────────────────────── -->

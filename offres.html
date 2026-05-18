@@ -481,7 +481,7 @@
     }
 
     let query = sb.from('jobs')
-      .select('id, title, city, sector, contract_type, created_at, score, salary_min, salary_max, salary_currency, salary_period, salary_visible, is_diaspora_open, is_remote, apply_count, companies!company_id(name, is_verified, avg_rating, review_count)', { count: 'exact' })
+      .select('id, title, city, sector, contract_type, created_at, score, salary_min, salary_max, salary_currency, salary_period, salary_visible, is_diaspora_open, is_remote, apply_count, stage_duree, stage_gratification, stage_gratification_montant, companies!company_id(name, is_verified, avg_rating, review_count)', { count: 'exact' })
       .eq('status', 'published')
       .range(currentPage * PAGE_SIZE, (currentPage + 1) * PAGE_SIZE - 1);
 
@@ -505,15 +505,27 @@
     if (!append) countEl.textContent = `${count ?? 0} offre${(count ?? 0) > 1 ? 's' : ''}`;
 
     const html = (offres ?? []).map(j => {
-      const salaryHtml = j.salary_visible && j.salary_min
-        ? `<div style="font-family:var(--font-mono);font-size:11px;color:var(--accent);margin-bottom:6px;">${j.salary_min.toLocaleString('fr-FR')} ${j.salary_currency||'FCFA'}${j.salary_max ? ' – ' + j.salary_max.toLocaleString('fr-FR') : ''} / ${j.salary_period||'mois'}</div>`
-        : j.salary_visible === false
-          ? `<div class="salary-nc">Salaire non communiqué</div>`
-          : '';
+      const isStage = j.contract_type === 'Stage';
+      let conditionsHtml = '';
+      if (isStage) {
+        if (j.stage_duree) {
+          const gratifLabel = j.stage_gratification
+            ? (j.stage_gratification_montant ? `${j.stage_gratification_montant.toLocaleString('fr-FR')} FCFA/mois` : 'Rémunéré')
+            : 'Non rémunéré';
+          conditionsHtml = `<div style="font-family:var(--font-mono);font-size:11px;color:#7C3AED;margin-bottom:6px;">📅 ${j.stage_duree} · ${gratifLabel}</div>`;
+        }
+      } else {
+        conditionsHtml = j.salary_visible && j.salary_min
+          ? `<div style="font-family:var(--font-mono);font-size:11px;color:var(--accent);margin-bottom:6px;">${j.salary_min.toLocaleString('fr-FR')} ${j.salary_currency||'FCFA'}${j.salary_max ? ' – ' + j.salary_max.toLocaleString('fr-FR') : ''} / ${j.salary_period||'mois'}</div>`
+          : j.salary_visible === false
+            ? `<div class="salary-nc">Salaire non communiqué</div>`
+            : '';
+      }
       const isSaved = savedIds.has(j.id);
       const saveBtn = currentSession
         ? `<button class="save-btn${isSaved ? ' saved' : ''}" data-id="${j.id}" onclick="toggleSave(event,'${j.id}')" title="${isSaved ? 'Retirer des favoris' : 'Sauvegarder'}">${isSaved ? '🔖' : '🔖'}</button>`
         : '';
+      const stageTagStyle = isStage ? 'background:rgba(124,58,237,.1);color:#7C3AED;border:1px solid rgba(124,58,237,.25);' : '';
       return `
       <a href="/offre/${j.id}" class="job-card badge-nouveau-host">
         ${badgeNouveau.badge(j.created_at)}
@@ -526,10 +538,10 @@
             ${j.companies?.avg_rating ? `<span style="font-size:10px;color:var(--accent);margin-left:4px;">${'★'.repeat(Math.round(j.companies.avg_rating))}${'☆'.repeat(5-Math.round(j.companies.avg_rating))}</span>` : ''}
           </p>
           ${j.apply_count > 0 ? `<div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);margin-bottom:4px;">${j.apply_count} candidat${j.apply_count > 1 ? 's' : ''}</div>` : ''}
-          ${salaryHtml}
+          ${conditionsHtml}
           <div class="job-tags">
             <span class="tag">${j.city ?? ''}</span>
-            <span class="tag">${j.contract_type ?? ''}</span>
+            <span class="tag" style="${stageTagStyle}">${j.contract_type ?? ''}</span>
             <span class="tag tag-accent">${j.sector ?? ''}</span>
             ${j.is_diaspora_open ? `<span class="tag" style="background:rgba(139,69,19,.08);color:var(--accent);border:1px solid rgba(139,69,19,.2);">Diaspora</span>` : ''}
             ${j.is_remote ? `<span class="tag" style="background:rgba(46,125,50,.08);color:#2E7D32;border:1px solid rgba(46,125,50,.2);">Remote</span>` : ''}

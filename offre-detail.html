@@ -235,7 +235,7 @@
   async function chargerOffre() {
     const [{ data: job }, { data: { session } }] = await Promise.all([
       sb.from('jobs')
-        .select('id, title, company_id, city, sector, contract_type, description, requirements, benefits, created_at, score, salary_min, salary_max, diaspora_friendly, work_mode, pourquoi_postuler, futur_employeur, companies(id, name)')
+        .select('id, title, company_id, city, sector, contract_type, description, requirements, benefits, created_at, score, salary_min, salary_max, diaspora_friendly, work_mode, pourquoi_postuler, futur_employeur, stage_duree, stage_gratification, stage_gratification_montant, stage_profil_cible, companies(id, name)')
         .eq('id', jobId)
         .maybeSingle(),
       sb.auth.getSession(),
@@ -271,8 +271,10 @@
             <p class="detail-company">${job.companies?.name ? `<a href="/entreprise-profil.html?id=${job.companies.id}" style="color:inherit;text-decoration:none;">${job.companies.name}</a>` : 'Entreprise'} — ${job.city ?? ''}</p>
             <div class="detail-meta">
               <span class="tag">${job.city ?? ''}</span>
-              <span class="tag">${job.contract_type ?? ''}</span>
+              <span class="tag" style="${job.contract_type === 'Stage' ? 'background:rgba(124,58,237,.1);color:#7C3AED;border:1px solid rgba(124,58,237,.25);' : ''}">${job.contract_type ?? ''}</span>
               <span class="tag tag-accent">${job.sector ?? ''}</span>
+              ${job.contract_type === 'Stage' && job.stage_profil_cible ? `<span class="tag" style="background:rgba(124,58,237,.06);color:#7C3AED;border:1px solid rgba(124,58,237,.2);">${job.stage_profil_cible}</span>` : ''}
+              ${job.contract_type === 'Stage' && job.stage_duree ? `<span class="tag">📅 ${job.stage_duree}</span>` : ''}
               ${job.score ? `<span class="badge badge-score">Score IA ${job.score}%</span>` : ''}
               ${badgeNouveau.isNew(job.created_at) ? '<span class="badge badge-new">Nouveau</span>' : ''}
               ${job.diaspora_friendly ? `<span class="tag" style="background:rgba(139,69,19,.08);color:var(--accent);border:1px solid rgba(139,69,19,.2);">Diaspora bienvenue</span>` : ''}
@@ -291,17 +293,36 @@
             </div>
             <div class="sidebar-info-row">
               <span class="sidebar-info-label">Contrat</span>
-              <span class="sidebar-info-val">${job.contract_type ?? '—'}</span>
+              <span class="sidebar-info-val" style="${job.contract_type === 'Stage' ? 'color:#7C3AED;font-weight:600;' : ''}">${job.contract_type ?? '—'}</span>
             </div>
             <div class="sidebar-info-row">
               <span class="sidebar-info-label">Secteur</span>
               <span class="sidebar-info-val">${job.sector ?? '—'}</span>
             </div>
+            ${job.contract_type === 'Stage' ? `
+            ${job.stage_duree ? `
+            <div class="sidebar-info-row">
+              <span class="sidebar-info-label">Durée</span>
+              <span class="sidebar-info-val">${job.stage_duree}</span>
+            </div>` : ''}
+            <div class="sidebar-info-row">
+              <span class="sidebar-info-label">Gratification</span>
+              <span class="sidebar-info-val">${job.stage_gratification
+                ? (job.stage_gratification_montant ? `${job.stage_gratification_montant.toLocaleString('fr-FR')} FCFA / mois` : 'Rémunéré')
+                : 'Non rémunéré'}</span>
+            </div>
+            ${job.stage_profil_cible ? `
+            <div class="sidebar-info-row">
+              <span class="sidebar-info-label">Profil ciblé</span>
+              <span class="sidebar-info-val" style="background:rgba(124,58,237,.1);color:#7C3AED;padding:2px 8px;border-radius:20px;font-size:11px;">${job.stage_profil_cible}</span>
+            </div>` : ''}
+            ` : `
             ${job.salary_min ? `
             <div class="sidebar-info-row">
               <span class="sidebar-info-label">Rémunération</span>
               <div style="margin-top:4px;">${window.Devises ? Devises.renderTriple(job.salary_min, job.salary_max||null, 'FCFA', 'mois') : `${job.salary_min.toLocaleString('fr-FR')} FCFA / mois`}</div>
             </div>` : ''}
+            `}
           </div>
         </div>
       </div>
