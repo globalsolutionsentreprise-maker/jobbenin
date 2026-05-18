@@ -190,7 +190,7 @@
     const { data: reviews } = await sb.from('company_reviews')
       .select('rating, title, comment, is_anonymous, is_verified, created_at')
       .eq('company_id', company.id)
-      .eq('status', 'approved')
+      .eq('status', 'published')
       .order('created_at', { ascending: false })
       .limit(10);
 
@@ -307,7 +307,7 @@
       return;
     }
     const { data: userProfile } = await sb.from('users').select('role').eq('id', session.user.id).maybeSingle();
-    if (userProfile?.role !== 'candidat') return;
+    if (userProfile?.role !== 'candidate') return;
 
     const { data: existing } = await sb.from('company_reviews')
       .select('id').eq('company_id', companyId).eq('candidate_id', session.user.id).maybeSingle();
