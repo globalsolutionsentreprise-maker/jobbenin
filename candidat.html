@@ -1186,10 +1186,10 @@
     async function prefillFromAlerts(session) {
       if (!session) return;
       try {
-        const { data: alerts } = await sb.from('alerts').select('secteur, ville').eq('user_id', session.user.id);
+        const { data: alerts } = await sb.from('alerts').select('sector, city').eq('user_id', session.user.id);
         if (!alerts?.length) return;
-        const secteurs = [...new Set(alerts.map(a => a.secteur).filter(Boolean))];
-        const villes   = [...new Set(alerts.map(a => a.ville).filter(Boolean))];
+        const secteurs = [...new Set(alerts.map(a => a.sector).filter(Boolean))];
+        const villes   = [...new Set(alerts.map(a => a.city).filter(Boolean))];
         document.querySelectorAll('#wa-secteurs .wa-check-btn').forEach(b => { if (secteurs.includes(b.dataset.val)) b.classList.add('selected'); });
         document.querySelectorAll('#wa-villes .wa-check-btn').forEach(b => { if (villes.includes(b.dataset.val)) b.classList.add('selected'); });
       } catch {}
