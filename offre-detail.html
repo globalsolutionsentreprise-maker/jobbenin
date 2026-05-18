@@ -231,6 +231,7 @@
 
   const jobId = new URLSearchParams(location.search).get('id');
   if (!jobId) window.location.href = '/offres.html';
+  let currentJob = null;
 
   async function chargerOffre() {
     const [{ data: job }, { data: { session } }] = await Promise.all([
@@ -242,6 +243,7 @@
     ]);
 
     if (!job) { window.location.href = '/offres.html'; return; }
+    currentJob = job;
 
     // Incrémenter le compteur de vues (fire-and-forget)
     sb.rpc('increment_job_view', { job_id: jobId }).then(null, () =>
@@ -381,7 +383,7 @@
     `;
 
     // Initialiser le bouton postuler
-    candidature?.initPostulerBtn?.(sb, jobId, 'postuler-zone');
+    candidature?.initPostulerBtn?.(sb, jobId, 'postuler-zone', { contractType: job.contract_type });
 
     // Initialiser le générateur de lettre
     initLettreZone(job);
@@ -767,7 +769,7 @@
     const lettre = document.getElementById('lettre-textarea')?.value?.trim();
     if (!lettre) return;
     // Réinitialise le bouton postuler avec la lettre incluse, puis clique
-    await candidature?.initPostulerBtn?.(sb, jobId, 'postuler-zone', { message: lettre });
+    await candidature?.initPostulerBtn?.(sb, jobId, 'postuler-zone', { message: lettre, contractType: currentJob?.contract_type });
     document.getElementById('btn-postuler-1clic')?.click();
   }
 

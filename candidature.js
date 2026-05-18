@@ -297,8 +297,9 @@ async function initPostulerBtn(supabase, jobId, containerId, opts = {}) {
     return;
   }
 
-  // ── Crédits candidat (actif après la bêta) ───────────────
-  if (!BETA_FREE_APPLY) {
+  // ── Crédits candidat (actif après la bêta, sauf pour les stages) ──────
+  const isStageOffer = opts.contractType === 'Stage';
+  if (!BETA_FREE_APPLY && !isStageOffer) {
     const { data: creditData } = await supabase
       .from('users').select('credits').eq('id', user.id).single();
     const credits = creditData?.credits ?? 0;
@@ -309,13 +310,13 @@ async function initPostulerBtn(supabase, jobId, containerId, opts = {}) {
   }
 
   // ── Prêt à postuler ───────────────────────────────────────
-  container.innerHTML = _btnHtml('ready');
+  container.innerHTML = _btnHtml('ready', '', isStageOffer);
   container.querySelector('#btn-postuler-1clic')?.addEventListener('click', () =>
     _soumettreCandidature(supabase, user, jobId, profileRes.data.cv_path, container, opts.message),
   );
 }
 
-function _btnHtml(state, jobId = '') {
+function _btnHtml(state, jobId = '', isStage = false) {
   switch (state) {
     case 'login':
       return `<a href="${SITE_URL}/connexion.html?next=/offre-detail.html?id=${jobId}"
@@ -336,7 +337,8 @@ function _btnHtml(state, jobId = '') {
     case 'ready':
       return `<button id="btn-postuler-1clic" type="button" style="${_btnStyle('#16a34a')}">
                 ⚡ Postuler en 1 clic
-              </button>`;
+              </button>
+              ${isStage ? `<p style="margin:6px 0 0 0;font-size:11px;color:#7C3AED;font-weight:500;">🎓 Stage — Postulation gratuite</p>` : ''}`;
     case 'sending':
       return `<button disabled type="button" style="${_btnStyle('#16a34a')}opacity:0.7;">
                 ⏳ Envoi en cours…
