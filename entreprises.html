@@ -427,8 +427,8 @@
   }
 
   async function exportCandidaturesCSV() {
-    if (!_session) return;
-    const companyId = _session.user.id;
+    if (!_session || !_companyId) return;
+    const companyId = _companyId;
     // 1. Récupérer tous les jobs de cette entreprise
     const { data: jobs } = await sb.from('jobs').select('id, title').eq('company_id', companyId);
     if (!jobs?.length) { alert('Aucune offre trouvée.'); return; }
@@ -436,7 +436,7 @@
     const jobMap = Object.fromEntries(jobs.map(j => [j.id, j.title]));
     // 2. Récupérer toutes les candidatures avec info candidat
     const { data: apps } = await sb.from('applications')
-      .select('id, job_id, statut, created_at, cv_path, users(prenom, nom, email, telephone, city)')
+      .select('id, job_id, statut, created_at, cv_path, users(first_name, last_name, full_name, email, telephone, city)')
       .in('job_id', jobIds)
       .order('created_at', { ascending: false });
     if (!apps?.length) { alert('Aucune candidature à exporter.'); return; }
@@ -444,7 +444,7 @@
     const header = ['Offre', 'Candidat', 'Email', 'Téléphone', 'Ville', 'Statut', 'Date candidature', 'CV'];
     const rows = apps.map(a => {
       const u = a.users ?? {};
-      const nom = [u.prenom, u.nom].filter(Boolean).join(' ') || '—';
+      const nom = u.full_name || [u.first_name, u.last_name].filter(Boolean).join(' ') || '—';
       const date = new Date(a.created_at).toLocaleDateString('fr-FR');
       return [
         jobMap[a.job_id] ?? a.job_id,
