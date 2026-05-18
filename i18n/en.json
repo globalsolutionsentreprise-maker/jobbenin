@@ -210,6 +210,9 @@
   "reg.btn": "Create my account",
   "reg.already": "Already have an account?",
   "reg.login": "Sign in",
+  "reg.linkedin.opt": "(optional)",
+  "reg.linkedin.ph": "https://linkedin.com/in/your-profile",
+  "reg.linkedin.hint": "Visible only to recruiters who view your profile",
 
   "react.title": "Reactivate my account — Talenco.bj",
   "react.h1": "Reactivate my account",
