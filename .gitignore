@@ -1,5 +1,9 @@
 .vercel
 .env*.local
+.env.production
+.env.test
+.env.vercel
 .gstack/
 node_modules/
 dist/
+supabase/.temp/
