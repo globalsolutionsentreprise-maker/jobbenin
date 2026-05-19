@@ -657,6 +657,7 @@ async function handleOffrePage(req, res) {
       salary_min, salary_max, salary_visible, salary_currency, salary_period,
       city, contract_type, experience_required, education_required,
       work_mode, sector, published_at, expires_at, created_at,
+      stage_duree, stage_gratification, stage_gratification_montant, stage_profil_cible,
       companies ( name, logo_url, website, description, sector, city, is_verified, avg_rating, review_count ),
       apply_count
     `)
@@ -794,11 +795,12 @@ hr.sep{border:none;border-top:1px solid #EDE8E0;margin:2rem 0}
     <h1>${esc(job.title)}</h1>
     <div class="tags">
       ${job.city ? `<span class="tag">📍 ${esc(job.city)}</span>` : ''}
-      ${job.contract_type ? `<span class="tag">📄 ${esc(job.contract_type)}</span>` : ''}
+      ${job.contract_type === 'Stage' ? `<span class="tag" style="background:rgba(124,58,237,.1);border-color:#7C3AED;color:#7C3AED;font-weight:600;">📄 STAGE</span>` : job.contract_type ? `<span class="tag">📄 ${esc(job.contract_type)}</span>` : ''}
       ${job.work_mode ? `<span class="tag">🏠 ${esc(job.work_mode)}</span>` : ''}
+      ${job.contract_type === 'Stage' && job.stage_duree ? `<span class="tag" style="background:rgba(124,58,237,.07);border-color:#7C3AED;color:#7C3AED;">📅 ${esc(job.stage_duree)}</span>` : ''}
       ${job.experience_required ? `<span class="tag">⏱ ${esc(job.experience_required)}</span>` : ''}
       ${job.sector ? `<span class="tag">🏷 ${esc(job.sector)}</span>` : ''}
-      ${salaireHtml ? `<span class="tag salary">💰 ${esc(salaireHtml)}</span>` : job.salary_visible === false ? `<span class="tag" style="color:var(--text-muted);font-style:italic;">Salaire non communiqué</span>` : ''}
+      ${job.contract_type === 'Stage' && job.stage_gratification ? `<span class="tag salary">💶 ${job.stage_gratification_montant ? job.stage_gratification_montant.toLocaleString('fr-FR') + ' FCFA/mois' : 'Rémunéré'}</span>` : salaireHtml ? `<span class="tag salary">💰 ${esc(salaireHtml)}</span>` : job.salary_visible === false ? `<span class="tag" style="color:var(--text-muted);font-style:italic;">Salaire non communiqué</span>` : ''}
     </div>
   </div>
 
@@ -811,6 +813,7 @@ hr.sep{border:none;border-top:1px solid #EDE8E0;margin:2rem 0}
   ${job.requirements ? `<hr class="sep"><div class="section-title">Profil recherché</div><div class="prose">${esc(job.requirements)}</div>` : ''}
   ${job.benefits ? `<hr class="sep"><div class="section-title">Avantages</div><div class="prose">${esc(job.benefits)}</div>` : ''}
   ${job.education_required ? `<hr class="sep"><div class="section-title">Formation requise</div><div class="prose">${esc(job.education_required)}</div>` : ''}
+  ${job.contract_type === 'Stage' ? `<hr class="sep"><div class="section-title" style="color:#7C3AED;">Conditions du stage</div><div style="display:flex;flex-wrap:wrap;gap:1rem;margin-top:.5rem">${job.stage_duree ? `<div style="background:rgba(124,58,237,.07);border:1px solid rgba(124,58,237,.2);border-radius:10px;padding:.75rem 1.25rem;min-width:130px"><div style="font-size:.68rem;font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.08em;color:#7C3AED;margin-bottom:.3rem">Durée</div><div style="font-weight:600;color:#4a3d2e">${esc(job.stage_duree)}</div></div>` : ''}<div style="background:rgba(124,58,237,.07);border:1px solid rgba(124,58,237,.2);border-radius:10px;padding:.75rem 1.25rem;min-width:130px"><div style="font-size:.68rem;font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.08em;color:#7C3AED;margin-bottom:.3rem">Gratification</div><div style="font-weight:600;color:#4a3d2e">${job.stage_gratification ? (job.stage_gratification_montant ? job.stage_gratification_montant.toLocaleString('fr-FR') + ' FCFA / mois' : 'Rémunéré') : 'Non rémunéré'}</div></div>${job.stage_profil_cible ? `<div style="background:rgba(124,58,237,.07);border:1px solid rgba(124,58,237,.2);border-radius:10px;padding:.75rem 1.25rem;min-width:130px"><div style="font-size:.68rem;font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.08em;color:#7C3AED;margin-bottom:.3rem">Profil ciblé</div><div style="font-weight:600;color:#4a3d2e">${esc(job.stage_profil_cible)}</div></div>` : ''}</div>` : ''}
 
   <hr class="sep">
   <div style="text-align:center;padding:1.5rem 0">
