@@ -147,6 +147,7 @@
       <button class="side-link" onclick="showTab('offres',this)"><span data-icon="briefcase" data-size="14"></span> Offres</button>
       <button class="side-link" onclick="showTab('candidatures',this)"><span data-icon="file_text" data-size="14"></span> Candidatures</button>
       <button class="side-link" onclick="showTab('news',this)"><span data-icon="newspaper" data-size="14"></span> Actualités</button>
+      <button class="side-link" onclick="showTab('avis',this)"><span data-icon="star" data-size="14"></span> Avis entreprises <span class="badge-count" id="badge-avis" style="display:none;background:#b91c1c;color:#fff;">0</span></button>
 
       <div class="side-label">Utilisateurs</div>
       <button class="side-link" onclick="showTab('candidats',this)"><span data-icon="user" data-size="14"></span> Candidats <span class="badge-count" id="badge-cands">0</span></button>
@@ -180,10 +181,11 @@
           <div class="stat-box"><div class="stat-num" id="s-apps">—</div><div class="stat-label">Candidatures</div></div>
           <div class="stat-box"><div class="stat-num" id="s-wa">—</div><div class="stat-label">Numéros WhatsApp</div></div>
         </div>
-        <div class="stats-row" style="grid-template-columns:repeat(3,1fr);">
+        <div class="stats-row" style="grid-template-columns:repeat(4,1fr);">
           <div class="stat-box"><div class="stat-num" id="s-companies">—</div><div class="stat-label">Entreprises</div></div>
           <div class="stat-box"><div class="stat-num" id="s-pending">—</div><div class="stat-label">Offres en attente</div></div>
           <div class="stat-box"><div class="stat-num" id="s-news">—</div><div class="stat-label">Actualités publiées</div></div>
+          <div class="stat-box"><div class="stat-num" id="s-stages">—</div><div class="stat-label">Stages publiés</div></div>
         </div>
         <h3 style="font-family:'Instrument Serif',serif;font-style:italic;margin:0 0 12px;">Dernières inscriptions</h3>
         <div id="recent-users" class="table-wrap"></div>
@@ -216,6 +218,13 @@
       <div id="tab-news" class="tab-section">
         <h2 class="section-title">Actualités entreprises</h2>
         <div id="news-list" class="table-wrap"></div>
+      </div>
+
+      <!-- ── AVIS ENTREPRISES ── -->
+      <div id="tab-avis" class="tab-section">
+        <h2 class="section-title">Avis sur les entreprises</h2>
+        <p style="color:var(--text-muted);font-size:13px;margin-bottom:16px;">Modérez les avis laissés par les candidats. Seuls les avis publiés apparaissent sur les profils entreprise.</p>
+        <div id="avis-list" class="table-wrap"></div>
       </div>
 
       <!-- ── USERS ── -->
@@ -470,6 +479,7 @@ function showTab(id, btn) {
   if (id === 'moderation') chargerModeration();
   if (id === 'companies' && !allCompanies.length) chargerCompanies();
   if (id === 'news') chargerNews();
+  if (id === 'avis') chargerAvis();
   if (id === 'certifications') chargerCertifications();
   if (id === 'verif-companies') chargerVerifCompanies();
   if (id === 'whatsapp') chargerWAUsers();
@@ -499,7 +509,8 @@ sb.auth.getSession().then(async ({ data: { session } }) => {
 async function chargerStats() {
   const [
     { count: nbOffres }, { count: nbUsers }, { count: nbApps },
-    { count: nbWa }, { count: nbCompanies }, { count: nbPending }, { count: nbNews }, { count: nbCertif }, { count: nbCandidats }
+    { count: nbWa }, { count: nbCompanies }, { count: nbPending }, { count: nbNews }, { count: nbCertif }, { count: nbCandidats },
+    { count: nbStages }, { count: nbAvis }
   ] = await Promise.all([
     sb.from('jobs').select('*',{count:'exact',head:true}).eq('status','published'),
     sb.from('users').select('*',{count:'exact',head:true}),
@@ -510,6 +521,8 @@ async function chargerStats() {
     sb.from('company_news').select('*',{count:'exact',head:true}).eq('status','published'),
     sb.from('certification_requests').select('*',{count:'exact',head:true}).eq('status','pending'),
     sb.from('users').select('*',{count:'exact',head:true}).eq('role','candidate'),
+    sb.from('jobs').select('*',{count:'exact',head:true}).eq('contract_type','Stage').eq('status','published'),
+    sb.from('company_reviews').select('*',{count:'exact',head:true}).eq('status','pending'),
   ]);
   document.getElementById('s-offres').textContent = nbOffres ?? 0;
   document.getElementById('s-users').textContent = nbUsers ?? 0;
@@ -518,9 +531,12 @@ async function chargerStats() {
   document.getElementById('s-companies').textContent = nbCompanies ?? 0;
   document.getElementById('s-pending').textContent = nbPending ?? 0;
   document.getElementById('s-news').textContent = nbNews ?? 0;
+  document.getElementById('s-stages').textContent = nbStages ?? 0;
   document.getElementById('badge-mod').textContent = nbPending ?? 0;
   document.getElementById('badge-certif').textContent = nbCertif ?? 0;
   document.getElementById('badge-cands').textContent = nbCandidats ?? 0;
+  const badgeAvis = document.getElementById('badge-avis');
+  if (badgeAvis) { badgeAvis.textContent = nbAvis ?? 0; badgeAvis.style.display = (nbAvis ?? 0) > 0 ? 'inline-flex' : 'none'; }
 
   // Dernières inscriptions
   const { data: recentUsers } = await sb.from('users').select('id,email,full_name,role,created_at').order('created_at',{ascending:false}).limit(5);
@@ -540,15 +556,15 @@ async function chargerStats() {
 
 // ── MODERATION ────────────────────────────────────────────
 async function chargerModeration() {
-  const { data: offres } = await sb.from('jobs').select('id,title,city,sector,score,created_at').eq('status','pending').order('created_at',{ascending:false});
+  const { data: offres } = await sb.from('jobs').select('id,title,city,sector,score,created_at,contract_type,stage_duree,stage_gratification').eq('status','pending').order('created_at',{ascending:false});
   const el = document.getElementById('mod-list');
   if (!offres?.length) { el.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-muted);font-size:13px;">✅ Aucune offre en attente de modération.</div>'; return; }
   el.innerHTML = `<div class="table-head" style="grid-template-columns:1fr auto auto auto auto;display:grid;">
     <span>Offre</span><span>Ville</span><span>Score IA</span><span>Date</span><span>Actions</span>
   </div>` + offres.map(o => `
     <div class="table-row" style="grid-template-columns:1fr auto auto auto auto;">
-      <div style="font-weight:500;">${o.title}</div>
-      <span style="font-size:12px;color:var(--text-muted);">${o.city||'—'}</span>
+      <div style="font-weight:500;">${o.title}${o.contract_type==='Stage'?'<span style="margin-left:6px;font-size:9px;background:rgba(124,58,237,.1);color:#7C3AED;border:1px solid rgba(124,58,237,.2);padding:1px 6px;border-radius:10px;">STAGE</span>':''}</div>
+      <span style="font-size:12px;color:var(--text-muted);">${o.city||'—'}${o.contract_type==='Stage'&&o.stage_duree?'<br><span style="font-size:10px;color:#7C3AED;">📅 '+o.stage_duree+(o.stage_gratification?' · Rémunéré':' · Non rémunéré')+'</span>':''}</span>
       <span class="badge b-pending">Score ${o.score||0}</span>
       <span style="font-size:11px;color:var(--text-muted);">${new Date(o.created_at).toLocaleDateString('fr-FR')}</span>
       <div style="display:flex;gap:6px;">
@@ -563,7 +579,7 @@ let offreStats = {};
 
 async function chargerOffres() {
   const [{ data: offresData }, { data: statsData }] = await Promise.all([
-    sb.from('jobs').select('id,title,city,sector,contract_type,status,score,created_at,view_count,time_type,work_mode').order('created_at',{ascending:false}),
+    sb.from('jobs').select('id,title,city,sector,contract_type,status,score,created_at,view_count,time_type,work_mode,stage_duree,stage_gratification,stage_gratification_montant').order('created_at',{ascending:false}),
     sb.from('applications').select('job_id, statut'),
   ]);
   allOffres = offresData || [];
@@ -589,8 +605,8 @@ function afficherOffres(offres) {
     return `
     <div class="table-row" style="grid-template-columns:1fr auto auto auto auto auto;" id="row-offre-${o.id}">
       <div>
-        <div style="font-weight:500;font-size:13px;">${o.title}</div>
-        <div style="font-size:10px;color:var(--text-muted);">${o.sector||''} · ${o.contract_type||''}${o.time_type?' · '+o.time_type:''}${o.work_mode?' · '+o.work_mode:''}</div>
+        <div style="font-weight:500;font-size:13px;">${o.title}${o.contract_type==='Stage'?'<span style="margin-left:6px;font-size:9px;background:rgba(124,58,237,.1);color:#7C3AED;border:1px solid rgba(124,58,237,.2);padding:1px 6px;border-radius:10px;font-weight:600;">STAGE</span>':''}</div>
+        <div style="font-size:10px;color:var(--text-muted);">${o.sector||''} · ${o.contract_type||''}${o.time_type?' · '+o.time_type:''}${o.work_mode?' · '+o.work_mode:''}${o.contract_type==='Stage'&&o.stage_duree?' · 📅 '+o.stage_duree+(o.stage_gratification?(o.stage_gratification_montant?' · '+o.stage_gratification_montant.toLocaleString('fr-FR')+' FCFA/mois':' · Rémunéré'):' · Non rémunéré'):''}</div>
       </div>
       <span style="font-size:12px;">${o.city||'—'}</span>
       <div style="font-size:11px;line-height:1.5;text-align:right;">
@@ -1530,6 +1546,73 @@ async function envoyerDigest() {
     btn.disabled = false;
     btn.textContent = '📬 Envoyer le digest maintenant';
   }
+}
+
+// ── AVIS ENTREPRISES ──────────────────────────────────────────
+async function chargerAvis() {
+  const el = document.getElementById('avis-list');
+  el.innerHTML = '<div style="padding:16px;color:var(--text-muted);font-size:13px;">Chargement…</div>';
+
+  const { data: reviews, error } = await sb.from('company_reviews')
+    .select('id,status,rating,title,comment,is_anonymous,created_at,company_id,candidate_id')
+    .order('created_at', { ascending: false })
+    .limit(60);
+
+  if (error) { el.innerHTML = `<div style="padding:16px;color:#b91c1c;font-size:13px;">Erreur : ${error.message}</div>`; return; }
+  if (!reviews?.length) { el.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-muted);font-size:13px;">✅ Aucun avis à modérer.</div>'; return; }
+
+  const allIds = [...new Set([...reviews.map(r => r.candidate_id), ...reviews.map(r => r.company_id)].filter(Boolean))];
+  const { data: usersData } = await sb.from('users').select('id,full_name,email,company_name,role').in('id', allIds);
+  const usersMap = {};
+  (usersData || []).forEach(u => { usersMap[u.id] = u; });
+
+  const statusLabel = { pending: '⏳ En attente', published: '✅ Publié', hidden: '🙈 Masqué', flagged: '🚩 Signalé' };
+  const statusBadge = { pending: 'b-pending', published: 'b-published', hidden: 'b-inactive', flagged: 'b-rejected' };
+
+  el.innerHTML = `<div class="table-head" style="grid-template-columns:1fr auto auto auto;display:grid;">
+    <span>Avis</span><span>Note</span><span>Statut</span><span>Actions</span>
+  </div>` + reviews.map(a => {
+    const reviewer = a.is_anonymous ? 'Anonyme' : (usersMap[a.candidate_id]?.full_name || usersMap[a.candidate_id]?.email || '—');
+    const company = usersMap[a.company_id]?.company_name || usersMap[a.company_id]?.full_name || '—';
+    const stars = '★'.repeat(a.rating || 0) + '☆'.repeat(5 - (a.rating || 0));
+    const bodyText = a.comment || '';
+    return `<div class="table-row" style="grid-template-columns:1fr auto auto auto;" id="avis-row-${a.id}">
+      <div>
+        <div style="font-weight:500;font-size:13px;">${a.title || '(sans titre)'}</div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">${reviewer} → ${company}</div>
+        ${bodyText ? `<div style="font-size:12px;color:var(--text-mid);margin-top:4px;font-style:italic;">"${bodyText.length > 120 ? bodyText.substring(0, 120) + '…' : bodyText}"</div>` : ''}
+        <div style="font-size:10px;color:var(--text-muted);margin-top:3px;">${new Date(a.created_at).toLocaleDateString('fr-FR')}</div>
+      </div>
+      <span style="color:#f59e0b;font-size:13px;white-space:nowrap;">${stars}</span>
+      <span class="badge ${statusBadge[a.status] || 'b-pending'}">${statusLabel[a.status] || a.status}</span>
+      <div style="display:flex;flex-direction:column;gap:5px;">
+        ${a.status !== 'published' ? `<button class="btn-action btn-publish" onclick="publierAvis('${a.id}')">✓ Publier</button>` : ''}
+        ${a.status !== 'hidden' ? `<button class="btn-action btn-reject" onclick="masquerAvis('${a.id}')">🙈 Masquer</button>` : ''}
+        <button class="btn-action btn-delete" onclick="supprimerAvis('${a.id}')">🗑</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function publierAvis(id) {
+  const { error } = await sb.from('company_reviews').update({ status: 'published' }).eq('id', id);
+  if (error) { toast('Erreur : ' + error.message, false); return; }
+  toast('✅ Avis publié');
+  chargerAvis(); chargerStats();
+}
+
+async function masquerAvis(id) {
+  const { error } = await sb.from('company_reviews').update({ status: 'hidden' }).eq('id', id);
+  if (error) { toast('Erreur : ' + error.message, false); return; }
+  toast('🙈 Avis masqué');
+  chargerAvis(); chargerStats();
+}
+
+async function supprimerAvis(id) {
+  if (!confirm('Supprimer définitivement cet avis ?')) return;
+  await sb.from('company_reviews').delete().eq('id', id);
+  toast('🗑 Avis supprimé');
+  chargerAvis(); chargerStats();
 }
 
 // ── CRÉDITS DE BIENVENUE ──────────────────────────────────────
