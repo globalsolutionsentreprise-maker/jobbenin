@@ -772,6 +772,13 @@ h1{font-family:'Instrument Serif',serif;font-style:italic;font-size:clamp(1.6rem
 .section-title{font-family:'DM Mono',monospace;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:#9a8e80;margin-bottom:.75rem;margin-top:1.75rem}
 .prose{font-size:.93rem;line-height:1.78;color:#2a2018;white-space:pre-wrap}
 hr.sep{border:none;border-top:1px solid #EDE8E0;margin:2rem 0}
+.share-bar{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;margin-bottom:1.5rem}
+.share-label{font-family:'DM Mono',monospace;font-size:.68rem;text-transform:uppercase;letter-spacing:.1em;color:#9a8e80;margin-right:.25rem}
+.share-btn{display:inline-flex;align-items:center;gap:.35rem;padding:.3rem .75rem;border-radius:100px;font-family:'DM Mono',monospace;font-size:.7rem;font-weight:600;text-decoration:none;border:1px solid transparent;cursor:pointer;transition:opacity .15s;white-space:nowrap}
+.share-btn:hover{opacity:.8}
+.share-btn-wa{background:#25D366;color:#fff}
+.share-btn-li{background:#0A66C2;color:#fff}
+.share-btn-copy{background:#fff;color:#4a3d2e;border-color:#EDE8E0}
 </style>
 </head>
 <body>
@@ -802,6 +809,19 @@ hr.sep{border:none;border-top:1px solid #EDE8E0;margin:2rem 0}
       ${job.sector ? `<span class="tag">🏷 ${esc(job.sector)}</span>` : ''}
       ${job.contract_type === 'Stage' && job.stage_gratification ? `<span class="tag salary">💶 ${job.stage_gratification_montant ? job.stage_gratification_montant.toLocaleString('fr-FR') + ' FCFA/mois' : 'Rémunéré'}</span>` : salaireHtml ? `<span class="tag salary">💰 ${esc(salaireHtml)}</span>` : job.salary_visible === false ? `<span class="tag" style="color:var(--text-muted);font-style:italic;">Salaire non communiqué</span>` : ''}
     </div>
+  </div>
+
+  <div class="share-bar">
+    <span class="share-label">Partager</span>
+    <a href="https://wa.me/?text=${encodeURIComponent(`🎯 Offre : ${job.title}\n🏢 ${nom} — ${job.city || ''}\n📋 ${job.contract_type || ''}\n\nPostulez sur Talenco.bj :\n${canonical}`)}" target="_blank" rel="noopener" class="share-btn share-btn-wa">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.109.549 4.09 1.512 5.812L0 24l6.374-1.481A11.953 11.953 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.817 9.817 0 01-5.003-1.372l-.36-.213-3.727.977.994-3.634-.234-.374A9.786 9.786 0 012.182 12C2.182 6.57 6.57 2.182 12 2.182S21.818 6.57 21.818 12 17.43 21.818 12 21.818z"/></svg>
+      WhatsApp
+    </a>
+    <a href="https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(canonical)}" target="_blank" rel="noopener" class="share-btn share-btn-li">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+      LinkedIn
+    </a>
+    <button onclick="navigator.clipboard.writeText('${canonical}').then(()=>{this.textContent='✓ Copié !';setTimeout(()=>this.textContent='Copier le lien',2000)})" class="share-btn share-btn-copy">Copier le lien</button>
   </div>
 
   <div class="apply-bar">
