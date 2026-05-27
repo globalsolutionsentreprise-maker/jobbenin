@@ -76,6 +76,20 @@
     .lightbox.open { display: flex; }
     .lightbox img { max-width: 90vw; max-height: 90vh; border-radius: 8px; object-fit: contain; }
     .lightbox-close { position: fixed; top: 20px; right: 24px; color: #fff; font-size: 28px; cursor: pointer; background: none; border: none; line-height: 1; }
+
+    /* ── Modal édition profil ── */
+    .edit-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 1000; display: none; align-items: flex-start; justify-content: center; padding: 24px 16px; overflow-y: auto; }
+    .edit-overlay.open { display: flex; }
+    .edit-modal { background: var(--bg-card); border-radius: var(--radius-md); border: 1px solid var(--border); width: 100%; max-width: 580px; padding: 28px; margin: auto; }
+    .edit-field { margin-bottom: 16px; }
+    .edit-label { font-family: var(--font-mono); font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--text-muted); margin-bottom: 6px; display: block; }
+    .edit-input { width: 100%; padding: 9px 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 13px; background: var(--bg-soft); font-family: var(--font-body); box-sizing: border-box; }
+    .edit-input:focus { outline: none; border-color: var(--accent); }
+    .edit-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    @media (max-width: 500px) { .edit-grid2 { grid-template-columns: 1fr; } }
+
+    /* ── Bannière complétion profil ── */
+    .profil-incomplete-banner { background: #fef3c7; border: 1px solid #fde68a; border-radius: var(--radius-md); padding: 14px 18px; display: flex; align-items: center; gap: 12px; margin: 20px 24px 0; max-width: 1140px; margin-left: auto; margin-right: auto; }
   </style>
 </head>
 <body>
@@ -168,6 +182,26 @@
 
       const { data } = await sb.from('companies').select('*').eq('owner_id', session.user.id).maybeSingle();
       company = data;
+
+      // Aucun profil companies → auto-création depuis les données users
+      if (!company) {
+        const { data: u } = await sb.from('users')
+          .select('company_name, company_sector, company_size, city, telephone, email')
+          .eq('id', session.user.id).maybeSingle();
+        const slug = ((u?.company_name || 'entreprise') + '-' + Date.now())
+          .toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+        const { data: created } = await sb.from('companies').insert({
+          owner_id: session.user.id,
+          name: u?.company_name || 'Mon entreprise',
+          sector: u?.company_sector || null,
+          size: u?.company_size || null,
+          city: u?.city || null,
+          phone: u?.telephone || null,
+          email: session.user.email || null,
+          slug
+        }).select().single();
+        company = created;
+      }
     } else {
       // Vue publique — companyId peut être l'ID owner (user) ou l'ID company directement
       const { data: byOwner } = await sb.from('companies').select('*').eq('owner_id', companyId).maybeSingle();
@@ -180,6 +214,8 @@
     }
 
     if (!company) { document.getElementById('profil-main').innerHTML = '<div style="text-align:center;padding:80px;"><p class="text-muted">Profil introuvable.</p></div>'; return; }
+
+    window._company = company;
 
     document.title = `${company.name ?? 'Entreprise'} — Talenco.bj`;
 
@@ -223,9 +259,27 @@
             </div>
             ${company.avg_rating ? `<div class="company-avg-stars">${'★'.repeat(Math.round(company.avg_rating))}${'☆'.repeat(5-Math.round(company.avg_rating))} <span style="font-size:11px;color:var(--text-muted);font-family:var(--font-mono);">${Number(company.avg_rating).toFixed(1)}/5 · ${company.review_count} avis</span></div>` : ''}
           </div>
-          ${isOwner ? `<a href="/ajouter-offre.html" class="btn btn-primary">+ Publier une offre</a>` : ''}
+          ${isOwner ? `
+            <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end;flex-shrink:0;">
+              <a href="/ajouter-offre.html" class="btn btn-primary btn-sm">+ Publier une offre</a>
+              <button onclick="ouvrirEditModal()" class="btn btn-sm" style="border:1px solid var(--border);background:var(--bg-card);">Modifier le profil</button>
+            </div>
+          ` : ''}
         </div>
       </div>
+
+      ${isOwner && !company.description ? `
+        <div style="max-width:1140px;margin:16px auto 0;padding:0 24px;">
+          <div class="profil-incomplete-banner">
+            <span style="font-size:20px;">📝</span>
+            <div style="flex:1;">
+              <strong style="font-size:13px;">Complétez votre profil</strong>
+              <p style="font-size:12px;color:var(--text-muted);margin:2px 0 0;">Ajoutez une description, vos réseaux et des photos pour attirer plus de candidats.</p>
+            </div>
+            <button onclick="ouvrirEditModal()" class="btn btn-dark btn-sm">Compléter</button>
+          </div>
+        </div>
+      ` : ''}
 
       <div class="profil-body">
         <div>
@@ -442,7 +496,138 @@
   }
 
   chargerProfil();
+
+  function ouvrirEditModal() {
+    const c = window._company;
+    if (!c) return;
+    document.getElementById('edit-name').value        = c.name || '';
+    document.getElementById('edit-description').value = c.description || '';
+    document.getElementById('edit-sector').value      = c.sector || '';
+    document.getElementById('edit-size').value        = c.size || '';
+    document.getElementById('edit-city').value        = c.city || '';
+    document.getElementById('edit-website').value     = c.website || '';
+    document.getElementById('edit-linkedin').value    = c.linkedin_url || '';
+    document.getElementById('edit-facebook').value    = c.facebook_url || '';
+    document.getElementById('edit-phone').value       = c.phone || '';
+    document.getElementById('edit-email').value       = c.email || '';
+    document.getElementById('edit-msg').textContent   = '';
+    document.getElementById('edit-overlay').classList.add('open');
+  }
+
+  function fermerEditModal() {
+    document.getElementById('edit-overlay').classList.remove('open');
+  }
+
+  async function sauvegarderProfil() {
+    const btn = document.getElementById('btn-save-profil');
+    const msg = document.getElementById('edit-msg');
+    btn.disabled    = true;
+    btn.textContent = 'Enregistrement…';
+
+    const updates = {
+      name:         document.getElementById('edit-name').value.trim() || 'Mon entreprise',
+      description:  document.getElementById('edit-description').value.trim() || null,
+      sector:       document.getElementById('edit-sector').value.trim() || null,
+      size:         document.getElementById('edit-size').value || null,
+      city:         document.getElementById('edit-city').value.trim() || null,
+      website:      document.getElementById('edit-website').value.trim() || null,
+      linkedin_url: document.getElementById('edit-linkedin').value.trim() || null,
+      facebook_url: document.getElementById('edit-facebook').value.trim() || null,
+      phone:        document.getElementById('edit-phone').value.trim() || null,
+      email:        document.getElementById('edit-email').value.trim() || null,
+      updated_at:   new Date().toISOString()
+    };
+
+    const { error } = await window._sbClient.from('companies').update(updates).eq('id', window._companyId);
+    btn.disabled    = false;
+    btn.textContent = 'Enregistrer';
+
+    if (error) {
+      msg.style.color = 'red';
+      msg.textContent = 'Erreur : ' + error.message;
+    } else {
+      window._company = { ...window._company, ...updates };
+      fermerEditModal();
+      chargerProfil();
+    }
+  }
 </script>
+
+<!-- Modal édition profil -->
+<div class="edit-overlay" id="edit-overlay" onclick="if(event.target===this)fermerEditModal()">
+  <div class="edit-modal">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:22px;">
+      <h3 style="font-family:var(--font-serif);font-style:italic;margin:0;font-size:20px;">Modifier le profil</h3>
+      <button onclick="fermerEditModal()" style="background:none;border:none;font-size:22px;cursor:pointer;color:var(--text-muted);line-height:1;">✕</button>
+    </div>
+
+    <div class="edit-field">
+      <label class="edit-label">Nom de l'entreprise</label>
+      <input class="edit-input" id="edit-name" type="text" placeholder="Ex : TechBénin SARL">
+    </div>
+
+    <div class="edit-field">
+      <label class="edit-label">Description / À propos</label>
+      <textarea class="edit-input" id="edit-description" rows="4" style="resize:vertical;" placeholder="Présentez votre entreprise, vos valeurs, votre activité…"></textarea>
+    </div>
+
+    <div class="edit-grid2">
+      <div class="edit-field">
+        <label class="edit-label">Secteur d'activité</label>
+        <input class="edit-input" id="edit-sector" type="text" placeholder="Ex : Technologie, BTP…">
+      </div>
+      <div class="edit-field">
+        <label class="edit-label">Taille de l'entreprise</label>
+        <select class="edit-input" id="edit-size">
+          <option value="">— Choisir —</option>
+          <option value="1-10">1–10 employés</option>
+          <option value="11-50">11–50 employés</option>
+          <option value="51-200">51–200 employés</option>
+          <option value="201-500">201–500 employés</option>
+          <option value="500+">500+ employés</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="edit-field">
+      <label class="edit-label">Ville</label>
+      <input class="edit-input" id="edit-city" type="text" placeholder="Ex : Cotonou">
+    </div>
+
+    <div class="edit-field">
+      <label class="edit-label">Site web</label>
+      <input class="edit-input" id="edit-website" type="url" placeholder="https://…">
+    </div>
+
+    <div class="edit-grid2">
+      <div class="edit-field">
+        <label class="edit-label">LinkedIn</label>
+        <input class="edit-input" id="edit-linkedin" type="url" placeholder="https://linkedin.com/company/…">
+      </div>
+      <div class="edit-field">
+        <label class="edit-label">Facebook</label>
+        <input class="edit-input" id="edit-facebook" type="url" placeholder="https://facebook.com/…">
+      </div>
+    </div>
+
+    <div class="edit-grid2">
+      <div class="edit-field">
+        <label class="edit-label">Téléphone</label>
+        <input class="edit-input" id="edit-phone" type="tel" placeholder="+229…">
+      </div>
+      <div class="edit-field">
+        <label class="edit-label">Email de contact</label>
+        <input class="edit-input" id="edit-email" type="email" placeholder="rh@entreprise.com">
+      </div>
+    </div>
+
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:8px;align-items:center;">
+      <p id="edit-msg" style="font-size:12px;margin:0;flex:1;"></p>
+      <button onclick="fermerEditModal()" class="btn btn-sm" style="border:1px solid var(--border);">Annuler</button>
+      <button onclick="sauvegarderProfil()" class="btn btn-dark btn-sm" id="btn-save-profil">Enregistrer</button>
+    </div>
+  </div>
+</div>
 
 <!-- Lightbox -->
 <div class="lightbox" id="lightbox" onclick="this.classList.remove('open')">
