@@ -844,7 +844,7 @@ hr.sep{border:none;border-top:1px solid #EDE8E0;margin:2rem 0}
 </html>`;
 
   res.setHeader('Content-Type', 'text/html; charset=utf-8');
-  res.setHeader('Cache-Control', 'public, max-age=3600, s-maxage=3600');
+  res.setHeader('Cache-Control', 'public, max-age=0, s-maxage=0, must-revalidate');
   return res.status(200).send(html);
 }
 
