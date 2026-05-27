@@ -133,6 +133,14 @@
     .salary-alts { display:flex; align-items:center; gap:4px; flex-wrap:wrap; }
     .devise-secondary { font-family:var(--font-mono); font-size:10px; color:var(--text-muted); }
     .devise-sep { color:var(--border-strong); font-size:10px; }
+    /* ── Barre de partage ── */
+    .share-bar { display: flex; align-items: center; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
+    .share-label { font-family: var(--font-mono); font-size: 9px; text-transform: uppercase; letter-spacing: .1em; color: var(--text-muted); }
+    .share-btn { display: inline-flex; align-items: center; gap: 5px; padding: 5px 10px; border-radius: 20px; font-family: var(--font-mono); font-size: 10px; font-weight: 600; text-decoration: none; border: 1px solid transparent; cursor: pointer; transition: opacity .15s; white-space: nowrap; }
+    .share-btn:hover { opacity: .8; }
+    .share-btn-wa  { background: #25D366; color: #fff; }
+    .share-btn-li  { background: #0A66C2; color: #fff; }
+    .share-btn-copy { background: var(--bg-card); color: var(--text); border-color: var(--border); }
     @media (max-width: 768px) {
       .detail-hero-inner { grid-template-columns: 1fr; }
       .detail-body { grid-template-columns: 1fr; }
@@ -261,6 +269,11 @@
     // Titre page
     document.title = `${job.title} — Talenco.bj`;
 
+    // URLs de partage
+    const _shareUrl = window.location.href;
+    const _waMsg = encodeURIComponent(`🎯 Offre : ${job.title}\n🏢 ${job.companies?.name ?? 'Entreprise'} — ${job.city ?? ''}\n📋 ${job.contract_type ?? ''}\n\nPostulez sur Talenco.bj :\n${_shareUrl}`);
+    const _liUrl  = encodeURIComponent(_shareUrl);
+
     // Rendu
     document.getElementById('detail-main').innerHTML = `
       <div class="detail-hero">
@@ -283,6 +296,21 @@
               ${job.work_mode && job.work_mode !== 'presentiel' ? `<span class="tag" style="background:rgba(46,125,50,.08);color:#2E7D32;border:1px solid rgba(46,125,50,.2);">${job.work_mode === 'remote' ? 'Télétravail' : 'Hybride'}</span>` : ''}
             </div>
             <p class="text-muted" style="font-size:11px;">${badgeNouveau.tempsRelatif(job.created_at)}</p>
+            <div class="share-bar">
+              <span class="share-label">Partager</span>
+              <a href="https://wa.me/?text=${_waMsg}" target="_blank" rel="noopener" class="share-btn share-btn-wa">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.109.549 4.09 1.512 5.812L0 24l6.374-1.481A11.953 11.953 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.817 9.817 0 01-5.003-1.372l-.36-.213-3.727.977.994-3.634-.234-.374A9.786 9.786 0 012.182 12C2.182 6.57 6.57 2.182 12 2.182S21.818 6.57 21.818 12 17.43 21.818 12 21.818z"/></svg>
+                WhatsApp
+              </a>
+              <a href="https://www.linkedin.com/sharing/share-offsite/?url=${_liUrl}" target="_blank" rel="noopener" class="share-btn share-btn-li">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+                LinkedIn
+              </a>
+              <button onclick="copierLien()" class="share-btn share-btn-copy" id="btn-copy-link">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" stroke-linecap="round"/></svg>
+                Copier le lien
+              </button>
+            </div>
           </div>
           <div class="detail-sidebar-card">
             <div class="sidebar-info-row">
@@ -620,6 +648,18 @@
     const overlay = document.getElementById('sim-overlay');
     if (overlay) overlay.style.display = 'none';
   };
+
+  function copierLien() {
+    navigator.clipboard.writeText(window.location.href).then(() => {
+      const btn = document.getElementById('btn-copy-link');
+      if (!btn) return;
+      const orig = btn.innerHTML;
+      btn.innerHTML = '✓ Lien copié !';
+      btn.style.background = '#15803d';
+      btn.style.color = '#fff';
+      setTimeout(() => { btn.innerHTML = orig; btn.style.background = ''; btn.style.color = ''; }, 2000);
+    });
+  }
 
   async function chargerSimilaires(secteur, excludeId) {
     if (!secteur) return;
