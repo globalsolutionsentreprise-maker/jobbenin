@@ -118,7 +118,11 @@
 <!-- Mur auth -->
 <div id="auth-wall" style="display:none;flex-direction:column;align-items:center;justify-content:center;min-height:70vh;text-align:center;">
   <h2 style="font-family:'Instrument Serif',serif;font-style:italic;">Accès réservé aux administrateurs</h2>
-  <a href="/index.html" class="btn btn-dark" style="margin-top:20px;">Retour à l'accueil</a>
+  <p style="color:var(--muted);margin:8px 0 20px;">Vous êtes connecté avec un compte sans droits admin.</p>
+  <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;">
+    <button class="btn btn-dark" onclick="seConnecterAdmin()">Se connecter en tant qu'admin</button>
+    <a href="/index.html" class="btn" style="border:1px solid var(--border);">Retour à l'accueil</a>
+  </div>
 </div>
 
 <!-- Dashboard -->
@@ -487,6 +491,11 @@ function showTab(id, btn) {
 }
 
 // ── Auth ────────────────────────────────────────────────
+async function seConnecterAdmin() {
+  await sb.auth.signOut();
+  window.location.href = '/connexion.html?next=/admin.html';
+}
+
 sb.auth.getSession().then(async ({ data: { session } }) => {
   if (!session) { document.getElementById('auth-wall').style.display = 'flex'; return; }
   currentSession = session;
