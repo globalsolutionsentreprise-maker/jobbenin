@@ -516,7 +516,7 @@
     if (label) label.style.opacity = '.5';
     try {
       const ext  = file.name.split('.').pop() || 'jpg';
-      const path = `logos/${window._companyId}/logo.${ext}`;
+      const path = `${window._companyId}/_logo.${ext}`;
       const { error: upErr } = await window._sbClient.storage
         .from('company-photos')
         .upload(path, file, { upsert: true, contentType: file.type });
